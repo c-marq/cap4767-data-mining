@@ -46,6 +46,74 @@ Runtime → Run all — use this when reopening a saved notebook to restore all 
 
 ---
 
+## Using Markdown in Text Cells
+
+Text cells in Colab use Markdown — a simple formatting language that makes your notebooks readable and professional. Double-click any text cell to edit it. Press Shift + Enter to render it.
+
+### Headings
+```markdown
+# Notebook Title (H1 — use once, at the top)
+## Section Title (H2 — major sections)
+### Subsection Title (H3 — steps within a section)
+```
+
+### Text Formatting
+```markdown
+**bold text**
+*italic text*
+`inline code`
+> This is a callout block — good for notes and warnings
+```
+
+### Lists
+```markdown
+- Bullet item
+- Another item
+  - Indented sub-item
+
+1. Numbered step
+2. Next step
+3. Final step
+```
+
+### Links and Dividers
+```markdown
+[Link text](https://url.com)
+
+---
+```
+
+---
+
+## Building a Table of Contents
+
+A ToC at the top of your notebook makes it easy to navigate — especially for long lab submissions. Colab supports anchor links using heading IDs.
+
+**Step 1 — Add a ToC text cell at the very top of your notebook:**
+```markdown
+## Table of Contents
+1. [Setup & Data Loading](#setup)
+2. [Exploratory Data Analysis](#eda)
+3. [Model Building](#model)
+4. [Results & Evaluation](#results)
+5. [Reflection](#reflection)
+```
+
+**Step 2 — Add a matching anchor tag to each section heading:**
+```markdown
+## 1. Setup & Data Loading <a id="setup"></a>
+## 2. Exploratory Data Analysis <a id="eda"></a>
+## 3. Model Building <a id="model"></a>
+## 4. Results & Evaluation <a id="results"></a>
+## 5. Reflection <a id="reflection"></a>
+```
+
+The `<a id="section-name"></a>` tag creates the anchor the ToC link jumps to. Clicking a ToC entry scrolls directly to that section.
+
+> **Pro tip:** Use a consistent ToC structure across all your lab submissions. It signals professionalism and makes your work significantly easier for the instructor to review and grade.
+
+---
+
 ## Common Errors and Fixes
 
 | Error | Likely Cause | Fix |
