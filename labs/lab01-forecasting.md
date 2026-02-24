@@ -1,6 +1,5 @@
 # Lab 1 — Forecasting with SARIMAX and Prophet
-**CAP4767 Data Mining with Python | Individual Assignment | 20 Points**
-**Due: Sunday, March 15 by 11:59 PM EST**
+**CAP4767 Data Mining with Python | Individual Assignment 
 
 ---
 
