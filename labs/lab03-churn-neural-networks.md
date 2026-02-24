@@ -1,6 +1,5 @@
 # Lab 3 — Churn Analysis: Logistic Regression + Neural Network
 **CAP4767 Data Mining with Python | Individual Assignment | 20 Points**
-**Due: Sunday, April 5 by 11:59 PM EST**
 
 ---
 
