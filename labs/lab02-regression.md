@@ -1,6 +1,5 @@
 # Lab 2 — Regression Pipeline
 **CAP4767 Data Mining with Python | Individual Assignment | 20 Points**
-**Due: Sunday, March 22 by 11:59 PM EST**
 
 ---
 
