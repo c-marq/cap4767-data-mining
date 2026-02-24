@@ -1,6 +1,5 @@
 # Lab 4 — Market Basket Analysis
 **CAP4767 Data Mining with Python | Individual Assignment | 20 Points**
-**Due: Sunday, April 19 by 11:59 PM EST**
 
 ---
 
