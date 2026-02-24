@@ -1,6 +1,5 @@
 # Lab 5 — RFM Applied to a Non-Retail Domain
 **CAP4767 Data Mining with Python | Individual Assignment | 20 Points**
-**Due: Sunday, April 26 by 11:59 PM EST**
 
 ---
 
