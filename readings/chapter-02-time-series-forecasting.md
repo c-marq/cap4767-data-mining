@@ -1,3 +1,4 @@
+*PART I — TIME SERIES: UNDERSTANDING AND FORECASTING PATTERNS OVER TIME*
 # Chapter 2 — Time Series Forecasting: SARIMAX and Prophet
 
 <img width="1408" height="768" alt="image" src="https://github.com/user-attachments/assets/40aa072d-e44d-4102-9aa9-0304c57bcd14" />
