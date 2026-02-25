@@ -1,3 +1,5 @@
+# Part II — Supervised Learning: Predicting Outcomes from Labeled Data
+
 # Chapter 3 — Regression: From Linear Relationships to Logistic Classification
 
 <img width="1408" height="768" alt="image" src="https://github.com/user-attachments/assets/c32aafef-3968-416c-8f3f-bdeadb497598" />
@@ -8,8 +10,6 @@ Nano Banana Pro Prompt: "A young Black man in his mid-20s wearing a fitted charc
 -->
 
 ---
-
-## Part II — Supervised Learning: Predicting Outcomes from Labeled Data
 
 In Part I, you learned to read the story data tells *over time* — decomposing trend and seasonality, testing for stationarity, and forecasting future values with SARIMAX and Prophet. Every question you asked had the same shape: *what will happen next?* And the x-axis was always the same: time.
 
