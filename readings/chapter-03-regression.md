@@ -1,9 +1,11 @@
+# Chapter 3 — Regression: From Linear Relationships to Logistic Classification
+
+<img width="1408" height="768" alt="image" src="https://github.com/user-attachments/assets/c32aafef-3968-416c-8f3f-bdeadb497598" />
+
 <!-- [IMAGE: images/ch03/fig-3-0-regression-holographic-scatter.png]
 Alt text: A young man standing at a holographic display table in a dark analytics lab, dragging a glowing red trend line through a floating scatter plot of blue data spheres, with the line extending into empty space representing prediction
 Nano Banana Pro Prompt: "A young Black man in his mid-20s wearing a fitted charcoal pullover and thin-framed glasses stands at the edge of a large transparent holographic display table in a dimly lit modern analytics lab. Floating above the table surface are hundreds of small glowing data spheres in varying shades of electric blue, clustered loosely along a diagonal path from the lower left to the upper right of the display, with visible noise and scatter. His right hand reaches into the hologram, fingers pinching a bold glowing red laser line and dragging it through the center of the point cloud — the line extends past the last cluster into empty dark space on the right side of the display, projecting into a region where no data points exist yet. A few amber-glowing spheres sit noticeably far from the red line, pulsing softly to flag them as outliers. The holographic display emits a soft blue upward glow that illuminates his face and hands from below, mixed with cool ambient light from recessed ceiling panels. A floating heads-up readout near the upper edge of the hologram displays 'R² = 0.84' in thin glowing sans-serif type. The lab walls are dark charcoal with subtle brushed-metal panel seams. Style: modern tech editorial illustration with crisp vector-influenced rendering, subtle gradients, and a dark navy-and-electric-blue color palette with amber accents. Composition is a medium shot from a slight angle across the table, placing the analyst on the left and the holographic scatter extending to the right, with the red prediction line drawing the eye toward the empty space. No text other than 'R² = 0.84' in the floating readout."
 -->
-
-# Chapter 3 — Regression: From Linear Relationships to Logistic Classification
 
 ---
 
