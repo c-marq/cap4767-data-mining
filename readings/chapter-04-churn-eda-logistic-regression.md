@@ -1,6 +1,10 @@
+*Part II — Supervised Learning: Predicting Outcomes from Labeled Data*
+
 # Chapter 4 — Customer Churn Prediction: EDA, Feature Analysis, and Logistic Regression
 
 *Part II — Supervised Learning: Predicting Outcomes from Labeled Data*
+
+<img width="1408" height="768" alt="image" src="https://github.com/user-attachments/assets/978e52ac-dd23-4953-b828-588376222c6c" />
 
 <!-- [IMAGE: images/ch04/fig-4-0-churn-analyst-intervention.png]
 Alt text: A woman in a burgundy blazer stands in a dark corridor between a crowd of blue holographic silhouettes and an open doorway, her hand raised to stop a cluster of amber silhouettes walking toward the exit while holding a diagnostic panel near one of them
