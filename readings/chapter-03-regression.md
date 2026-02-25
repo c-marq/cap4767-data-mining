@@ -1,4 +1,4 @@
-# Part II — Supervised Learning: Predicting Outcomes from Labeled Data
+*Part II — Supervised Learning: Predicting Outcomes from Labeled Data*
 
 # Chapter 3 — Regression: From Linear Relationships to Logistic Classification
 
