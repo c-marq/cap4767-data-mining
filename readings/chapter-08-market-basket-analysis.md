@@ -1,3 +1,4 @@
+*Part III — Supervised Learning: Predicting Outcomes from Labeled Data*
 # Chapter 8 — Market Basket Analysis: What Do Customers Buy Together?
 
 <img width="1408" height="768" alt="image" src="https://github.com/user-attachments/assets/b3e0e8a2-8641-462d-9e5b-d4d0baf0ae5e" />
