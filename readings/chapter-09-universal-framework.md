@@ -1,12 +1,9 @@
+*Part IV — Advanced Applications and the Universal Framework*
 # Chapter 9 — RFM Across Domains: The Universal Pattern-Discovery Framework
 
-*Part IV — Advanced Applications and the Universal Framework*
-*Maps to Week 7 | Competencies: 5.1–5.5*
 
-<!-- [IMAGE: images/ch09/fig-9-0-universal-pipeline-command-center.png]
-Alt text: Three figures silhouetted against a massive curved display showing a unified data mining pipeline flowing left to right, with technique icons converging at a bright central point and branching to multiple domain icons
-Nano Banana Pro Prompt: "Three figures seen from behind standing in a darkened semi-circular command center, silhouetted against a massive curved wall display that fills the frame from edge to edge. The figure on the left is a young Black man in his mid-20s wearing a fitted charcoal pullover — recognizable from an earlier chapter. The center figure is taller, a woman with her hair up, wearing a structured jacket. The figure on the right is shorter and broader, wearing a henley with sleeves pushed up. All three face the display, weight shifted slightly forward, arms at their sides — not pointing, not presenting, just absorbing. The curved display shows a single horizontal pipeline diagram flowing left to right: on the far left, a glowing amber wave form (representing time series); next, a scatter plot with a red trend line (regression); then a grid of interconnected blue nodes in layers (neural network); then four color-coded customer segment clusters (teal, amber, coral, violet); then a network graph of connected product nodes (market basket); and finally on the far right, the pipeline branches into five smaller streams, each ending at a different domain icon — a graduation cap (education), a water droplet (environment), a ship's wheel (logistics), a heartbeat line (healthcare), and a question mark (student's choice). The convergence point at center glows brightest — warm gold radiating outward. The room is dark charcoal with a polished floor reflecting the display's light. The display itself is the dominant light source — cool blue-white from the pipeline nodes with warm gold from the central convergence point, casting colored light across the figures' backs and the floor. No overhead lighting. Style: modern tech editorial illustration with crisp vector-influenced rendering, subtle gradients, and a dark navy-and-electric-blue color palette with amber accents. Composition is a wide cinematic shot — the three figures occupy the lower third of the frame, the curved display fills the upper two-thirds. The convergence point sits at the exact center of the image. No text, no labels, no annotations anywhere in the image."
--->
+<img width="1408" height="768" alt="image" src="https://github.com/user-attachments/assets/3dcf1a3f-ce9c-4292-b4b9-48d4d899d1d9" />
+
 
 ---
 
