@@ -1,9 +1,8 @@
+*Part II — Supervised Learning: Predicting Outcomes from Labeled Data*
+
 # Chapter 5 — Neural Networks: From Logistic Regression to Deep Learning
 
 <img width="1408" height="768" alt="image" src="https://github.com/user-attachments/assets/6799846b-b7a2-4e50-ab6f-7a9364526c24" />
-
-
-*Part II — Supervised Learning: Predicting Outcomes from Labeled Data*
 
 ---
 
