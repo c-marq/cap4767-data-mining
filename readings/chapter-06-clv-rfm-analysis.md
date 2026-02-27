@@ -1,11 +1,8 @@
+## PART III — UNSUPERVISED LEARNING: DISCOVERING HIDDEN PATTERNS WITHOUT LABELS
+
 # Chapter 6 — Customer Lifetime Value and RFM Analysis
 
-<!-- [IMAGE: images/ch06/fig-6-0-rfm-sorting-tiers.png]
-Alt text: A young Latino man at a futuristic workstation sorting translucent holographic customer profile cards into four glowing tiers — gold, blue, amber, and gray — with a Pareto curve displayed on a large monitor behind him.
-Nano Banana Pro Prompt: "A Latino man in his late 20s with a short fade haircut, wearing a dark charcoal henley with sleeves pushed to his elbows, stands at a futuristic transparent workstation in a modern analytics office. He is actively sorting translucent holographic customer profile cards into four glowing horizontal tiers that float at different heights in front of him. The top tier glows warm gold, the second glows steady blue, the third glows amber, and the bottom tier is dim gray. Each card shows a small human silhouette and three short horizontal bars of varying lengths. His right hand is mid-motion, placing a card into the amber tier while his left hand holds two more cards. Behind him, a large curved monitor displays a smooth cumulative curve rising steeply then flattening — a Pareto chart with a single red dotted vertical line at the 20% mark. The office has dark charcoal walls, a polished concrete floor, and a single window on the right showing a nighttime city skyline with blue and white building lights. The lighting is warm amber from an unseen desk lamp on the left, illuminating his hands and the floating cards, mixed with cool blue backlight from the curved monitor behind him, creating a split-tone effect across the scene. Style: modern tech editorial illustration with crisp vector-influenced rendering, subtle gradients, and a dark navy-and-electric-blue color palette with amber accents. Composition is a medium shot from a slight three-quarter angle, placing the man and the floating tier system as the central focal point, with the Pareto curve monitor as a secondary background element balanced on the right. No text or labels other than the three horizontal bars on each card."
--->
-
-## PART III — UNSUPERVISED LEARNING: DISCOVERING HIDDEN PATTERNS WITHOUT LABELS
+<img width="1408" height="768" alt="image" src="https://github.com/user-attachments/assets/5d606eea-5b52-434a-bae2-55b633f575f5" />
 
 Everything you've built so far — regression models, churn classifiers, neural networks — had one thing in common: a target variable. There was always a right answer in the data. A column called `Churn` or `SalePrice` that told your model what it was trying to predict, and every evaluation metric measured how close you got to that known truth.
 
