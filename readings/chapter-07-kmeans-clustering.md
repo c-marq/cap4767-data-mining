@@ -1,9 +1,9 @@
+*Part III — Supervised Learning: Predicting Outcomes from Labeled Data*
+
 # Chapter 7 — K-Means Clustering and Customer Segmentation Strategy
 
-<!-- [IMAGE: images/ch07/fig-7-0-observing-clusters.png]
-Alt text: A woman in her mid-40s with auburn hair and a charcoal blazer stands in a dark analytics command room, observing a large holographic 3D scatter plot with five distinct color-coded clusters rotating in the air. A laptop on a glass desk below shows an elbow curve chart.
-Nano Banana Pro Prompt: "A white woman in her mid-40s with shoulder-length auburn hair stands in a dark modern analytics command room, observing a large holographic 3D scatter plot rotating slowly in the air in front of her at chest height. She wears a tailored charcoal blazer with a teal silk scarf and stands with her arms loosely crossed, head tilted slightly to the right, studying the display with focused attention. The holographic scatter plot shows five distinct clusters of glowing data points — each cluster a different color: warm gold, electric blue, teal green, soft coral, and cool violet. The clusters are clearly separated with visible dark gaps between them, and each cluster forms a tight spherical grouping. Faint translucent lines connect each point to the center of its cluster, like spokes in a wheel. Below the holographic display, a long glass-topped desk holds a single open laptop with a visible elbow curve chart on its screen — a descending line that bends sharply at the fourth point. The room has dark charcoal walls with subtle horizontal paneling. The primary lighting comes from the holographic scatter plot itself — each cluster casts a soft colored glow on the woman's face and blazer, creating a multicolor ambient light effect. A single recessed ceiling spotlight adds a cool white rim light along her shoulders. No windows. Style: modern tech editorial illustration with crisp vector-influenced rendering, subtle gradients, and a dark navy-and-electric-blue color palette with amber accents. Composition is a medium-wide shot from a slight low angle, placing the woman on the right third of the frame and the holographic clusters occupying the center and left two-thirds. The laptop elbow curve is a small secondary detail in the lower-right. No text or labels anywhere in the image."
--->
+<img width="1408" height="768" alt="image" src="https://github.com/user-attachments/assets/220d172d-96b8-406e-a1e8-e607a575220f" />
+
 
 ## 7.1 The Business Problem
 
