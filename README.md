@@ -48,7 +48,6 @@ You don't need to know Git commands for this course. Simply:
 | [`case-studies/`](case-studies/) | Midterm and final project materials | Major assessments |
 | [`data/`](data/) | Datasets used across multiple chapters | Reference as needed |
 | [`resources/`](resources/) | Slides, cheat sheets, helpful links | Reference as needed |
-| [`solutions/`](solutions/) | Exercise and lab solutions | Released after deadlines |
 
 ---
 
@@ -177,7 +176,6 @@ When asking for help with code:
 
 * **Do not fork this repository** — Simply access it directly
 * **Submissions go to Canvas** — Never submit work via GitHub
-* **Solutions are released after deadlines** — Check the `solutions/` folder
 * **Materials may be updated** — Refresh your browser to see the latest versions
 * **Group exercise notebooks** — Work together in class, each student submits individually via Canvas
 
