@@ -169,9 +169,9 @@ graph TD
 
 ### Choosing Between Models
 
-Here's the honest truth that every semester someone asks about: there is no universally better model. The right choice depends on your data and your situation.
+Here's the honest truth that someone always asks about: there is no universally better model. The right choice depends on your data and your situation.
 
-SARIMAX tends to win when the data has stable, well-behaved seasonality and a smooth trend — exactly the kind of clean quarterly pattern you see in tourism data. It's also more interpretable: the (p, d, q) parameters tell you *how* the model is learning, and the coefficients are statistically testable.
+SARIMAX tends to win when the data has stable, well-behaved seasonality and a smooth trend — exactly the kind of clean quarterly pattern you see in tourism data — as long as the model is told about the trend. Section 2.4 shows what happens when it isn't. It's also more interpretable: the (p, d, q) parameters tell you *how* the model is learning, and the coefficients are statistically testable.
 
 Prophet tends to win when the data has multiple seasonalities at different frequencies (daily + weekly + yearly), when the trend changes abruptly at known points, when there are gaps or irregular observations, or when you need to get a reasonable forecast quickly without deep statistical expertise.
 
@@ -187,7 +187,7 @@ Prophet tends to win when the data has multiple seasonalities at different frequ
 
 You'll evaluate your forecasts with two complementary metrics.
 
-**RMSE (Root Mean Squared Error)** measures the average magnitude of prediction errors *in the original units of your data*. If your model forecasts quarterly tourism trips and RMSE = 280, that means your predictions are off by about 280 trips per quarter on average. RMSE is what the business cares about — it answers "how wrong could this forecast be?" and lets the revenue manager build a buffer into the budget.
+**RMSE (Root Mean Squared Error)** measures the average magnitude of prediction errors *in the original units of your data*. If your model forecasts quarterly visitor nights (in millions) and RMSE = 2.8, that means your predictions are off by about 2.8 million visitor nights per quarter on average. RMSE is what the business cares about — it answers "how wrong could this forecast be?" and lets the revenue manager build a buffer into the budget.
 
 **R² (R-squared)** measures what proportion of the variance in the data the model explains, on a scale from 0 to 1 (or 0% to 100%). An R² of 0.87 means the model captures 87% of the patterns in the data — the remaining 13% is noise or unexplained variation. R² is what the analyst cares about — it answers "how much of what's happening does this model actually understand?" and enables fair comparison between models.
 
@@ -207,7 +207,7 @@ The dataset contains 48 quarterly observations spanning 1999 through 2010 — tw
 # Load the Australian Tourism Quarterly dataset
 import pandas as pd
 
-url = "https://raw.githubusercontent.com/c-marq/cap4767-data-mining/main/week02_forecasting_sarimax_prophet/data/australian-international-tourism-quarterly.csv"
+url = "https://raw.githubusercontent.com/c-marq/cap4767-data-mining/main/data/australia-international-visitor-nights-quarterly.csv"
 df = pd.read_csv(url, parse_dates=["Quarter"], index_col="Quarter")
 df = df.asfreq("QS")  # Enforce quarterly start frequency
 
@@ -223,23 +223,23 @@ print(df.head(8))
 # Date range: 1999-01 to 2010-10
 #
 # First 8 rows:
-#             Trips
+#             VisitorNights
 # Quarter
-# 1999-01-01   3432
-# 1999-04-01   3294
-# 1999-07-01   3587
-# 1999-10-01   3720
-# 2000-01-01   3568
-# 2000-04-01   3410
-# 2000-07-01   3735
-# 2000-10-01   3854
+# 1999-01-01        30.0525
+# 1999-04-01        19.1485
+# 1999-07-01        25.3177
+# 1999-10-01        27.5914
+# 2000-01-01        32.0765
+# 2000-04-01        23.4880
+# 2000-07-01        28.4759
+# 2000-10-01        35.1238
 ```
 
-Each row represents one quarter. The `Trips` column contains the total number of international holiday trips to Australia for that quarter. Notice the pattern even in these first eight rows: Q3 (July) and Q4 (October) consistently run higher than Q1 (January) and Q2 (April). That's the seasonal signature we'll be modeling.
+Each row represents one quarter. The `VisitorNights` column contains the total number of nights, in millions, that international tourists spent in Australia during that quarter, as reported by Tourism Research Australia. Notice the pattern even in these first eight rows: Q2 (April) is the lowest quarter in both years, and the quarters on either side of the Australian summer, Q4 (October) and Q1 (January), run highest. Across all twelve years, Q1 is the peak quarter in eleven of them and Q2 is the low point in every one. That's the seasonal signature we'll be modeling.
 
 The data is clean — no missing values, no outliers that need removal. The main preparation step is ensuring the datetime index has the correct frequency (`QS` for quarter start), which we've already done. This dataset is ready for modeling.
 
-🤔 **Think About It:** Why do Q3 and Q4 show higher tourism numbers in Australia? Remember — Australia is in the Southern Hemisphere. Their Q3 (July–September) is winter, and Q4 (October–December) includes spring. International visitors often travel to Australia during the Northern Hemisphere's summer and fall, creating a seasonal pattern that *inverts* what you'd expect in South Florida.
+🤔 **Think About It:** Why would Q1 bring the most visitor nights to Australia and Q2 the fewest? Remember — Australia is in the Southern Hemisphere. Their Q1 (January–March) is summer, and Q2 (April–June) runs into autumn and early winter. Australia's summer falls during the Northern Hemisphere's winter, so a visitor from Europe, North America, or northern Asia can trade cold weather for a beach. That creates a seasonal pattern that *lines up with* South Florida's snowbird-driven Q1 peak rather than inverting it.
 
 ---
 
@@ -291,12 +291,12 @@ Now let's load our data and confirm what Chapter 1 already told us about this se
 
 ```python
 # Load the Australian Tourism dataset
-url = "https://raw.githubusercontent.com/c-marq/cap4767-data-mining/main/week02_forecasting_sarimax_prophet/data/australian-international-tourism-quarterly.csv"
+url = "https://raw.githubusercontent.com/c-marq/cap4767-data-mining/main/data/australia-international-visitor-nights-quarterly.csv"
 df = pd.read_csv(url, parse_dates=["Quarter"], index_col="Quarter")
 df = df.asfreq("QS")
 
 # Quick stationarity check — confirming Chapter 1 findings
-adf_result = adfuller(df["Trips"], autolag="AIC")
+adf_result = adfuller(df["VisitorNights"], autolag="AIC")
 print(f"ADF Test p-value: {adf_result[1]:.4f}")
 if adf_result[1] < 0.05:
     print("→ Data is stationary")
@@ -306,7 +306,7 @@ else:
 
 ```
 # Expected Output:
-# ADF Test p-value: 0.3217
+# ADF Test p-value: 0.9984
 # → Data is non-stationary (as expected — trend + seasonality present)
 ```
 
@@ -327,7 +327,7 @@ The first step in building a SARIMAX model is choosing the (p, d, q)(P, D, Q, m)
 # auto_arima tests many (p,d,q)(P,D,Q,m) combinations
 # and selects the one with the lowest AIC score
 stepwise_model = auto_arima(
-    df["Trips"],
+    df["VisitorNights"],
     seasonal=True,     # We know seasonality exists from Chapter 1
     m=4,               # Quarterly data = 4 periods per year
     suppress_warnings=True,
@@ -356,7 +356,7 @@ print(f"  Seasonal period (m={seasonal_order[3]}): cycle repeats every {seasonal
 # Expected Output:
 # Best non-seasonal order (p, d, q): (1, 0, 0)
 # Best seasonal order (P, D, Q, m): (1, 1, 0, 4)
-# AIC: 567.43
+# AIC: 207.53
 #
 # Interpretation:
 #   AR lags (p=1): model uses 1 recent observation(s)
@@ -393,11 +393,11 @@ Now we'll use those parameters to fit a SARIMAX model, forecast, and evaluate. T
 # Step 1: Temporal train/test split
 # First 36 quarters (9 years) for training, last 12 quarters (3 years) for testing
 train_size = 36
-train_data = df["Trips"].iloc[:train_size]
-test_data = df["Trips"].iloc[train_size:]
+train_data = df["VisitorNights"].iloc[:train_size]
+test_data = df["VisitorNights"].iloc[train_size:]
 
-print(f"Training period: {train_data.index[0].strftime('%Y-Q%q')} to {train_data.index[-1].strftime('%Y-Q%q')}")
-print(f"Testing period:  {test_data.index[0].strftime('%Y-Q%q')} to {test_data.index[-1].strftime('%Y-Q%q')}")
+print(f"Training period: {train_data.index[0].to_period('Q').strftime('%Y-Q%q')} to {train_data.index[-1].to_period('Q').strftime('%Y-Q%q')}")
+print(f"Testing period:  {test_data.index[0].to_period('Q').strftime('%Y-Q%q')} to {test_data.index[-1].to_period('Q').strftime('%Y-Q%q')}")
 print(f"Train size: {len(train_data)} quarters | Test size: {len(test_data)} quarters")
 
 # Step 2: Fit SARIMAX using auto_arima's selected parameters
@@ -418,11 +418,11 @@ sarimax_rmse = np.sqrt(mean_squared_error(test_data, sarimax_forecast))
 sarimax_r2 = r2_score(test_data, sarimax_forecast)
 
 print(f"\n--- SARIMAX Evaluation ---")
-print(f"RMSE: {sarimax_rmse:.1f} trips")
+print(f"RMSE: {sarimax_rmse:.1f} million visitor nights")
 print(f"R²:   {sarimax_r2:.4f}")
 print(f"\nInterpretation:")
-print(f"  The model's predictions are off by ~{sarimax_rmse:.0f} trips per quarter on average.")
-print(f"  The model explains {sarimax_r2*100:.1f}% of the variation in tourism trips.")
+print(f"  The model's predictions are off by ~{sarimax_rmse:.0f} million visitor nights per quarter on average.")
+print(f"  The model explains {sarimax_r2*100:.1f}% of the variation in visitor nights.")
 
 # Step 5: Plot the results
 plt.figure(figsize=(12, 5))
@@ -430,9 +430,9 @@ plt.plot(train_data.index, train_data, label="Training Data", color="steelblue")
 plt.plot(test_data.index, test_data, label="Actual (Test)", color="darkorange")
 plt.plot(test_data.index, sarimax_forecast, label="SARIMAX Forecast", 
          linestyle="--", color="green")
-plt.title("SARIMAX Forecast vs Actual Tourism Trips")
+plt.title("SARIMAX Forecast vs Actual Visitor Nights")
 plt.xlabel("Quarter")
-plt.ylabel("Trips")
+plt.ylabel("Visitor nights (millions)")
 plt.legend()
 plt.tight_layout()
 plt.show()
@@ -445,18 +445,18 @@ plt.show()
 # Train size: 36 quarters | Test size: 12 quarters
 #
 # --- SARIMAX Evaluation ---
-# RMSE: 248.3 trips
-# R²:   0.8714
+# RMSE: 6.1 million visitor nights
+# R²:   0.4405
 #
 # Interpretation:
-#   The model's predictions are off by ~248 trips per quarter on average.
-#   The model explains 87.1% of the variation in tourism trips.
+#   The model's predictions are off by ~6 million visitor nights per quarter on average.
+#   The model explains 44.1% of the variation in visitor nights.
 #
 # [Plot: blue training line, orange test line, green dashed forecast line
-#  tracking the actual data with visible seasonal pattern]
+#  with the same seasonal pattern, running below the actual data]
 ```
 
-Look at the forecast plot. The green dashed line follows the general shape of the orange actual line — capturing both the upward trend and the seasonal peaks and valleys. It's not perfect, but an RMSE of ~248 trips on a series that ranges from roughly 3,400 to 5,800 is solid. The model gets the *pattern* right even if the exact magnitudes are slightly off.
+Look at the forecast plot. The green dashed line follows the seasonal shape of the orange actual line, peaking in Q1 and bottoming out in Q2, but it runs below the actual line in all twelve test quarters, and the gap widens each year: about 4.5 million visitor nights in 2008 Q1, 7.5 million in 2009 Q1, and 12.3 million in 2010 Q1. The model gets the seasonal *pattern* right but misses the *growth*. An RMSE of ~6.1 million visitor nights on a series that ranges from roughly 19 to 60 million, with an R² of only 0.44, is a weak result. Keep that widening gap in mind; Example 3 shows where it comes from.
 
 ⚠️ **Common Pitfall:** Never use `train_test_split()` from scikit-learn on time series data. That function shuffles randomly, which destroys the temporal ordering. For time series, always split by time: everything before a cutoff date is training, everything after is testing.
 
@@ -522,15 +522,15 @@ print("    MODEL COMPARISON: SARIMAX vs Prophet")
 print("=" * 55)
 print(f"{'Metric':<25} {'SARIMAX':>12} {'Prophet':>12}")
 print("-" * 55)
-print(f"{'RMSE (trips)':<25} {sarimax_rmse:>12.1f} {prophet_rmse:>12.1f}")
+print(f"{'RMSE (million nights)':<25} {sarimax_rmse:>12.1f} {prophet_rmse:>12.1f}")
 print(f"{'R²':<25} {sarimax_r2:>12.4f} {prophet_r2:>12.4f}")
 print("-" * 55)
 
 # Determine winner
 if sarimax_rmse < prophet_rmse:
-    print(f"\n→ SARIMAX wins on RMSE by {prophet_rmse - sarimax_rmse:.1f} trips")
+    print(f"\n→ SARIMAX wins on RMSE by {prophet_rmse - sarimax_rmse:.1f} million visitor nights")
 else:
-    print(f"\n→ Prophet wins on RMSE by {sarimax_rmse - prophet_rmse:.1f} trips")
+    print(f"\n→ Prophet wins on RMSE by {sarimax_rmse - prophet_rmse:.1f} million visitor nights")
 
 if sarimax_r2 > prophet_r2:
     print(f"→ SARIMAX wins on R² by {(sarimax_r2 - prophet_r2)*100:.2f} percentage points")
@@ -547,15 +547,15 @@ plt.plot(test_data.index, prophet_forecast, label="Prophet Forecast",
          linestyle="--", color="red", linewidth=2)
 plt.title("SARIMAX vs Prophet: Quarterly Tourism Forecast")
 plt.xlabel("Quarter")
-plt.ylabel("Trips")
+plt.ylabel("Visitor nights (millions)")
 plt.legend()
 plt.tight_layout()
 plt.show()
 
-# --- PART C: Future Forecast Using the Best Model ---
+# --- PART C: Future Forecast with SARIMAX ---
 
-# Step 7: Retrain best model on ALL data and forecast 8 quarters ahead
-full_data = df["Trips"]
+# Step 7: Retrain SARIMAX on ALL data and forecast 8 quarters ahead
+full_data = df["VisitorNights"]
 future_quarters = 8
 
 # Retrain SARIMAX on full dataset
@@ -584,7 +584,7 @@ plt.plot(future_index, future_forecast, label="Future Forecast (8 Quarters)",
 plt.axvline(x=full_data.index[-1], color="gray", linestyle=":", alpha=0.7, label="Forecast Start")
 plt.title("Tourism Forecast: 8 Quarters Into the Future")
 plt.xlabel("Quarter")
-plt.ylabel("Trips")
+plt.ylabel("Visitor nights (millions)")
 plt.legend()
 plt.tight_layout()
 plt.show()
@@ -592,7 +592,7 @@ plt.show()
 # Print future forecast values
 print("\n--- Future Quarterly Forecast ---")
 for date, value in zip(future_index, future_forecast):
-    print(f"  {date.strftime('%Y Q%q')}: {value:,.0f} predicted trips")
+    print(f"  {date.to_period('Q').strftime('%Y Q%q')}: {value:,.1f} million predicted visitor nights")
 ```
 
 ```
@@ -600,37 +600,40 @@ for date, value in zip(future_index, future_forecast):
 # =======================================================
 #     MODEL COMPARISON: SARIMAX vs Prophet
 # =======================================================
-# Metric                       SARIMAX      Prophet
+# Metric                         SARIMAX      Prophet
 # -------------------------------------------------------
-# RMSE (trips)                   248.3        312.7
-# R²                            0.8714       0.8106
+# RMSE (million nights)              6.1          2.3
+# R²                              0.4405       0.9205
 # -------------------------------------------------------
 #
-# → SARIMAX wins on RMSE by 64.4 trips
-# → SARIMAX wins on R² by 6.08 percentage points
+# → Prophet wins on RMSE by 3.8 million visitor nights
+# → Prophet wins on R² by 48.00 percentage points
 #
 # [Plot 1: Combined forecast — blue training, orange actual test,
-#  green dashed SARIMAX, red dashed Prophet, both tracking the seasonal pattern]
+#  green dashed SARIMAX, red dashed Prophet, both tracking the seasonal pattern;
+#  red stays close to the actual line, green runs below it]
 #
 # [Plot 2: Full historical data + 8-quarter red dashed future forecast
-#  continuing the upward trend with seasonal oscillation]
+#  repeating the seasonal oscillation at about the 2010 level]
 #
 # --- Future Quarterly Forecast ---
-#   2011 Q1: 5,512 predicted trips
-#   2011 Q2: 5,290 predicted trips
-#   2011 Q3: 5,823 predicted trips
-#   2011 Q4: 6,015 predicted trips
-#   2012 Q1: 5,688 predicted trips
-#   2012 Q2: 5,467 predicted trips
-#   2012 Q3: 6,001 predicted trips
-#   2012 Q4: 6,194 predicted trips
+#   2011 Q1: 59.8 million predicted visitor nights
+#   2011 Q2: 35.5 million predicted visitor nights
+#   2011 Q3: 44.6 million predicted visitor nights
+#   2011 Q4: 46.7 million predicted visitor nights
+#   2012 Q1: 60.1 million predicted visitor nights
+#   2012 Q2: 35.5 million predicted visitor nights
+#   2012 Q3: 44.9 million predicted visitor nights
+#   2012 Q4: 47.0 million predicted visitor nights
 ```
 
-Look at that comparison table. SARIMAX wins on both metrics here — lower RMSE (closer predictions) and higher R² (more variance explained). This isn't surprising: the Australian tourism data has clean, stable quarterly seasonality and a smooth upward trend, which is *exactly* the scenario where classical SARIMA models excel. Prophet's flexibility — its ability to handle messy data, multiple seasonalities, and abrupt trend changes — doesn't give it an advantage when the data is well-behaved.
+Look at that comparison table. Prophet wins on both metrics here: an RMSE of 2.3 million visitor nights against SARIMAX's 6.1, and an R² of 0.92 against 0.44. If you expected SARIMAX to win on clean, stable quarterly data, the plot shows why it didn't. Visitor nights grew year after year from 2003 on, and Prophet's piecewise linear trend carries that growth into the test years. Our SARIMAX model handles the seasonal pattern through seasonal differencing, but the `SARIMAX()` call has no trend term, so its forecasts stay close to the last training year (2007) while the actual series keeps climbing. The model auto_arima fitted did include one, an intercept that acts as the growth term (print `stepwise_model.summary()` to see it), but we passed only its orders to `SARIMAX()`. Choosing a model isn't only about what the data looks like; it's also about whether the model, as you set it up, can represent what the data is doing.
 
-But notice that both models get the *shape* right. In the combined plot, both green and red dashed lines rise and fall with the same quarterly rhythm as the actual data. They disagree on magnitude, not direction. That's the most important finding: the seasonal pattern is real, both models confirm it, and the hotel revenue team can plan around it with confidence.
+But notice that both models get the seasonal *shape* right. In the combined plot, both green and red dashed lines rise and fall with the same quarterly rhythm as the actual data, high in Q1 and low in Q2. They disagree on level, not on the pattern. That's still an important finding: the seasonal pattern is real, both models confirm it, and the hotel revenue team can plan around it with confidence.
 
-⚠️ **Common Pitfall:** Prophet requires very specific column names — `ds` for dates and `y` for values. If you pass `Date` or `Trips` instead, you'll get a `ValueError: Expected columns ds and y`. This catches everyone the first time.
+Part C projects 8 quarters ahead with SARIMAX retrained on all 48 quarters. The same retrain-on-everything step works for Prophet: fit it on the full dataset, then call `make_future_dataframe(periods=8, freq="QS")`.
+
+⚠️ **Common Pitfall:** Prophet requires very specific column names — `ds` for dates and `y` for values. If you pass `Date` or `VisitorNights` instead, you'll get `ValueError: Dataframe must have columns "ds" and "y" with the dates and values respectively.` This catches everyone the first time.
 
 > **Scenario: When the Pattern Breaks**
 >
@@ -655,15 +658,15 @@ But notice that both models get the *shape* right. In the combined plot, both gr
 
 Let's step back from the code and read our outputs the way a hotel revenue manager would.
 
-**What the SARIMAX parameters tell us.** The auto_arima search selected (1,0,0)(1,1,1,4). In plain language: the model uses one recent quarter to predict the next (AR=1), doesn't need non-seasonal differencing (d=0), doesn't use error correction at the short-term level (MA=0), learns from one past year's same-quarter value (seasonal AR=1), applies one round of seasonal differencing to remove the year-over-year seasonal trend (seasonal D=1), and uses one past seasonal error to correct its seasonal predictions (seasonal Q=1). The model is relatively simple — which is a good sign. It means the patterns in this data are clean enough that a straightforward model captures them well.
+**What the SARIMAX parameters tell us.** The auto_arima search selected (1,0,0)(1,1,0,4). In plain language: the model uses one recent quarter to predict the next (AR=1), doesn't need non-seasonal differencing (d=0), doesn't use error correction at the short-term level (MA=0), learns from one past year's same-quarter value (seasonal AR=1), applies one round of seasonal differencing to remove the year-over-year seasonal trend (seasonal D=1), and doesn't use seasonal error correction (seasonal Q=0). The model is relatively simple — which is a good sign. It means the seasonal pattern in this data is clean enough that a straightforward model captures it. What our SARIMAX forecast missed was the growth, not the seasonality.
 
-**What the comparison table tells us.** SARIMAX predicted quarterly tourism within ~248 trips on average, capturing 87% of the data's variance. Prophet was less precise at ~313 trips and 81% variance explained. Both models agree that tourism follows a clear upward trend with consistent Q3/Q4 peaks. The ~65-trip gap in RMSE between the two models represents the practical difference — meaningful but not dramatic. If you were making a one-time decision, either model would point you in the same direction.
+**What the comparison table tells us.** Prophet predicted quarterly visitor nights within ~2.3 million on average, capturing 92% of the test period's variance. SARIMAX was much less precise at ~6.1 million and 44% variance explained. Both models agree on the seasonal pattern, with Q1 peaks and Q2 lows, but only Prophet carried the upward trend into the test years; SARIMAX under-forecast every one of the twelve test quarters. The ~3.8 million gap in RMSE is large: SARIMAX's typical error is more than two and a half times Prophet's. If you were making a one-time decision, the two models would agree on *which* quarters are busy but not on *how busy* they will be.
 
-**What the future forecast tells us.** The 8-quarter projection shows tourism continuing to grow, with the familiar seasonal oscillation. Q3 and Q4 consistently run ~500–700 trips above Q1 and Q2. The model projects 2012 Q4 at roughly 6,194 trips — about 5% above the last observed Q4 in 2010. That's a modest, reasonable growth rate that passes the sniff test.
+**What the future forecast tells us.** The 8-quarter projection keeps the familiar seasonal oscillation: Q1 runs about 24 million visitor nights above Q2 in both forecast years, with Q3 and Q4 in between. But it shows almost no growth. The model projects 2012 Q4 at roughly 47.0 million visitor nights, essentially the same as the last observed Q4 in 2010, and 2012 Q1 at 60.1 million, less than 1% above 2010 Q1. That fails the sniff test: annual visitor nights rose every year from 2003 to 2010. It's the same missing growth term that cost SARIMAX the comparison, and a reminder to check any forecast against recent history before you hand it to a budget committee.
 
-**Connecting back to the hotel.** For our Miami Beach hotel revenue manager, these results translate directly to action. The seasonal pattern is real — confirmed by both models — so staffing and inventory should follow the same quarterly rhythm. The upward trend means year-over-year growth in demand, justifying the lobby renovation investment. And the difference between the two models' forecasts provides a natural *range* for budgeting: plan for the conservative estimate, budget a contingency for the optimistic one.
+**Connecting back to the hotel.** For our Miami Beach hotel revenue manager, these results translate directly to action. The seasonal pattern is real — confirmed by both models — so staffing and inventory should follow the same quarterly rhythm. The upward trend means year-over-year growth in demand, justifying the lobby renovation investment, as long as the forecast you budget with actually carries that growth forward; Prophet's did and our SARIMAX's did not. And the difference between the two models' forecasts provides a natural *range* for budgeting: plan for the conservative estimate, budget a contingency for the optimistic one.
 
-💡 **Key Insight:** The most valuable output of a forecasting exercise isn't a single number — it's the *range* between different credible models. When SARIMAX says 5,800 and Prophet says 5,550 for the same quarter, the revenue team doesn't pick one. They plan for something in that range and prepare contingencies for both ends.
+💡 **Key Insight:** The most valuable output of a forecasting exercise isn't a single number — it's the *range* between different credible models. When SARIMAX says 46.7 million visitor nights and Prophet says 51.5 million for the same quarter (2008 Q1, the first quarter of our test period), the revenue team doesn't pick one. They plan for something in that range and prepare contingencies for both ends.
 
 ---
 
@@ -673,48 +676,32 @@ Before this chapter, the revenue team had a time series and a gut feeling about 
 
 Here's what the business can *do* now:
 
-**Set quarterly staffing levels.** The forecast shows Q3 and Q4 running 15–18% above Q1 and Q2. Housekeeping contracts, front desk scheduling, and restaurant staffing can follow that pattern instead of the flat annual average that wastes money in slow quarters and burns out staff in busy ones.
+**Set quarterly staffing levels.** The forecast shows Q1 running 68–69% above Q2. Housekeeping contracts, front desk scheduling, and restaurant staffing can follow that pattern instead of the flat annual average that wastes money in slow quarters and burns out staff in busy ones.
 
 **Time capital expenditures.** The model identifies the lowest-demand quarter in the forecast horizon. That's when the 15-room renovation should happen — minimizing revenue loss during the construction period.
 
-**Allocate marketing spend dynamically.** If Q2 is forecast to be the weakest quarter, that's where incremental marketing spend has the most room to move the needle. Spending heavily in Q3, when guests are already coming, is less efficient.
+**Allocate marketing spend dynamically.** If Q2 is forecast to be the weakest quarter, that's where incremental marketing spend has the most room to move the needle. Spending heavily in Q1, when guests are already coming, is less efficient.
 
 **Build an honest budget range.** Instead of one number, the revenue team can present a "SARIMAX scenario" and a "Prophet scenario" — a conservative and a moderate projection — and build operational plans for both. This is more honest and more useful than false precision.
 
-But this raises a new question. Everything we've predicted so far has been about *the same variable* — future tourism from past tourism, future trips from past trips. We're looking at one column and projecting it forward. What if the hotel wants to predict something *different* — not how many guests will arrive, but which specific guests are likely to cancel their reservation? Or what price a competitor's room should sell for given its amenities? That requires predicting one variable *from other variables* — and it's the domain of **supervised learning**, which begins in the next chapter with the most foundational predictive model in all of statistics: **regression**.
+But this raises a new question. Everything we've predicted so far has been about *the same variable* — future tourism from past tourism, future visitor nights from past visitor nights. We're looking at one column and projecting it forward. What if the hotel wants to predict something *different* — not how many guests will arrive, but which specific guests are likely to cancel their reservation? Or what price a competitor's room should sell for given its amenities? That requires predicting one variable *from other variables* — and it's the domain of **supervised learning**, which begins in the next chapter with the most foundational predictive model in all of statistics: **regression**.
 
 ---
 
 ## 2.7 Chapter Lab
 
-### Lab 1: Forecasting with SARIMAX and Prophet on a Dataset of Your Choice
+### Lab 1: Time Series Exploration & Forecasting
 
-**Objective:** Apply the complete SARIMAX + Prophet forecasting pipeline from Chapters 1 and 2 to a new time series dataset. Evaluate both models, visualize the forecasts, and write a model selection recommendation.
+Lab 1 applies the full Chapter 1 and Chapter 2 pipeline to the **Florida Hotel Occupancy** dataset (quarterly, 2005–2024). Choose **one numeric column** as your forecasting target, any column except `occupancy_rate_pct`, and take it from exploration through a SARIMAX vs Prophet comparison and a future forecast. The data is quarterly, so use m = 4. The lab is worth **20 points**.
 
-This lab spans the skills from both Chapter 1 (decomposition, stationarity testing, rolling windows) and Chapter 2 (SARIMAX fitting, Prophet fitting, model comparison).
+- Starter notebook: [labs/lab01_forecasting.ipynb](https://github.com/c-marq/cap4767-data-mining/blob/main/labs/lab01_forecasting.ipynb)
+- Instructions and point breakdown: [labs/lab01-forecasting.md](https://github.com/c-marq/cap4767-data-mining/blob/main/labs/lab01-forecasting.md)
 
-**Choose your dataset** (select one):
+### Extra Practice (Optional): Monthly U.S. Electricity Production
 
-1. **Monthly U.S. Electricity Production** (408 rows, 1985–2018) — monthly data with clear summer/winter peaks and a long-term growth trend. Use m=12 for monthly seasonality.
-   - URL: `https://raw.githubusercontent.com/c-marq/cap4767-data-mining/main/week02_forecasting_sarimax_prophet/data/monthly-us-electricity-production.csv`
+For more practice at a different frequency, run the same pipeline on the Federal Reserve's monthly industrial production index for U.S. electric and gas utilities (FRED series IPG2211A2N, index 2017 = 100, not seasonally adjusted). The file has 408 monthly observations from January 1985 through December 2018, in two columns, `Month` and `Production`. It has a winter peak, a second peak in summer, and a long-term growth trend that levels off after the mid-2000s. Use m = 12 for monthly seasonality. Load it the same way as the tourism data, with `parse_dates=["Month"], index_col="Month"` and `.asfreq("MS")`.
 
-2. **Florida Hotel Occupancy** (quarterly, seasonal pattern reflecting tourism cycles) — South Florida-specific with hurricane season effects and snowbird peaks. Use m=4.
-
-3. **NOAA Monthly Temperature Data** (monthly, clear annual cycle) — straightforward annual seasonality with no trend. Use m=12.
-
-**Milestones:**
-
-1. **Load and Explore** — Load your dataset, print shape and date range, visualize the time series, and run the ADF test. Is the series stationary or non-stationary?
-2. **Decompose** — Run `seasonal_decompose()` and interpret the trend, seasonal, and residual components in a markdown cell. What patterns do you see?
-3. **Train/Test Split** — Split your data temporally. In a markdown cell, justify your split ratio (how many observations for training, how many for testing, and why).
-4. **SARIMAX** — Run `auto_arima` to find optimal parameters. Fit SARIMAX, forecast the test period, and calculate RMSE and R².
-5. **Prophet** — Fit Prophet with appropriate parameters (adjust `seasonality_mode`, `yearly_seasonality`, and `m` for your dataset). Forecast the same test period and calculate RMSE and R².
-6. **Compare** — Build a side-by-side comparison table and a combined forecast plot showing both models' predictions overlaid on the actual data.
-7. **Recommend** — In a markdown cell (minimum 150 words), explain which model you would recommend for this dataset and why. Reference the RMSE and R² values, the forecast plots, and the characteristics of your data. Discuss at least one situation where you might choose the other model instead.
-
-**Starter code hint:** You can reuse the `sarimax_model()` and `plot_forecast()` function patterns from the demo, but adapt them for your dataset's frequency and seasonal period.
-
-**Deliverable:** Completed Colab notebook submitted to Canvas. Notebook must run top-to-bottom without errors.
+- URL: `https://raw.githubusercontent.com/c-marq/cap4767-data-mining/main/data/us-electricity-production-monthly.csv`
 
 ---
 
@@ -796,7 +783,7 @@ d) The models are essentially identical in performance
 
 **1.** Think about a dataset from your own job, hobby, or daily life that has a time-based pattern — it could be sales, attendance, website traffic, workout frequency, or anything else. What would Recency, Frequency, and the seasonal pattern look like in that data? Which forecasting approach (SARIMAX or Prophet) do you think would be more appropriate, and why?
 
-**2.** Our SARIMAX model beat Prophet on the Australian tourism dataset. But imagine the tourism data included a sudden disruption — like a global pandemic in 2020 that dropped trips to near zero for two quarters before a gradual recovery. How would each model handle this disruption? Which model's approach to trend changes (SARIMAX's differencing vs Prophet's changepoint detection) would adapt faster?
+**2.** Prophet beat our SARIMAX model on the Australian tourism dataset. But imagine the tourism data included a sudden disruption — like a global pandemic in 2020 that dropped visitor nights to near zero for two quarters before a gradual recovery. How would each model handle this disruption? Which model's approach to trend changes (SARIMAX's differencing vs Prophet's changepoint detection) would adapt faster?
 
 **3.** Consider a scenario where a forecast is used to make a high-stakes business decision — like the hotel renovation timing or the car rental fleet positioning from the Scenario Boxes. When a model produces a point forecast (a single number), how should a decision-maker think about the uncertainty around that number? Is a forecast that's sometimes wrong still useful? When would you *not* trust a forecast, even if the RMSE and R² look good?
 
@@ -827,4 +814,4 @@ d) The models are essentially identical in performance
 
 *Next Chapter: Chapter 3 — Regression: From Linear Relationships to Logistic Classification*
 
-In Chapter 3, we cross into **Part II: Supervised Learning**. So far, we've predicted future values of the *same* variable — tourism from past tourism, trips from past trips. That's forecasting: extending a single time series into the future. But what if we want to predict something *different entirely* — like what a house should sell for based on its square footage, bedrooms, and neighborhood? Or whether a customer will churn based on their contract type and monthly charges? That requires a fundamentally different approach: using *multiple input variables* to predict a *target outcome*. It starts with the simplest, most interpretable predictive model in statistics — and the one every more complex model is compared against.
+In Chapter 3, we cross into **Part II: Supervised Learning**. So far, we've predicted future values of the *same* variable — tourism from past tourism, visitor nights from past visitor nights. That's forecasting: extending a single time series into the future. But what if we want to predict something *different entirely* — like what a house should sell for based on its square footage, bedrooms, and neighborhood? Or whether a customer will churn based on their contract type and monthly charges? That requires a fundamentally different approach: using *multiple input variables* to predict a *target outcome*. It starts with the simplest, most interpretable predictive model in statistics — and the one every more complex model is compared against.
