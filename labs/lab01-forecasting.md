@@ -1,55 +1,34 @@
-# Lab 1 — Forecasting with SARIMAX and Prophet
+# Lab 1 — Time Series Exploration & Forecasting
 **CAP4767 Data Mining with Python | Individual Assignment | 20 points**
 
 ---
 
 ## Overview
-In class you built forecasting models on the Australian Tourism dataset as a group. Now you will apply the same workflow independently to a different dataset — demonstrating that you can transfer the skill, not just follow along.
+In class your group forecast hotel occupancy (`occupancy_rate_pct`) on the Florida Hotel Occupancy dataset. Now you will apply the same workflow independently to a different column of that dataset, demonstrating that you can transfer the skill, not just follow along.
 
 This lab is completed individually. Your notebook must reflect your own work and your own interpretation.
 
 ---
 
 ## Your Dataset
-Choose **one** of the following:
-
-| Dataset | Source | Description |
-|---------|--------|-------------|
-| Air Passengers | Available in statsmodels | Monthly international airline passengers, 1949–1960 |
-| Monthly Retail Sales | Kaggle | US monthly retail sales by category |
-| Energy Consumption | Kaggle | Hourly or daily power consumption data |
-
-You may also use any time series dataset of your choice with instructor approval — message via Canvas Inbox before starting if you want to use a different dataset.
+**Florida Hotel Occupancy**: quarterly data from 2005 to 2024 (80 observations, 10 columns). The starter notebook loads it for you. Choose **one numeric column** as your forecasting target. Do not use `occupancy_rate_pct`; that was the group exercise target.
 
 Starter notebook: `https://github.com/c-marq/cap4767-data-mining/blob/main/labs/lab01_forecasting.ipynb`
 
+The starter notebook has the full instructions for every task.
+
 ---
 
-## Tasks
+## Tasks and Points
 
-**Task 1 — Load and explore your dataset**
-Load your chosen dataset. Set the datetime index. Plot the raw series. In a markdown cell, describe what you observe: trend, seasonality, any anomalies.
+| Part | Tasks | Points |
+|------|-------|--------|
+| A: Exploration (Module 1 skills) | A1 Time series plot · A2 Rolling windows · A3 Resampling · A4 ADF stationarity test · A5 Seasonal decomposition (1.6 points each) | 8 |
+| B: Forecasting (Module 2 skills) | B1 Train/test split · B2 SARIMAX forecast · B3 Prophet forecast · B4 Model comparison · B5 Future forecast (1.6 points each) | 8 |
+| C: Reflection | C1 Model analysis · C2 Real-world application (2 points each) | 4 |
+| **Total** | | **20** |
 
-**Task 2 — Decompose the series**
-Run `seasonal_decompose`. Plot all four components. In a markdown cell, describe each component in 1–2 sentences.
-
-**Task 3 — Test for stationarity**
-Run the ADF test. Is the series stationary? If not, difference it and test again. Document your steps.
-
-**Task 4 — Build a SARIMAX model**
-Use `auto_arima` to find parameters. Fit SARIMAX on the training set (80%). Generate forecasts for the test period. Plot actual vs. predicted. Calculate RMSE and MAPE.
-
-**Task 5 — Build a Prophet model**
-Reformat the data for Prophet. Fit and forecast the same test period. Plot the forecast with components. Calculate RMSE and MAPE.
-
-**Task 6 — Compare the models**
-Build a comparison table: SARIMAX vs. Prophet with RMSE and MAPE. Plot both forecasts on the same chart alongside actuals.
-
-**Task 7 — Write your analysis**
-In a final markdown cell (minimum 150 words), answer:
-- Which model performed better on your dataset and why?
-- What characteristics of your specific dataset might explain the difference?
-- If a business needed a 12-month forecast from this data, which model would you recommend and why?
+This lab rewards **process over perfection**. If your code doesn't work but you explain what you tried and what went wrong, you earn most of the points.
 
 ---
 
@@ -66,13 +45,3 @@ Submit via Canvas.
 **File naming:** `LastName_FirstName_Lab01.ipynb`
 
 **What to submit:** Your completed Colab notebook downloaded as .ipynb. All cells must be run with outputs visible before downloading.
-
----
-
-## Rubric
-
-| Criterion | Excellent (20) | Good (14–16) | Needs Work (6–8) |
-|-----------|---------------|-------------|-----------------|
-| **Technical completeness** (8 pts) | All 7 tasks complete, both models built and evaluated with correct metrics | Most tasks complete, one model has minor issues | Missing tasks or metrics not calculated |
-| **Interpretation quality** (8 pts) | Every output explained, final analysis is specific and evidence-based, 150+ words | Most outputs explained, analysis present but general | Little to no explanation, or analysis missing |
-| **Code quality and documentation** (4 pts) | Runs cleanly, markdown cells between every task, logical structure | Mostly runs, some markdown present | Does not run or no markdown |
