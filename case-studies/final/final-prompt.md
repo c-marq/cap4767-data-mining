@@ -2,6 +2,7 @@
 
 **Timing:** assigned with Module 8 and presented in class at the end of the course. Dates are in Canvas.
 **Points:** 200
+**Format:** groups of three (groups of two or four only with instructor approval)
 
 ---
 
