@@ -1,78 +1,47 @@
-# Group Exercise 5 — RFM + K-Means Customer Segmentation
+# Modules 6–7 Group Exercise — RFM + K-Means on a New Dataset
 **CAP4767 Data Mining with Python | Modules 6–7 | 10 Points**
 
 ---
 
-## Objective
-Calculate RFM scores, compute Customer Lifetime Value, and use K-Means clustering to discover natural customer segments in a retail transaction dataset. Then translate those segments into a business strategy your group can defend.
+## Overview
+Your group runs the complete RFM + K-Means pipeline on a different dataset from the demo, applying what you learned in both sessions: RFM scoring, manual segmentation, K-Means clustering, and segment comparison. Before coding, the group discusses what Recency, Frequency, and Monetary mean for the new dataset and whether you expect revenue concentration to be more or less extreme than in the Online Retail II demo dataset. The deliverable is the completed notebook plus a 3-minute presentation. Groups self-assign four roles: Lead Coder, Data Interpreter, Presenter, and QA Reviewer.
 
 ---
 
 ## Your Dataset
-**Online Retail II** — 500,000+ transactions from a UK-based retailer, 2009–2011.
+Choose **one** of two options. Run the setup cell without modifying it (it provides the `segment_customer()` function from the demo), then uncomment ONE dataset option in the data loading cell and run it.
+
+**Option A: Brazilian E-Commerce (Olist)**, about 100K orders. More challenging: it requires merging 3 tables (orders, customers, payments). Use `customer_unique_id` (not `customer_id`) because one person can have multiple customer IDs; revenue is `payment_value`. The notebook loads three files from this base URL:
+
+`base = "https://raw.githubusercontent.com/c-marq/cap4767-data-mining/refs/heads/main/data"`
+
+- `{base}/olist_customers_dataset.csv`
+- `{base}/olist_orders_dataset.csv`
+- `{base}/olist_order_payments_dataset.csv`
+
+**Option B: Restaurant Orders**, about 1K orders. Simpler and beginner-friendly. There is no true customer ID, so each order number is treated as a unique customer. This limits RFM interpretation (Frequency will always be 1), and you discuss that limitation in your share-out.
+
+- `https://raw.githubusercontent.com/c-marq/cap4767-data-mining/refs/heads/main/data/restaurant-1-orders.csv`
 
 Starter notebook: `https://github.com/c-marq/cap4767-data-mining/blob/main/exercises/m06-07_group_exercise.ipynb`
 
----
-
-## Group Roles
-Rotate from last week.
-
-| Role | Responsibility |
-|------|---------------|
-| **Lead Coder** | Drives the notebook, shares screen, types the code |
-| **Data Interpreter** | Narrates what each output means in plain English |
-| **QA Reviewer** | Catches errors, checks outputs match checkpoints |
-| **Presenter** | Owns the share-out at the end of class |
+The starter notebook has the full instructions for every task.
 
 ---
 
-## Discussion First (5 minutes before opening Colab)
-As a group, answer this before writing a single line of code:
+## Tasks and Points
 
-> *"Your company has 50,000 customers and a marketing budget for 5,000 personalized emails. How would you decide which 5,000 customers to contact — and what would you say to each group?"*
+| Task | What you do |
+|------|-------------|
+| 1: Calculate RFM Metrics | Set a snapshot date (1 day after the last transaction) · Recency, Frequency, and Monetary per customer · `rfm.describe()` |
+| 2: Assign RFM Scores and Manual Segments | Quintile scores (1–5) for R, F, and M · composite score · apply `segment_customer()` · segment counts and interpretation |
+| 3: Scale Features and Run Elbow Method | `StandardScaler` on the R, F, M scores · K-Means for k = 2 through 8 · inertia plot · chosen k with justification |
+| 4: Fit K-Means and Profile Clusters | Fit with your chosen k · cluster profiling heatmap (mean R, F, M per cluster) · cluster sizes · name each cluster |
+| 5: Compare Manual Segments vs K-Means | Crosstab of manual segments against clusters · interpretation |
+| Six Success Criteria Questions | Answer six short questions about your cleaned dataset, the top segments, revenue concentration, the elbow result, the highest-value cluster, and what K-Means revealed |
+| Share-Out | 3-minute presentation: dataset and R/F/M mapping, one finding from each method, and one business recommendation |
 
-Have the Presenter write a 2–3 sentence answer in the notebook's discussion cell.
-
----
-
-## Tasks
-
-**Step 1 — Load and clean the data**
-Run the setup cell. Remove cancelled orders (InvoiceNo starting with 'C'), negative quantities, and missing CustomerIDs. Print how many rows remain after cleaning.
-
-> 🛑 **Checkpoint:** You should have significantly fewer rows than the raw dataset. If the row count did not change, your filter did not run.
-
-**Step 2 — Calculate RFM metrics**
-Set a snapshot date of one day after the last transaction. Calculate for each customer:
-- **Recency:** Days since last purchase
-- **Frequency:** Number of unique invoices
-- **Monetary:** Total spend
-
-**Step 3 — Calculate Customer Lifetime Value**
-Add a CLTV column: `Frequency × Monetary / Recency`. Print the top 10 customers by CLTV.
-
-**Step 4 — Find the optimal number of clusters**
-Scale the RFM features. Run the Elbow Method for k = 1 to 10. Plot the WCSS curve. As a group, agree on the optimal k and note your reasoning in a markdown cell.
-
-> 🛑 **Checkpoint:** The elbow should be visible between k=3 and k=6. If the curve is perfectly smooth with no bend, check that your data is scaled.
-
-**Step 5 — Fit K-Means and assign segments**
-Fit K-Means with your chosen k. Add a `Cluster` column to the RFM dataframe.
-
-**Step 6 — Profile each cluster**
-Calculate the mean Recency, Frequency, Monetary, and CLTV per cluster. Name each cluster based on its profile (e.g., Champions, At Risk, Lost, New Customers).
-
-**Step 7 — Revisit your discussion answer**
-Return to the marketing budget question. Using your cluster profiles, which segment gets the 5,000 emails — and what is the message? Use specific numbers from your cluster profiles to justify your answer.
-
----
-
-## Share-Out (Last 10 minutes of class)
-The **Presenter** walks the class through:
-1. The cluster profile table — mean RFM values per segment
-2. Your segment names and the reasoning behind each name
-3. Your answer to the marketing budget question with supporting numbers
+The exercise is worth **10 points** in total. The notebook does not assign points to individual tasks.
 
 ---
 
@@ -81,14 +50,4 @@ Each student submits their own copy individually via Canvas.
 
 **File naming:** `LastName_FirstName_Exercise05.ipynb`
 
-**What to submit:** Completed notebook with all cells run, cluster profile table visible, and all markdown discussion cells filled in.
-
----
-
-## Rubric
-
-| Criterion | Excellent (10) | Good (7–8) | Needs Work (3–4) |
-|-----------|---------------|-----------|-----------------|
-| RFM, CLTV, and K-Means complete | All three calculated correctly, clusters profiled and named | Most steps complete, minor calculation issues | Missing major components |
-| Business interpretation | Segment names justified, marketing answer uses specific numbers | Interpretation present, somewhat general | No business interpretation |
-| Code runs without errors | Runs top to bottom cleanly | Minor errors, mostly runs | Does not run |
+**What to submit:** Completed notebook with all cells run and all markdown discussion cells filled in.

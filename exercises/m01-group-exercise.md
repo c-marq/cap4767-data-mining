@@ -1,80 +1,36 @@
-# Group Exercise 1 — Time Series Foundations
+# Module 1 Group Exercise — Analyzing Time-Series Stock Data
 **CAP4767 Data Mining with Python | Module 1 | 10 Points**
 
 ---
 
-## Objective
-Explore a time series dataset as a team. Load the data, visualize the trend and seasonality, and interpret what the patterns mean for a real business decision. This exercise builds the foundational intuition you will need before we add forecasting models in Module 2.
+## Overview
+After the Module 1 demo on Apple stock data and California wildfire records, your group applies the same time-series techniques (date ranges, reindexing, resampling, and rolling windows) to a stock dataset. Before coding, the group discusses what useful information you would lose, and what you might gain, by looking at stock data once per week instead of every day. The exercise is graded on completeness, correctness, and the group discussion response. Groups self-assign four roles: Lead Coder, Data Interpreter, QA Reviewer, and Presenter.
 
 ---
 
 ## Your Dataset
-**Australian Domestic Tourism** — quarterly holiday trips by region, 1998–2017.
+**Stocks (AAPL daily OHLC, 2020)**: daily Apple stock prices for 2020 with the columns `Date`, `Open`, `High`, `Low`, and `Close`. The setup cell loads it as `stockData`; do not modify it.
+
+Load URL: `https://raw.githubusercontent.com/c-marq/cap4767-data-mining/refs/heads/main/data/stocks.csv`
 
 Starter notebook: `https://github.com/c-marq/cap4767-data-mining/blob/main/exercises/m01_group_exercise.ipynb`
 
----
-
-## Group Roles
-Assign one role per person before you start. Roles rotate each week.
-
-| Role | Responsibility |
-|------|---------------|
-| **Lead Coder** | Drives the notebook, shares screen, types the code |
-| **Data Interpreter** | Narrates what each output means in plain English |
-| **QA Reviewer** | Catches errors, checks outputs match checkpoints |
-| **Presenter** | Owns the share-out at the end of class |
-
-Groups of 3: Lead Coder covers QA Reviewer duties.
+The starter notebook has the full instructions for every task.
 
 ---
 
-## Discussion First (5 minutes before opening Colab)
-As a group, answer this before writing a single line of code:
+## Tasks and Points
 
-> *"You work for a hotel chain in Queensland, Australia. A VP asks: 'Should we hire more seasonal staff this summer?' What data would you need to answer that question confidently — and what patterns would you look for?"*
+| Step | Tasks |
+|------|-------|
+| 1: Explore the Data | Display the first five rows of `stockData` |
+| 2: Generate Date Ranges | Every other day in 2020 · every 3 hours in January 2020 · every other Friday in 2020 |
+| 3: Reindex the Data | Set `Date` as the index · reindex to Fridays only (`stockDataFridays`) · plot `Close` |
+| 4: Resample the Data | Downsample to monthly means · plot `Close` |
+| 5: Compute a Rolling Window | 2-week (10 trading day) rolling average on `Close` (`stocksRolling`) · plot it |
+| Share-Out | The Presenter shares one key observation with the class (about 1 minute) |
 
-Have the Presenter write a 2–3 sentence answer in the notebook's discussion cell. You will revisit this answer at the end.
-
----
-
-## Tasks
-
-**Step 1 — Load and inspect the data**
-Run the setup cell. Then explore the dataset: how many rows, how many columns, what are the date ranges, and what does each column represent?
-
-**Step 2 — Set the datetime index**
-Convert the date column to datetime format and set it as the index. Confirm by printing the first and last five rows.
-
-> 🛑 **Checkpoint:** Your index should be a DatetimeIndex. Run `df.index` — if you see integers, you have not set the index yet.
-
-**Step 3 — Plot the raw time series**
-Plot total quarterly trips over the full date range. Give the chart a title and labeled axes. What trend do you observe?
-
-**Step 4 — Decompose the series**
-Use `seasonal_decompose` to break the series into trend, seasonality, and residual components. Plot all four panels.
-
-> 🛑 **Checkpoint:** You should see four stacked subplots. If you see an error about frequency, check that your datetime index has a consistent quarterly frequency.
-
-**Step 5 — Interpret the components**
-In a markdown cell, answer as a group:
-- What is the direction of the trend?
-- How strong is the seasonality? Which quarter peaks?
-- Does the residual look random, or do you see a pattern?
-
-**Step 6 — Test for stationarity**
-Run the ADF test on the raw series. Is it stationary? What does that mean for forecasting?
-
-**Step 7 — Revisit your discussion answer**
-Return to the VP's question from the Discussion section. Does what you found in the data support hiring more seasonal staff? Update your answer with evidence from the decomposition.
-
----
-
-## Share-Out (Last 10 minutes of class)
-The **Presenter** walks the class through:
-1. One visual that best tells the story of this dataset
-2. Your answer to the VP's question — with evidence
-3. One thing your group is still uncertain about
+The exercise is worth **10 points** in total. The notebook does not assign points to individual steps.
 
 ---
 
@@ -83,14 +39,4 @@ Each student submits their own copy individually via Canvas.
 
 **File naming:** `LastName_FirstName_Exercise01.ipynb`
 
-**What to submit:** The completed notebook with all cells run and all markdown discussion cells filled in.
-
----
-
-## Rubric
-
-| Criterion | Excellent (10) | Good (7–8) | Needs Work (3–4) |
-|-----------|---------------|-----------|-----------------|
-| All tasks completed with outputs visible | All 7 steps complete, outputs clean | Most steps complete, minor gaps | Several steps missing or no outputs |
-| Discussion and interpretation cells filled | Thoughtful, specific, evidence-based | Present but general | Missing or one word answers |
-| Code runs without errors | Runs top to bottom cleanly | Minor errors, mostly runs | Does not run |
+**What to submit:** The completed notebook with all cells run, all markdown discussion cells filled in, and your group members listed.

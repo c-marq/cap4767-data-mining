@@ -1,61 +1,45 @@
-# Lab 4 — Market Basket Analysis
-**CAP4767 Data Mining with Python | Individual Assignment | 20 Points**
+# Lab 04 — Market Basket Analysis
+**CAP4767 Data Mining with Python | Individual Assignment | 20 Points (+3 bonus)**
 
 ---
 
 ## Overview
-In class you ran market basket analysis on the Online Retail II dataset as a group. This lab asks you to apply the same technique to a different context — and push further into interpreting and acting on the rules you find.
-
-This lab is completed individually. Your notebook must reflect your own work and your own interpretation.
+In this lab you run a complete Market Basket Analysis pipeline on a dataset of your choice. You identify the top association rules by lift, produce at least two visualizations, and write a 1-page business memo to a non-technical store owner explaining three actionable rules. The lab is completed individually.
 
 ---
 
 ## Your Dataset
-Choose **one** of the following:
+Choose **one** of the following. Uncomment ONE option in the dataset selection cell and run it.
 
-| Dataset | Source | Description |
-|---------|--------|-------------|
-| Groceries | Kaggle / mlxtend examples | 9,835 transactions from a grocery store |
-| Instacart Orders | Kaggle | Online grocery order data with prior purchase history |
-| Bread Basket | Kaggle | Bakery transactions by time of day |
+| Option | Dataset | Difficulty | Notes |
+|--------|---------|------------|-------|
+| A | Instacart | Expert | Download from Kaggle. Multiple CSVs requiring joins. 3.4M+ orders. |
+| B | Brazilian E-Commerce (Olist) | Intermediate | One merge required. Use `product_category_name` as the item. |
+| C | Restaurant Orders | Beginner | Single CSV. Fewer products = higher `min_support`. |
 
-You may also use any transaction dataset of your choice — message via Canvas Inbox before starting.
+Where each option comes from:
+- Option A: download from `https://www.kaggle.com/datasets/yasserh/instacart-online-grocery-basket-analysis-dataset`, upload the CSV files to Colab, and read `order_products__prior.csv`, `products.csv`, and `aisles.csv`. Use `product_name` or `aisle` as the item, and consider subsetting to the first 100K orders for performance.
+- Option B: files under `https://raw.githubusercontent.com/c-marq/cap4767-data-mining/refs/heads/main/data`, namely `olist_order_items_dataset.csv` and `olist_products_dataset.csv`, merged on `product_id`. The transaction ID is `order_id`.
+- Option C: `https://raw.githubusercontent.com/c-marq/cap4767-data-mining/refs/heads/main/data/restaurant-1-orders.csv`
 
 Starter notebook: `https://github.com/c-marq/cap4767-data-mining/blob/main/labs/lab04_market_basket_analysis.ipynb`
 
+The starter notebook has the full instructions for every task.
+
 ---
 
-## Tasks
+## Tasks and Points
 
-**Task 1 — Load and prepare transaction data**
-Load your dataset. Clean it: remove nulls, cancelled orders, and any rows that would corrupt the basket structure. Document every cleaning step and why you made it.
-
-**Task 2 — Build the basket matrix**
-Create a one-hot encoded basket matrix. Print the shape and the first 5 rows. In a markdown cell, explain what one row in this matrix represents.
-
-**Task 3 — Find frequent itemsets**
-Run `apriori`. Experiment with at least two different `min_support` thresholds. Document what happens to the number of itemsets as you change the threshold. Choose a final threshold and justify your choice.
-
-> **Reflection checkpoint:** If your frequent itemsets dataframe is empty, your support threshold is too high. If it has tens of thousands of rows, it is too low. Finding the right threshold is part of the skill — document your process.
-
-**Task 4 — Generate and filter association rules**
-Generate rules using lift as your metric. Filter to rules where confidence > 0.4 AND lift > 1.5. How many rules remain? If you have more than 50, tighten your filter. If you have fewer than 5, loosen it. Document your final thresholds and reasoning.
-
-**Task 5 — Rank and interpret the top 10 rules**
-Sort by lift descending. Print the top 10 rules. For each of the top 3 rules, write one sentence in plain English that a store manager could understand and act on.
-
-**Task 6 — Visualize the rules**
-Create at least two visualizations:
-1. Scatter plot: Support vs. Confidence, colored by Lift
-2. A second visualization of your choice (network graph, heatmap, bar chart of top antecedents)
-
-In a markdown cell, describe what each visualization reveals that the table alone does not.
-
-**Task 7 — Write your strategic recommendation**
-In a final markdown cell (minimum 150 words), write a recommendation for the business whose data you used. Include:
-- Your top 3 actionable rules translated into business language
-- One specific promotion or product placement recommendation with a rationale
-- One rule that looks strong statistically but you would not act on — and why
+| Part | Tasks | Points |
+|------|-------|--------|
+| 1: Data Loading and Cleaning | Task 1.1 Clean the data · Task 1.2 Summary statistics | 3 |
+| 2: Basket Transformation | Task 2.1 One-hot basket matrix, shape and density | 2 |
+| 3: Apriori and Rule Generation | Task 3.1 Run Apriori and justify `min_support` · Task 3.2 Generate and filter rules (lift, `min_threshold=1.5`, a confidence filter of your choice) | 4 |
+| 4: Visualizations (2 of 3) | Task 4.1 Visualization 1 · Task 4.2 Visualization 2 (network graph, support vs confidence scatter, or lift heatmap) | 4 |
+| 5: Business Memo (at least 250 words) | 1-page memo to a non-technical store owner: what you did, three actionable rules, one recommendation to skip | 5 |
+| 6: Reflection | 3–4 sentence reflection on the rules your data revealed | 2 |
+| **Total** | | **20** |
+| Bonus: Temporal Comparison | Run the full pipeline on two time periods and compare the rules (up to 3 extra points, no scaffolding) | +3 |
 
 ---
 
@@ -70,13 +54,3 @@ Submit via Canvas.
 **File naming:** `LastName_FirstName_Lab04.ipynb`
 
 **What to submit:** Your completed Colab notebook downloaded as .ipynb. All cells must be run with outputs visible before downloading.
-
----
-
-## Rubric
-
-| Criterion | Excellent (20) | Good (14–16) | Needs Work (6–8) |
-|-----------|---------------|-------------|-----------------|
-| **Technical completeness** (8 pts) | Basket matrix built, itemsets found, rules generated and filtered, two visualizations present | Most steps complete, one visualization or filtering step missing | Rules not generated or basket matrix incorrect |
-| **Threshold experimentation and reasoning** (6 pts) | Multiple thresholds tested, final choice documented with reasoning | Some experimentation shown, reasoning present but brief | No experimentation, thresholds used without justification |
-| **Business recommendation** (6 pts) | 150+ words, top 3 rules translated clearly, one rule critically evaluated | Recommendation present, translation somewhat technical, no critical evaluation | Missing recommendation or rules not translated to business language |

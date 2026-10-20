@@ -1,74 +1,53 @@
-# Lab 5 — RFM Applied to a Non-Retail Domain
-**CAP4767 Data Mining with Python | Individual Assignment | 20 Points**
+# Lab 05 — RFM Applied to a Non-Retail Domain
+**CAP4767 Data Mining with Python | Individual Assignment | 20 Points (+2 bonus)**
 
 ---
 
 ## Overview
-This is the bridge to your final project. You will apply the RFM framework to a domain of your choosing — outside of retail — and build the analytical foundation you can extend into your capstone. Choose your domain and dataset intentionally. You may use this exact dataset as the basis for your final project.
-
-This lab is completed individually. Your notebook must reflect your own work and your own interpretation.
+In this lab you apply the universal RFM + K-Means framework to a non-retail domain of your choice, then write a 1-page domain brief that translates your findings for a non-technical decision-maker. The lab is completed individually. The domain and dataset you choose may be carried forward as the foundation for your final project.
 
 ---
 
 ## Your Dataset
-You choose. The only requirement is that it is **not retail or e-commerce transaction data** — you have already applied RFM there.
+Choose **one** of the following. Uncomment ONE option in the dataset selection cell.
 
-**Suggested domains:**
+| Option | Dataset | Entity | Suggested R / F / M |
+|--------|---------|--------|---------------------|
+| A | Gym Members | Member | Experience_Level (proxy) / Workout_Frequency / Calories_Burned |
+| B | Blood Donation | Donor | Recency (months) / Frequency (count) / Monetary (cc) |
+| C | Your Own | Your choice | Must be non-retail, 100+ entities, clear R/F/M mapping |
 
-| Domain | Dataset Idea | RFM Mapping |
-|--------|-------------|-------------|
-| Healthcare | Patient visit records | Recency = days since last visit, Frequency = number of visits, Monetary = total charges |
-| Education | LMS activity logs | Recency = days since last login, Frequency = number of logins, Monetary = assignments submitted |
-| Sports | Player or team stats | Recency = days since last game, Frequency = games played, Monetary = points/goals scored |
-| Social Media | Post engagement data | Recency = days since last post, Frequency = post count, Monetary = total likes/shares |
-| Environmental | Sensor or event data | Recency = days since last event, Frequency = event count, Monetary = event magnitude |
-| Public Safety | 311 or incident reports | Recency = days since last incident, Frequency = incident count, Monetary = severity or response time |
-
-**Message via Canvas Inbox before starting if you are unsure whether your domain and dataset work for this lab.**
+Load URLs:
+- Option A: `https://raw.githubusercontent.com/c-marq/cap4767-data-mining/refs/heads/main/data/gym_members_exercise_tracking.csv`
+- Option B: `https://raw.githubusercontent.com/c-marq/cap4767-data-mining/refs/heads/main/data/Blood%20Transfusion%20Service%20data.csv`
+- Option C: the notebook has a `pd.read_csv("YOUR_URL_HERE")` placeholder for your own dataset's URL.
 
 Starter notebook: `https://github.com/c-marq/cap4767-data-mining/blob/main/labs/lab05_rfm_domains.ipynb`
 
+The starter notebook has the full instructions for every task.
+
 ---
 
-## Tasks
+## Tasks and Points
 
-**Task 1 — Define your domain and RFM mapping**
-Before loading any data, write a markdown cell that answers:
-- What domain did you choose and why?
-- What is the "entity" being analyzed (customer equivalent)?
-- What does Recency, Frequency, and Magnitude mean specifically in your domain?
-- What business or research question does this analysis answer?
-
-This cell is graded. Vague answers lose points.
-
-**Task 2 — Load and assess data quality**
-Load your dataset. Document every quality issue you find. This dataset is likely not clean — that is expected and part of the exercise.
-
-**Task 3 — Clean and prepare**
-Address the quality issues. For each decision, explain your reasoning. What assumptions did you make? What did you discard and why?
-
-**Task 4 — Calculate your RFM metrics**
-Calculate the three metrics for each entity in your dataset. Print the top 10 entities by each metric separately. Do the top 10 lists make intuitive sense for your domain?
-
-> **Reflection checkpoint:** If your Recency values are all 0 or all the same, check your snapshot date logic. If Frequency is all 1, check your groupby key.
-
-**Task 5 — Score and segment**
-Use either quintile scoring (1–5 per metric) or K-Means clustering to create segments. Choose the method that fits your domain better and justify your choice in a markdown cell.
-
-**Task 6 — Profile and name your segments**
-Calculate mean metric values per segment. Name each segment in a way that is meaningful for your domain. Create a summary table.
-
-**Task 7 — Write your analysis and final project bridge**
-In a final markdown cell (minimum 200 words), answer:
-- What did you discover about your domain that would not have been obvious without this analysis?
-- Which segment is most interesting or most actionable — and for whom?
-- What are the limitations of applying RFM to this domain?
-- How will you extend this analysis in your final project? What additional technique (forecasting, classification, market basket) could add value to this dataset?
+| Task | What you do | Points |
+|------|-------------|--------|
+| 1: Select and Justify Your Domain | Define your entity, your R, F, and M columns (what "high" and "low" mean, and whether lower Recency is better or worse), and why the mapping is meaningful | 2 |
+| 2: Load and Explore | Shape, `.dtypes`, first 5 rows, and `.describe()` for R, F, M · note data quality concerns | 2 |
+| 3: Calculate and Score RFM | Calculate the three metrics (aggregate if needed) · score each with `pd.qcut()` (or `pd.cut()` with fewer bins) · handle Recency reversal · display the scored table for at least 10 entities | 3 |
+| 4: Check Metric Independence | Correlation matrix for R, F, M · are any pairs above 0.85? | 1 |
+| 5: Cluster with K-Means | `StandardScaler` · elbow method for k = 2 to 8 · fit K-Means with your chosen k and print profiles | 3 |
+| 6: Visualize (2 charts) | Scatter of Frequency vs Magnitude colored by cluster · cluster profile chart (heatmap or grouped bar) | 2 |
+| 7: Name and Interpret Clusters | Domain name, size, profile summary, and recommended action for each cluster | 3 |
+| 8: Domain Brief (at least 300 words) | 1-page memo to a non-technical decision-maker. Sub-rubric: problem statement (1) · method explained (1) · findings with visualization (1) · actionable recommendations (1) · professional tone (1) | 5 |
+| 9: Reflection | 4–5 sentences on applying the framework to a non-retail domain | 2 |
+| **Total** | | **23 (capped at 20 + 2 bonus)** |
+| Bonus Challenge | Run the full pipeline twice, once with your original Magnitude metric and once with a different one, and compare cluster profiles side by side (+2 extra credit, no scaffolding) | +2 |
 
 ---
 
 ## What to Document
-The domain mapping in Task 1 is as important as the code. A clear, thoughtful mapping with well-reasoned segment names demonstrates genuine understanding of the framework. Process documentation throughout earns partial credit even when code has errors.
+Explain your reasoning in the markdown cells, especially your R/F/M mapping (Task 1), your data quality notes (Task 2), and the names you give your clusters (Task 7).
 
 ---
 
@@ -78,13 +57,3 @@ Submit via Canvas.
 **File naming:** `LastName_FirstName_Lab05.ipynb`
 
 **What to submit:** Your completed Colab notebook downloaded as .ipynb. All cells must be run with outputs visible before downloading.
-
----
-
-## Rubric
-
-| Criterion | Excellent (20) | Good (14–16) | Needs Work (6–8) |
-|-----------|---------------|-------------|-----------------|
-| **RFM mapping and domain definition** (6 pts) | Mapping is specific and logical, entity defined clearly, business question stated | Mapping present, entity identified, question somewhat vague | Mapping missing or does not fit the domain |
-| **Technical completeness** (8 pts) | All 7 tasks complete, metrics calculated correctly, segments profiled and named | Most tasks complete, segmentation or naming has minor gaps | RFM not calculated or no segmentation |
-| **Analysis and final project bridge** (6 pts) | 200+ words, insight is domain-specific, limitations addressed, extension plan is concrete | Analysis present, insight somewhat general, extension mentioned but vague | Missing analysis or no final project bridge |
