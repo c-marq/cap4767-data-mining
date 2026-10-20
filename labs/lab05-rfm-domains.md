@@ -26,7 +26,7 @@ You choose. The only requirement is that it is **not retail or e-commerce transa
 
 **Message via Canvas Inbox before starting if you are unsure whether your domain and dataset work for this lab.**
 
-Starter notebook: `https://github.com/c-marq/cap4767-data-mining/blob/main/labs/lab05-rfm-domains.ipynb`
+Starter notebook: `https://github.com/c-marq/cap4767-data-mining/blob/main/labs/lab05_rfm_domains.ipynb`
 
 ---
 

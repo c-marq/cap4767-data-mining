@@ -10,7 +10,7 @@ This repository contains all course materials for CAP4767 Data Mining. Everythin
 
 **Your Canvas course remains the official source for:**
 
-* Due dates and deadlines
+* The calendar and all dates
 * Assignment submissions
 * Grades and feedback
 * Announcements
@@ -23,7 +23,7 @@ Think of this GitHub repo as your **textbook and workbench**. Think of Canvas as
 
 ### First Time Here?
 
-1. **Bookmark this page** — You'll return here weekly
+1. **Bookmark this page** — You'll return here often
 2. **Set up Google Colab** — See [Getting Started Guide](GETTING-STARTED.md)
 3. **Test your setup** — Open any notebook from the `demos/` folder in Colab
 
@@ -53,7 +53,7 @@ You don't need to know Git commands for this course. Simply:
 
 ## 📅 Course Flow
 
-Each week follows this pattern:
+Each module follows this pattern:
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -77,7 +77,7 @@ Each week follows this pattern:
                               ↓
 ┌─────────────────────────────────────────────────────────────────┐
 │  AFTER CLASS                                                    │
-│  ✓ Complete individual lab assignment (weeks assigned)          │
+│  ✓ Complete the individual lab (when one is assigned)           │
 │  ✓ Submit in Canvas                                             │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -86,18 +86,21 @@ Each week follows this pattern:
 
 ## 📚 Chapter Overview
 
-| Week | Chapter | Topic | Key Techniques |
-|------|---------|-------|---------------|
-| 1 | 1 | Time Series Foundations | Rolling windows, resampling, seasonal decomposition |
-| 2 | 2 | Time Series Forecasting | SARIMAX, Prophet, RMSE, R² |
-| 3 | 3 | Regression | Linear, multiple, logistic regression |
-| 4 | 4 | Customer Churn: EDA + Logistic Regression | Cramér's V, Cohen's d, classification report |
-| 4 | 5 | Neural Networks | Keras ANN, confusion matrix, ROC curve |
-| 5 | 6 | RFM + CLTV + K-Means | Customer segmentation, Elbow method, cluster profiles |
-| 6 | 7 | Market Basket Analysis | Apriori, support, confidence, lift, mlxtend |
-| 7 | 8 | RFM Across Domains | Universal framework, sequence analysis, anomaly detection |
-| — | — | **Midterm** — Assigned Week 4 \| Due Week 5 | RFM + CLTV + K-Means pipeline |
-| — | — | **Final** — Assigned Week 6 \| Due Week 8 | Full data mining capstone |
+Module N uses Chapter N. Notebooks are named by module: `m01_demo.ipynb` is the Module 1 demo, and `m04-05_...` covers Modules 4 and 5 together.
+
+| Module | Topic | Key Techniques |
+|--------|-------|---------------|
+| 1 | Time Series Foundations | Rolling windows, resampling, seasonal decomposition |
+| 2 | Time Series Forecasting | SARIMAX, Prophet, RMSE, R² |
+| 3 | Regression | Linear, multiple, logistic regression |
+| 4 | Customer Churn: EDA + Logistic Regression | Cramér's V, Cohen's d, classification report |
+| 5 | Neural Networks | Keras ANN, confusion matrix, ROC curve |
+| 6 | Customer Lifetime Value + RFM | RFM scoring, CLTV |
+| 7 | K-Means Clustering | Customer segmentation, Elbow method, cluster profiles |
+| 8 | Market Basket Analysis | Apriori, support, confidence, lift, mlxtend |
+| 9 | RFM Across Domains | Universal framework, sequence analysis, anomaly detection |
+| — | **Midterm** — assigned with Modules 4–5, presented after Modules 6–7 | RFM + CLTV + K-Means pipeline |
+| — | **Final** — assigned with Module 8, presented at the end of the course | Full data mining capstone |
 
 ---
 

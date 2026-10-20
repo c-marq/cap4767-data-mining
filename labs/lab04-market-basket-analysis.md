@@ -21,7 +21,7 @@ Choose **one** of the following:
 
 You may also use any transaction dataset of your choice — message via Canvas Inbox before starting.
 
-Starter notebook: `https://github.com/c-marq/cap4767-data-mining/blob/main/labs/lab04-market-basket-analysis.ipynb`
+Starter notebook: `https://github.com/c-marq/cap4767-data-mining/blob/main/labs/lab04_market_basket_analysis.ipynb`
 
 ---
 

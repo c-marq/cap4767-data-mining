@@ -21,7 +21,7 @@ Choose **one** of the following:
 
 You may also use any time series dataset of your choice with instructor approval — message via Canvas Inbox before starting if you want to use a different dataset.
 
-Starter notebook: `https://github.com/c-marq/cap4767-data-mining/blob/main/labs/lab01-forecasting.ipynb`
+Starter notebook: `https://github.com/c-marq/cap4767-data-mining/blob/main/labs/lab01_forecasting.ipynb`
 
 ---
 

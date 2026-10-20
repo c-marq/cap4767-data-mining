@@ -1,7 +1,6 @@
 # Midterm Project — CAP4767 Data Mining
 
-**Assigned:** Week 4, Session 1
-**Due:** Week 5, Session 2 (present in class)
+**Timing:** assigned with Modules 4–5 and presented in class after Modules 6–7. Dates are in Canvas.
 **Points:** 130
 
 ---
@@ -16,7 +15,7 @@ Your job: build one.
 
 ## Your Deliverables
 
-Submit three items to Canvas before class on the due date. Be prepared to present.
+Submit three items to Canvas before class on presentation day. Be prepared to present.
 
 ### 1. Colab Notebook (50 points)
 Using the Online Retail II dataset (or an approved alternative), build the complete pipeline:

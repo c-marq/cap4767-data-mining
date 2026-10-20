@@ -1,5 +1,5 @@
 # Group Exercise 5 — RFM + K-Means Customer Segmentation
-**CAP4767 Data Mining with Python | Week 5 | 10 Points**
+**CAP4767 Data Mining with Python | Modules 6–7 | 10 Points**
 
 ---
 
@@ -11,7 +11,7 @@ Calculate RFM scores, compute Customer Lifetime Value, and use K-Means clusterin
 ## Your Dataset
 **Online Retail II** — 500,000+ transactions from a UK-based retailer, 2009–2011.
 
-Starter notebook: `https://github.com/c-marq/cap4767-data-mining/blob/main/exercises/week05-group-exercise.ipynb`
+Starter notebook: `https://github.com/c-marq/cap4767-data-mining/blob/main/exercises/m06-07_group_exercise.ipynb`
 
 ---
 

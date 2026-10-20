@@ -251,11 +251,11 @@ from sklearn.metrics import (mean_squared_error, r2_score,
                              ConfusionMatrixDisplay)
 
 # Load Dataset 1: Washington State Housing
-housing_url = 'https://raw.githubusercontent.com/c-marq/cap4767-data-mining/main/week03_regression/data/housingData.csv'
+housing_url = 'https://raw.githubusercontent.com/c-marq/cap4767-data-mining/main/data/housingData.csv'
 housing = pd.read_csv(housing_url)
 
 # Load Dataset 2: Automobile Specifications
-cars_url = 'https://raw.githubusercontent.com/c-marq/cap4767-data-mining/main/week03_regression/data/cars.csv'
+cars_url = 'https://raw.githubusercontent.com/c-marq/cap4767-data-mining/main/data/cars.csv'
 cars = pd.read_csv(cars_url)
 
 # Load Dataset 3: UCLA Admissions

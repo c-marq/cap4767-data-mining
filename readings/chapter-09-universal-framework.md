@@ -594,10 +594,10 @@ This is the pipeline you will use in the Chapter 9 lab and potentially in your f
 
 # YOUR DATASET — uncomment one or add your own URL
 # Option A: Gym Members Exercise Dataset
-# dataset_url = "https://raw.githubusercontent.com/c-marq/cap4767-data-mining/main/week07_rfm_universal_framework/data/gym_members.csv"
+# dataset_url = "https://raw.githubusercontent.com/c-marq/cap4767-data-mining/main/data/gym_members_exercise_tracking.csv"
 
 # Option B: Blood Donation Service Center
-# dataset_url = "https://raw.githubusercontent.com/c-marq/cap4767-data-mining/main/week07_rfm_universal_framework/data/blood_donation.csv"
+# dataset_url = "https://raw.githubusercontent.com/c-marq/cap4767-data-mining/main/data/Blood%20Transfusion%20Service%20data.csv"
 
 # Option C: Your own dataset
 # dataset_url = "YOUR_URL_HERE"

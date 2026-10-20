@@ -256,7 +256,7 @@ import warnings
 warnings.filterwarnings('ignore')
 
 # Step 2: Load the dataset directly from URL
-url = "https://raw.githubusercontent.com/c-marq/cap4767-data-mining/main/week04_churn_neural_networks/data/WA_Fn-UseC_-Telco-Customer-Churn.csv"
+url = "https://raw.githubusercontent.com/c-marq/cap4767-data-mining/main/data/WA_Fn-UseC_-Telco-Customer-Churn.csv"
 df = pd.read_csv(url)
 
 print(f"Dataset shape: {df.shape}")

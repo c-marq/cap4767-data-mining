@@ -21,7 +21,7 @@ Choose **one** of the following:
 
 You may also use any regression-appropriate dataset of your choice — message via Canvas Inbox before starting if you want to use a different dataset.
 
-Starter notebook: `https://github.com/c-marq/cap4767-data-mining/blob/main/labs/lab02-regression.ipynb`
+Starter notebook: `https://github.com/c-marq/cap4767-data-mining/blob/main/labs/lab02_regression.ipynb`
 
 ---
 

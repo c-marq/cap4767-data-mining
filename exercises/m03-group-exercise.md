@@ -1,5 +1,5 @@
 # Group Exercise 3 — Regression Pipeline
-**CAP4767 Data Mining with Python | Week 3 | 10 Points**
+**CAP4767 Data Mining with Python | Module 3 | 10 Points**
 
 ---
 
@@ -11,7 +11,7 @@ Build a complete regression pipeline from raw data to model evaluation. Your gro
 ## Your Dataset
 **IBM Telco Customer Churn** — 7,032 customers with usage, contract, and demographic features. This week we use it for regression. Next week we will use it to predict churn.
 
-Starter notebook: `https://github.com/c-marq/cap4767-data-mining/blob/main/exercises/week03-group-exercise.ipynb`
+Starter notebook: `https://github.com/c-marq/cap4767-data-mining/blob/main/exercises/m03_group_exercise.ipynb`
 
 ---
 

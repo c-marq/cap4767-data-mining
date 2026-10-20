@@ -1,5 +1,5 @@
 # Group Exercise 7 — RFM Across Domains
-**CAP4767 Data Mining with Python | Week 7 | 10 Points**
+**CAP4767 Data Mining with Python | Module 9 | 10 Points**
 
 ---
 
@@ -11,7 +11,7 @@ Apply the RFM framework to a non-retail dataset and prove to yourself — and th
 ## Your Dataset
 **UFO Sightings** — historical reporting data with date, location, duration, and shape fields.
 
-Starter notebook: `https://github.com/c-marq/cap4767-data-mining/blob/main/exercises/week07-group-exercise.ipynb`
+Starter notebook: `https://github.com/c-marq/cap4767-data-mining/blob/main/exercises/m09_group_exercise.ipynb`
 
 ---
 

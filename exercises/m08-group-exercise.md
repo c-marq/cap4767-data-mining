@@ -1,5 +1,5 @@
 # Group Exercise 6 — Market Basket Analysis
-**CAP4767 Data Mining with Python | Week 6 | 10 Points**
+**CAP4767 Data Mining with Python | Module 8 | 10 Points**
 
 ---
 
@@ -11,7 +11,7 @@ Discover which products customers buy together, evaluate association rules using
 ## Your Dataset
 **Online Retail II** — same transaction dataset, now used for basket analysis.
 
-Starter notebook: `https://github.com/c-marq/cap4767-data-mining/blob/main/exercises/week06-group-exercise.ipynb`
+Starter notebook: `https://github.com/c-marq/cap4767-data-mining/blob/main/exercises/m08_group_exercise.ipynb`
 
 ---
 

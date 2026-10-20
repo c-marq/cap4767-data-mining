@@ -1,17 +1,17 @@
 # Group Exercise 1 — Time Series Foundations
-**CAP4767 Data Mining with Python | Week 1 | 10 Points**
+**CAP4767 Data Mining with Python | Module 1 | 10 Points**
 
 ---
 
 ## Objective
-Explore a time series dataset as a team. Load the data, visualize the trend and seasonality, and interpret what the patterns mean for a real business decision. This exercise builds the foundational intuition you will need before we add forecasting models in Week 2.
+Explore a time series dataset as a team. Load the data, visualize the trend and seasonality, and interpret what the patterns mean for a real business decision. This exercise builds the foundational intuition you will need before we add forecasting models in Module 2.
 
 ---
 
 ## Your Dataset
 **Australian Domestic Tourism** — quarterly holiday trips by region, 1998–2017.
 
-Starter notebook: `https://github.com/c-marq/cap4767-data-mining/blob/main/exercises/week01-group-exercise.ipynb`
+Starter notebook: `https://github.com/c-marq/cap4767-data-mining/blob/main/exercises/m01_group_exercise.ipynb`
 
 ---
 

@@ -127,16 +127,16 @@ All submissions go through **Canvas** — never through GitHub.
 **For group exercises:**
 - Your group works together in one shared notebook during class
 - Each student submits their own copy individually via Canvas
-- Name your file: `LastName_FirstName_GroupEx_Week##.ipynb`
+- Name your file: `LastName_FirstName_GroupEx_M##.ipynb`
 
 **For individual labs:**
 - Complete independently after class
-- Submit via Canvas by the posted deadline
+- Submit via Canvas by the date shown there
 - Name your file: `LastName_FirstName_Lab##_Topic.ipynb`
 
 **For midterm and final:**
 - Submit three items via Canvas: notebook (.ipynb), business memo (.pdf or .docx), and presentation slides (.pdf or .pptx)
-- Be prepared to present in class on the due date
+- Be prepared to present in class on presentation day
 
 ---
 

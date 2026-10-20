@@ -1,7 +1,6 @@
 # Final Project — CAP4767 Data Mining
 
-**Assigned:** Week 6, Session 2
-**Due:** Week 8 (present in class)
+**Timing:** assigned with Module 8 and presented in class at the end of the course. Dates are in Canvas.
 **Points:** 200
 
 ---
@@ -19,7 +18,7 @@ Choose a domain that matters to you. Find a dataset. Ask a real question. Build 
 ### Dataset
 - Must not be used in any previous assignment in this course
 - Must contain enough records to support meaningful analysis (minimum 1,000 rows recommended)
-- **Optional:** Extend the domain you explored in the Week 7 individual lab — your dataset from that lab is a valid foundation
+- **Optional:** Extend the domain you explored in Lab 5 — your dataset from that lab is a valid foundation
 
 Get your dataset approved via Canvas before starting if you are unsure.
 

@@ -1,5 +1,5 @@
 # Group Exercise 2 — Forecasting with SARIMAX and Prophet
-**CAP4767 Data Mining with Python | Week 2 | 10 Points**
+**CAP4767 Data Mining with Python | Module 2 | 10 Points**
 
 ---
 
@@ -9,9 +9,9 @@ Build two forecasting models on the same dataset and compare their predictions. 
 ---
 
 ## Your Dataset
-**Australian Domestic Tourism** — same dataset from Week 1. This time we forecast it.
+**Australian Domestic Tourism** — same dataset from Module 1. This time we forecast it.
 
-Starter notebook: `https://github.com/c-marq/cap4767-data-mining/blob/main/exercises/week02-group-exercise.ipynb`
+Starter notebook: `https://github.com/c-marq/cap4767-data-mining/blob/main/exercises/m02_group_exercise.ipynb`
 
 ---
 

@@ -1,5 +1,5 @@
 # Group Exercise 4 — Customer Churn: Logistic Regression + Neural Network
-**CAP4767 Data Mining with Python | Week 4 | 10 Points**
+**CAP4767 Data Mining with Python | Modules 4–5 | 10 Points**
 
 ---
 
@@ -9,9 +9,9 @@ Build two classification models to predict customer churn and compare them head-
 ---
 
 ## Your Dataset
-**IBM Telco Customer Churn** — same dataset from Week 3, now used for its intended purpose: predicting which customers will leave.
+**IBM Telco Customer Churn** — same dataset from Module 3, now used for its intended purpose: predicting which customers will leave.
 
-Starter notebook: `https://github.com/c-marq/cap4767-data-mining/blob/main/exercises/week04-group-exercise.ipynb`
+Starter notebook: `https://github.com/c-marq/cap4767-data-mining/blob/main/exercises/m04-05_group_exercise_part1.ipynb` (Part 1) and `https://github.com/c-marq/cap4767-data-mining/blob/main/exercises/m04-05_group_exercise_part2.ipynb` (Part 2)
 
 ---
 
@@ -42,7 +42,7 @@ Have the Presenter write a 2–3 sentence answer in the notebook's discussion ce
 Run the setup cell. Check the churn rate in the dataset. Is it balanced? Discuss as a group whether class imbalance could affect your model — note your conclusion in a markdown cell.
 
 **Step 2 — Feature engineering and scaling**
-Encode categoricals, drop leakage columns, split 80/20, and scale. Use the same pipeline from Week 3 as your starting point.
+Encode categoricals, drop leakage columns, split 80/20, and scale. Use the same pipeline from Module 3 as your starting point.
 
 > 🛑 **Checkpoint:** Print `y_train.value_counts()`. If one class is more than 3x the other, you have class imbalance. Note this — it will matter when you interpret your results.
 
