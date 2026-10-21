@@ -203,7 +203,7 @@ Each row represents one student. Recency is calculated as days between their las
 
 This dataset contains approximately 80,000 sighting reports spanning decades of observations across the United States and internationally. It is hosted publicly on GitHub.
 
-**Source:** `https://raw.githubusercontent.com/planetsig/ufo-reports/refs/heads/master/csv-data/ufo-scrubbed-geocoded-time-standardized.csv`
+**Source:** `https://raw.githubusercontent.com/c-marq/cap4767-data-mining/main/data/ufo-sightings.csv`
 
 | Key Columns | Description |
 |-------------|-------------|
@@ -388,9 +388,7 @@ Now we move from synthetic data to the real world. The UFO sighting dataset is m
 # ============================================
 
 # Step 1: Load and inspect the UFO dataset
-url = ("https://raw.githubusercontent.com/planetsig/ufo-reports/"
-       "refs/heads/master/csv-data/"
-       "ufo-scrubbed-geocoded-time-standardized.csv")
+url = "https://raw.githubusercontent.com/c-marq/cap4767-data-mining/main/data/ufo-sightings.csv"
 
 # Column names are not in the file — define them manually
 columns = ['datetime', 'city', 'state', 'country', 'shape',
@@ -820,7 +818,7 @@ Data mining is a pipeline that turns raw data into actionable segments, predicti
 
 ### Looking Ahead: Your Final Project
 
-You have now applied every technique in this course. You have seen them work on retail transactions, hotel bookings, customer churn data, Online Retail II invoices, product baskets, student engagement, and UFO sightings. For your final project, you will pick a dataset, apply at least three techniques, and present your findings to a C-suite audience. The pipeline is yours now. The only question left is: what will you discover?
+You have now applied every technique in this course. You have seen them work on retail transactions, hotel bookings, customer churn data, Online Retail invoices, product baskets, student engagement, and UFO sightings. For your final project, you will pick a dataset, apply at least three techniques, and present your findings to a C-suite audience. The pipeline is yours now. The only question left is: what will you discover?
 
 ---
 

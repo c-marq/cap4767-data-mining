@@ -259,7 +259,7 @@ cars_url = 'https://raw.githubusercontent.com/c-marq/cap4767-data-mining/main/da
 cars = pd.read_csv(cars_url)
 
 # Load Dataset 3: UCLA Admissions
-admissions_url = 'https://stats.idre.ucla.edu/stat/data/binary.csv'
+admissions_url = 'https://raw.githubusercontent.com/c-marq/cap4767-data-mining/main/data/graduate-admissions.csv'
 admissions = pd.read_csv(admissions_url)
 
 print("Housing data:", housing.shape)
@@ -793,9 +793,9 @@ But this raises a new question. The logistic regression model showed you how to 
 
 **Choose one dataset:**
 
-1. **California Housing** (`sklearn.datasets.fetch_california_housing()`) — 20,640 census block groups, predict median house value. Moderate difficulty.
-2. **Auto MPG** (`sns.load_dataset('mpg')`) — 398 vehicles, predict miles per gallon. Easier, intuitive features.
-3. **Medical Insurance Costs** (loaded from provided URL) — 1,338 policyholders, predict annual charges. Moderate difficulty, requires dummy variables.
+1. **California Housing** (`data/california-housing.csv`, scikit-learn's California Housing data) — 20,640 census block groups, predict median house value. Moderate difficulty.
+2. **Auto MPG** (`data/auto-mpg.csv`, the UCI Auto MPG data) — 398 vehicles, predict miles per gallon. Easier, intuitive features.
+3. **Medical Insurance Costs** (`data/insurance.csv`) — 1,338 policyholders, predict annual charges. Moderate difficulty, requires dummy variables.
 
 **Milestones:**
 

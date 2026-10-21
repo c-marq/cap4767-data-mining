@@ -861,31 +861,15 @@ And that brings us to the next question. We've spent two chapters predicting whi
 
 **Objective:** Build a complete churn prediction pipeline — from raw data through EDA, feature analysis, logistic regression, and neural network — on a dataset you haven't seen before. Compare both models and recommend which one the business should deploy.
 
-**Dataset:** Choose ONE of the following:
+**Dataset:** Choose one of these two. The starter notebook loads and preprocesses whichever you pick.
 
-1. **Bank Customer Churn** — `https://raw.githubusercontent.com/c-marq/cap4767-data-mining/refs/heads/main/data/bank-churn.csv`  
-   Banking customers with demographics, account balance, and churn status
+1. **Bank Customer Churn** (`data/Churn_Modelling.csv`, about 10,000 customers, target `Exited`)
+2. **Credit Card Customer Attrition** (`data/BankChurners.csv`, about 10,000 customers, target `Attrition_Flag`)
 
-2. **E-Commerce Customer Churn** — `https://raw.githubusercontent.com/c-marq/cap4767-data-mining/refs/heads/main/data/ecommerce-churn.csv`  
-   Online retail customers with order history, complaints, and churn status
+Don't use the Telco dataset from the chapter; the lab asks you to transfer the pipeline to new data.
 
-3. **Credit Card Customer Churn** — `https://raw.githubusercontent.com/c-marq/cap4767-data-mining/refs/heads/main/data/credit-card-churn.csv`  
-   Credit card holders with usage patterns and attrition status
-
-**Milestones:**
-
-1. Load and explore your dataset — describe its shape, features, and churn rate
-2. Run EDA: at least two statistical tests from Chapter 4 (Cramér's V, Mann-Whitney U, Cohen's d, or point-biserial correlation)
-3. Preprocess: handle missing values, encode categoricals, scale features, train/test split
-4. Build and evaluate a logistic regression model — report classification report and AUC
-5. Build and evaluate a Keras ANN — include dropout and early stopping, plot loss curves
-6. Create the side-by-side comparison table (accuracy, precision, recall, F1, AUC, interpretability)
-7. Identify the customers flagged by the ANN but missed by logistic regression
-8. **Written analysis (minimum 300 words):** Recommend which model to deploy and why. Address accuracy, interpretability, and the specific needs of the business this dataset represents.
-
-**Bonus Challenge:** Train a third model with a different architecture — try adding a third hidden layer, changing the neuron counts, or adjusting the dropout rate. Add it to your comparison table and discuss whether the additional complexity was worth it.
-
-**Submission:** Upload your completed notebook to Canvas as `Lab3_LastName_FirstName.ipynb`. Include all code, outputs, visualizations, and your written analysis.
+- Starter notebook: [labs/lab03_churn_neural_networks.ipynb](https://github.com/c-marq/cap4767-data-mining/blob/main/labs/lab03_churn_neural_networks.ipynb)
+- Instructions and point breakdown: [labs/lab03-churn-neural-networks.md](https://github.com/c-marq/cap4767-data-mining/blob/main/labs/lab03-churn-neural-networks.md)
 
 ---
 

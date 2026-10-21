@@ -9,7 +9,7 @@ Your group applies the SARIMAX and Prophet forecasting pipeline to quarterly Flo
 ---
 
 ## Your Dataset
-**Florida Hotel Occupancy**: quarterly data from 2005 to 2024 (80 observations, 10 columns). The forecasting target is `occupancy_rate_pct`, the percentage of hotel rooms occupied each quarter. The setup cell loads it as `hotel_df`; do not modify it.
+**Florida Hotel Occupancy**: quarterly data from 2005 to 2024 (80 observations, 10 columns). The source of this dataset is not documented, and it appears to be simulated teaching data rather than official statistics. The forecasting target is `occupancy_rate_pct`, the percentage of hotel rooms occupied each quarter. The setup cell loads it as `hotel_df`; do not modify it.
 
 Load URL: `https://raw.githubusercontent.com/c-marq/cap4767-data-mining/refs/heads/main/data/florida_hotel_occupancy.csv`
 

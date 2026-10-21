@@ -11,7 +11,7 @@ This lab is completed individually. Your notebook must reflect your own work and
 ---
 
 ## Your Dataset
-**Florida Hotel Occupancy**: quarterly data from 2005 to 2024 (80 observations, 10 columns). The starter notebook loads it for you. Choose **one numeric column** as your forecasting target. Do not use `occupancy_rate_pct`; that was the group exercise target.
+**Florida Hotel Occupancy**: quarterly data from 2005 to 2024 (80 observations, 10 columns). The source of this dataset is not documented, and it appears to be simulated teaching data rather than official statistics. The starter notebook loads it for you. Choose **one numeric column** as your forecasting target. Do not use `occupancy_rate_pct`; that was the group exercise target.
 
 Starter notebook: `https://github.com/c-marq/cap4767-data-mining/blob/main/labs/lab01_forecasting.ipynb`
 

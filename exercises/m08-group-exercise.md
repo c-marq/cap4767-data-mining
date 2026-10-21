@@ -4,14 +4,14 @@
 ---
 
 ## Overview
-Your group runs a complete Market Basket Analysis pipeline on the Online Retail II dataset, identifies the strongest association rules by lift, produces one visualization, and presents one product placement and one cross-sell recommendation. Before coding, the group discusses what new question Market Basket Analysis answers that RFM and K-Means could not, and names one business decision a marketing director would want it to inform. The deliverable is the completed notebook plus a 3-minute presentation. Groups self-assign four roles: Lead Coder, Data Interpreter, Presenter, and QA Reviewer.
+Your group runs a complete Market Basket Analysis pipeline on the Online Retail dataset, identifies the strongest association rules by lift, produces one visualization, and presents one product placement and one cross-sell recommendation. Before coding, the group discusses what new question Market Basket Analysis answers that RFM and K-Means could not, and names one business decision a marketing director would want it to inform. The deliverable is the completed notebook plus a 3-minute presentation. Groups self-assign four roles: Lead Coder, Data Interpreter, Presenter, and QA Reviewer.
 
 ---
 
 ## Your Dataset
-**Online Retail II**: online retail transactions, loaded from an Excel file. The setup cell loads it with `pd.read_excel` and cleans it: it removes cancelled invoices, rows with a missing `CustomerID`, rows with non-positive `Quantity` or `UnitPrice`, non-product stock codes, and rows with a missing `Description`. Do not modify the setup cell.
+**Online Retail**: online retail transactions, loaded from an Excel file. The setup cell loads it with `pd.read_excel` and cleans it: it removes cancelled invoices, rows with a missing `CustomerID`, rows with non-positive `Quantity` or `UnitPrice`, non-product stock codes, and rows with a missing `Description`. Do not modify the setup cell.
 
-Load URL: `https://github.com/fenago/datasets/raw/refs/heads/main/Online%20Retail%20(1).xlsx`
+Load URL: `https://raw.githubusercontent.com/c-marq/cap4767-data-mining/main/data/online-retail.xlsx`
 
 Starter notebook: `https://github.com/c-marq/cap4767-data-mining/blob/main/exercises/m08_group_exercise.ipynb`
 

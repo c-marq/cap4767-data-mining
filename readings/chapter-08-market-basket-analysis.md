@@ -25,7 +25,7 @@ This chapter teaches you **Market Basket Analysis (MBA)** — a family of techni
 
 In Chapters 6 and 7, every question you asked was about *people*. Who are the most valuable customers? Who is at risk of leaving? Which cluster does this customer belong to? RFM and K-Means answered those questions beautifully. But they operated at the customer level — one row per customer, aggregated across all their transactions.
 
-Market Basket Analysis flips the lens entirely. Now the unit of analysis is the *transaction* — one row per shopping basket, one invoice, one receipt. You're no longer asking "who is this customer?" You're asking "what did they buy together in this specific visit?" The shift is subtle but powerful. The same Online Retail II dataset that powered your segmentation work becomes a completely different source of insight when you stop aggregating and start looking at individual baskets.
+Market Basket Analysis flips the lens entirely. Now the unit of analysis is the *transaction* — one row per shopping basket, one invoice, one receipt. You're no longer asking "who is this customer?" You're asking "what did they buy together in this specific visit?" The shift is subtle but powerful. The same Online Retail dataset that powered your segmentation work becomes a completely different source of insight when you stop aggregating and start looking at individual baskets.
 
 ### Association Rules: The Language of MBA
 
@@ -183,10 +183,10 @@ graph LR
 
 ## 8.3 The Data
 
-We're working with the same **Online Retail II** dataset you've been using since Chapter 6 — a real transactional dataset from a UK-based online retailer covering December 2009 through December 2011. This is intentional. You've already explored these customers through RFM and K-Means. Now you're looking at the same data through a different lens.
+We're working with the same **Online Retail** dataset you've been using since Chapter 6 — a real transactional dataset from a UK-based online retailer covering December 2010 through December 2011. This is intentional. You've already explored these customers through RFM and K-Means. Now you're looking at the same data through a different lens.
 
 **Source:** UCI Machine Learning Repository / Kaggle
-**URL:** `https://github.com/fenago/datasets/raw/refs/heads/main/Online%20Retail%20(1).xlsx`
+**URL:** `https://raw.githubusercontent.com/c-marq/cap4767-data-mining/main/data/online-retail.xlsx`
 **Shape:** ~541,909 rows × 8 columns
 **Each row represents:** One line item on an invoice (not one transaction — a single invoice may span multiple rows, one per product)
 
@@ -213,7 +213,7 @@ You dealt with some of these in Chapter 6, but MBA has additional requirements. 
 
 ### Setup
 
-Before we touch the real data, we'll build intuition with a toy dataset — calculating every metric by hand. Then we'll let `mlxtend` automate the same calculations. Finally, we'll run the full pipeline on Online Retail II and produce three visualizations. Same progression as always: understand first, automate second, apply third.
+Before we touch the real data, we'll build intuition with a toy dataset — calculating every metric by hand. Then we'll let `mlxtend` automate the same calculations. Finally, we'll run the full pipeline on Online Retail and produce three visualizations. Same progression as always: understand first, automate second, apply third.
 
 ```python
 # ============================================
@@ -427,13 +427,13 @@ Also notice that each relationship produces *two* rules: {Diapers} → {Beer} an
 
 🔧 **Pro Tip**: Try lowering `min_support` to 0.05. How many more itemsets does Apriori find? Most of the new ones will be single-item frequencies. Now raise `min_threshold` for lift to 2.0 in `association_rules()`. How many rules survive? Tuning these two parameters is the core skill of practical MBA — too permissive and you drown in noise, too strict and you miss genuine patterns.
 
-### Example 3 / Full Pipeline — MBA on Online Retail II
+### Example 3 / Full Pipeline — MBA on Online Retail
 
-Now the real thing. We'll load the same Online Retail II dataset from Chapters 6–7, transform it from line-item format to basket format, run Apriori, and produce three visualizations. The cleaning steps will look familiar — you've done most of them before.
+Now the real thing. We'll load the same Online Retail dataset from Chapters 6–7, transform it from line-item format to basket format, run Apriori, and produce three visualizations. The cleaning steps will look familiar — you've done most of them before.
 
 ```python
 # ============================================
-# Example 8.3: Full MBA Pipeline on Online Retail II
+# Example 8.3: Full MBA Pipeline on Online Retail
 # Purpose: Complete market basket analysis with visualizations
 # Prerequisites: Examples 8.1–8.2, Chapter 6 data familiarity
 # ============================================
@@ -441,7 +441,7 @@ Now the real thing. We'll load the same Online Retail II dataset from Chapters 6
 # ---- PART 1: Load and Clean ----
 
 # Step 1: Load the dataset (same URL as Chapters 6–7)
-url = "https://github.com/fenago/datasets/raw/refs/heads/main/Online%20Retail%20(1).xlsx"
+url = "https://raw.githubusercontent.com/c-marq/cap4767-data-mining/main/data/online-retail.xlsx"
 df_raw = pd.read_excel(url)
 print(f"Raw dataset: {df_raw.shape[0]:,} rows × {df_raw.shape[1]} columns")
 
@@ -635,7 +635,7 @@ top_10['antecedents'] = top_10['antecedents'].apply(lambda x: ', '.join(list(x))
 top_10['consequents'] = top_10['consequents'].apply(lambda x: ', '.join(list(x)))
 
 print("=" * 80)
-print("TOP 10 ACTIONABLE ASSOCIATION RULES — Online Retail II")
+print("TOP 10 ACTIONABLE ASSOCIATION RULES — Online Retail")
 print("=" * 80)
 print(f"{'Rank':<5} {'If customer buys...':<30} {'They also buy...':<30} {'Lift':<8} {'Conf':<8}")
 print("-" * 80)
@@ -692,7 +692,7 @@ With a ranked list of association rules, the retailer can now make several decis
 
 These aren't vague "insights." They're specific, implementable actions — each backed by a number the merchandising team can evaluate.
 
-But this raises a new question. We've now applied RFM to understand *who* our customers are, K-Means to discover *segments* we didn't expect, and MBA to find *what* products sell together — all on the same Online Retail II dataset. Three techniques, three different lenses, three sets of actionable outputs. Is this pattern — Recency, Frequency, some measure of value — unique to retail? Or does it work everywhere? That's exactly where Chapter 9 takes us.
+But this raises a new question. We've now applied RFM to understand *who* our customers are, K-Means to discover *segments* we didn't expect, and MBA to find *what* products sell together — all on the same Online Retail dataset. Three techniques, three different lenses, three sets of actionable outputs. Is this pattern — Recency, Frequency, some measure of value — unique to retail? Or does it work everywhere? That's exactly where Chapter 9 takes us.
 
 ---
 

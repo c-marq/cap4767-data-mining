@@ -196,7 +196,7 @@ This is the table that turns an analytical exercise into a board-level conversat
 
 ## 6.3 The Data
 
-We'll work with the **Online Retail II dataset** — a real transaction log from a UK-based online retailer containing 541,909 records spanning December 2010 through December 2011. Each row represents a single line item in an invoice: one product, one quantity, one price.
+We'll work with the **Online Retail dataset** — a real transaction log from a UK-based online retailer containing 541,909 records spanning December 2010 through December 2011. Each row represents a single line item in an invoice: one product, one quantity, one price.
 
 **Source:** The dataset is hosted on GitHub and loads directly into Colab.
 
@@ -229,7 +229,7 @@ After cleaning, expect approximately 397,884 valid transactions from about 4,338
 ```python
 # ============================================
 # Chapter 6 Setup: Libraries and Data Loading
-# Purpose: Import all required libraries and load the Online Retail II dataset
+# Purpose: Import all required libraries and load the Online Retail dataset
 # Prerequisites: Google Colab with internet access
 # ============================================
 
@@ -251,7 +251,7 @@ sns.set_palette("husl")
 
 # Load the dataset directly from GitHub
 df = pd.read_excel(
-    'https://github.com/fenago/datasets/raw/refs/heads/main/Online%20Retail%20(1).xlsx'
+    'https://raw.githubusercontent.com/c-marq/cap4767-data-mining/main/data/online-retail.xlsx'
 )
 
 # First look at the data

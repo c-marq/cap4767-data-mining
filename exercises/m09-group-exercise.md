@@ -20,7 +20,7 @@ Each group selects **one** dataset. No two groups should use the same dataset. R
 Load URLs:
 - Option A: `https://raw.githubusercontent.com/c-marq/cap4767-data-mining/refs/heads/main/data/gym_members_exercise_tracking.csv`
 - Option B: `https://raw.githubusercontent.com/c-marq/cap4767-data-mining/refs/heads/main/data/Blood%20Transfusion%20Service%20data.csv`
-- Option C: `https://raw.githubusercontent.com/planetsig/ufo-reports/refs/heads/master/csv-data/ufo-scrubbed-geocoded-time-standardized.csv` (read with the column names listed in the notebook's `ufo_cols`)
+- Option C: `https://raw.githubusercontent.com/c-marq/cap4767-data-mining/main/data/ufo-sightings.csv` (read with the column names listed in the notebook's `ufo_cols`)
 
 Starter notebook: `https://github.com/c-marq/cap4767-data-mining/blob/main/exercises/m09_group_exercise.ipynb`
 

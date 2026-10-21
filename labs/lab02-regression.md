@@ -13,9 +13,9 @@ Choose **one** of the following. Run the setup cell, then uncomment your chosen 
 
 | Option | Dataset | Target | How the notebook loads it |
 |--------|---------|--------|---------------------------|
-| 1 | California Housing | `MedHouseVal` | `fetch_california_housing(as_frame=True)` from scikit-learn |
-| 2 | Auto MPG | `mpg` | `sns.load_dataset("mpg").dropna()` |
-| 3 | Medical Insurance | `charges` | `https://raw.githubusercontent.com/stedy/Machine-Learning-with-R-datasets/master/insurance.csv` |
+| 1 | California Housing | `MedHouseVal` | `https://raw.githubusercontent.com/c-marq/cap4767-data-mining/main/data/california-housing.csv` (scikit-learn's California Housing data) |
+| 2 | Auto MPG | `mpg` | `https://raw.githubusercontent.com/c-marq/cap4767-data-mining/main/data/auto-mpg.csv` (call `.dropna()` after loading) |
+| 3 | Medical Insurance | `charges` | `https://raw.githubusercontent.com/c-marq/cap4767-data-mining/main/data/insurance.csv` |
 
 Starter notebook: `https://github.com/c-marq/cap4767-data-mining/blob/main/labs/lab02_regression.ipynb`
 

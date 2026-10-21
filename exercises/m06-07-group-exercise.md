@@ -4,7 +4,7 @@
 ---
 
 ## Overview
-Your group runs the complete RFM + K-Means pipeline on a different dataset from the demo, applying what you learned in both sessions: RFM scoring, manual segmentation, K-Means clustering, and segment comparison. Before coding, the group discusses what Recency, Frequency, and Monetary mean for the new dataset and whether you expect revenue concentration to be more or less extreme than in the Online Retail II demo dataset. The deliverable is the completed notebook plus a 3-minute presentation. Groups self-assign four roles: Lead Coder, Data Interpreter, Presenter, and QA Reviewer.
+Your group runs the complete RFM + K-Means pipeline on a different dataset from the demo, applying what you learned in both sessions: RFM scoring, manual segmentation, K-Means clustering, and segment comparison. Before coding, the group discusses what Recency, Frequency, and Monetary mean for the new dataset and whether you expect revenue concentration to be more or less extreme than in the Online Retail demo dataset. The deliverable is the completed notebook plus a 3-minute presentation. Groups self-assign four roles: Lead Coder, Data Interpreter, Presenter, and QA Reviewer.
 
 ---
 

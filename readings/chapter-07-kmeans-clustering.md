@@ -177,9 +177,9 @@ graph TD
 
 ## 7.3 The Data
 
-We're working with the same **Online Retail II dataset** from Chapter 6 — and that's by design. The entire point of this chapter is to take the RFM scores you've already calculated and ask: "What does the algorithm see that I didn't?"
+We're working with the same **Online Retail dataset** from Chapter 6 — and that's by design. The entire point of this chapter is to take the RFM scores you've already calculated and ask: "What does the algorithm see that I didn't?"
 
-The data setup for this chapter begins by re-running the essential pipeline from Chapter 6: loading the Online Retail II dataset, cleaning it (drop missing CustomerIDs, remove returns and zero-price items), and computing the `rfm` DataFrame with Recency, Frequency, Monetary, quintile scores, composite segments, and the `cltv_data` DataFrame with CLTV values. The demo's setup cell includes all of this so you don't need to switch between notebooks.
+The data setup for this chapter begins by re-running the essential pipeline from Chapter 6: loading the Online Retail dataset, cleaning it (drop missing CustomerIDs, remove returns and zero-price items), and computing the `rfm` DataFrame with Recency, Frequency, Monetary, quintile scores, composite segments, and the `cltv_data` DataFrame with CLTV values. The demo's setup cell includes all of this so you don't need to switch between notebooks.
 
 **Quick reminder of where Chapter 6 left us:**
 
@@ -226,9 +226,9 @@ sns.set_palette("husl")
 
 # --- Rebuild Chapter 6 Pipeline (Run this cell. Do not modify.) ---
 
-# Load the Online Retail II dataset
+# Load the Online Retail dataset
 df = pd.read_excel(
-    'https://github.com/fenago/datasets/raw/refs/heads/main/Online%20Retail%20(1).xlsx'
+    'https://raw.githubusercontent.com/c-marq/cap4767-data-mining/main/data/online-retail.xlsx'
 )
 
 # Clean: drop missing CustomerID, remove returns and zero-price items
@@ -826,7 +826,7 @@ Here's what that comparison enables:
 
 **Connect segmentation to the pipeline.** Chapters 6 and 7 together answer the question "who are my customers?" from two angles. But there's a follow-up question that neither approach addresses: "what do they buy together?" A Champion customer and a Recent Newcomer might both buy the same two products in the same cart — and that purchase pattern could inform product placement, bundle pricing, and recommendation engines regardless of which segment either customer belongs to.
 
-That's what Chapter 8 answers. We'll take the same Online Retail II dataset and stop asking about *customers* entirely. Instead, we'll ask about *products*: which items appear together in the same transaction, how often, and what can we do with that knowledge? Welcome to Market Basket Analysis.
+That's what Chapter 8 answers. We'll take the same Online Retail dataset and stop asking about *customers* entirely. Instead, we'll ask about *products*: which items appear together in the same transaction, how often, and what can we do with that knowledge? Welcome to Market Basket Analysis.
 
 ---
 
