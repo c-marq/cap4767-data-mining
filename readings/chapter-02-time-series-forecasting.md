@@ -193,8 +193,6 @@ You'll evaluate your forecasts with two complementary metrics.
 
 You need both. A model can have a decent R² but a huge RMSE if the data has large values. A model can have a small RMSE but a low R² if the data has very little variance. Together, they give you the complete picture.
 
-📊 **By The Numbers:** In a 2023 benchmarking study of forecasting methods on quarterly economic time series, SARIMA-family models achieved median R² values of 0.82–0.91 on tourism data, while Prophet achieved 0.78–0.88. The gap narrowed considerably on messy, irregularly-spaced data where Prophet's flexibility became an advantage.
-
 ---
 
 ## 2.3 The Data
