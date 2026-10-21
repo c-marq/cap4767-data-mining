@@ -172,9 +172,9 @@ graph TD
 
 For Examples 1 and 2, we'll use the classic **airline passengers dataset** — monthly totals of international airline passengers from 1949 to 1960, originally published by Box and Jenkins. It's 144 rows of monthly data with a clear upward trend and strong annual seasonality, which makes it perfect for learning decomposition fundamentals. The dataset is small enough to plot easily and structured enough to produce clean results.
 
-For Example 3 and the Full Pipeline, we'll work with **Australian international tourism data** — quarterly visitor counts from 1999 to 2010, sourced from the Australian Bureau of Statistics. This dataset has 48 quarterly observations with visible trend growth, seasonal patterns tied to Southern Hemisphere travel seasons, and a few anomalies worth investigating.
+For Example 3 and the Full Pipeline, we'll work with **Australian international tourism data** — the number of nights (in millions) that international tourists spent in Australia each quarter from 1999 to 2010, originally from Tourism Research Australia and distributed with Rob Hyndman's forecasting textbook data. This dataset has 48 quarterly observations (1999 Q1 through 2010 Q4) with visible trend growth, seasonal patterns tied to Southern Hemisphere travel seasons, and a few anomalies worth investigating.
 
-Both datasets load directly from URLs — no local files, no downloads, no setup beyond running the cell.
+Both datasets live in the course repository's `data/` folder and load directly from their GitHub URLs — no local files, no downloads, no setup beyond running the cell.
 
 Here's what the airline passengers data looks like:
 
@@ -212,7 +212,7 @@ import pandas as pd                    # Data manipulation and time series tools
 import matplotlib.pyplot as plt        # Plotting and visualization
 
 # Step 2: Load the airline passengers dataset from URL
-url = 'https://raw.githubusercontent.com/jbrownlee/Datasets/master/airline-passengers.csv'
+url = 'https://raw.githubusercontent.com/c-marq/cap4767-data-mining/main/data/airline-passengers.csv'
 df = pd.read_csv(url, parse_dates=['Month'], index_col='Month')  # Parse dates and set as index
 
 # Step 3: Plot the raw time series
@@ -235,7 +235,7 @@ print(f"Mean passengers: {df['Passengers'].mean():.0f} thousand")
 # with repeating annual peaks (summer months) and valleys (winter months).
 # The seasonal swings get LARGER as the overall level rises — important later.
 #
-# Date range: 1949-01-01 to 1960-12-01
+# Date range: 1949-01-01 00:00:00 to 1960-12-01 00:00:00
 # Total observations: 144
 # Mean passengers: 280 thousand
 ```
@@ -315,7 +315,7 @@ axes[0].grid(True, alpha=0.3)
 
 axes[1].plot(df['Passengers_diff'], color='#27ae60')
 axes[1].axhline(y=0, color='gray', linestyle='--', linewidth=0.8)
-axes[1].set_title('Differenced Series (Stationary)')
+axes[1].set_title('Differenced Series')
 axes[1].set_ylabel('Month-over-Month Change')
 axes[1].grid(True, alpha=0.3)
 
@@ -326,31 +326,35 @@ plt.show()
 # Rolling mean plot: Orange line climbing steadily = non-stationary (mean changes over time)
 # Rolling std plot: Red dashed line also climbing = variance increasing over time
 #
-# ADF Test on RAW Series:
-# ADF Statistic: 0.8153
-# p-value:       0.9918
+# ==================================================
+# ADF Test on RAW Series
+# ==================================================
+# ADF Statistic: 0.8154
+# p-value:       0.9919
 # Conclusion:    Non-Stationary ❌
 #
-# ADF Test on DIFFERENCED Series:
+# ==================================================
+# ADF Test on DIFFERENCED Series
+# ==================================================
 # ADF Statistic: -2.8293
-# p-value:       0.054123
-# Conclusion:    Stationary ✅  (Note: borderline — log transform would help further)
+# p-value:       0.054213
+# Conclusion:    Non-Stationary ❌
 #
 # Side-by-side plot: Left shows the climbing original; right shows the differenced
-# series bouncing around zero with no clear drift.
+# series bouncing around zero with no clear drift, though its swings widen in later years.
 ```
 
 Let's unpack what just happened. The rolling mean (orange line) is not flat — it climbs steadily from left to right. That's visual proof of non-stationarity: the average value of the series changes over time. The rolling standard deviation (red dashed line) also climbs, meaning the variance is increasing too. Double trouble.
 
 The ADF test confirms what the plot shows. A p-value of 0.99 on the raw series means we absolutely cannot reject the null hypothesis of non-stationarity. This series is not stationary, and any model that assumes it is will produce unreliable forecasts.
 
-After differencing — subtracting each month's value from the previous month — the ADF p-value drops dramatically. The differenced series fluctuates around zero with no clear drift. The foundation is now stable enough to build on.
+After differencing — subtracting each month's value from the previous month — the ADF p-value drops from 0.99 to 0.054, and the differenced series fluctuates around zero with no clear drift. That's a big improvement, but 0.054 is still just above the 0.05 cutoff, so the test labels the differenced series non-stationary. Differencing removed the trend; what it left behind is the seasonal swing, which still grows wider in the later years. A borderline result like this is your cue to deal with the seasonality, which is what the seasonal models in Chapter 2 do.
 
 ⚠️ **Common Pitfall**: Students sometimes difference a series that's already stationary, or difference twice when once is enough. Over-differencing can introduce artificial patterns and actually *reduce* the amount of useful signal in your data. Always run the ADF test before and after differencing. If one round gets you below 0.05, stop there.
 
 **Try It Yourself:**
 1. Change the rolling window from 12 to 6 months. How does the smoothed line change? Is it noisier or smoother?
-2. Try a log transformation before differencing: `np.log(df['Passengers']).diff()`. Does the ADF p-value improve? (Spoiler: log differencing is often better for data with growing seasonal swings.)
+2. Try a log transformation before differencing: `np.log(df['Passengers']).diff()`. Does the ADF p-value improve? (Spoiler: not on this series. The p-value rises to about 0.07: the log evens out the growing swings, but the seasonal pattern is still there.)
 3. What happens if you difference twice? Run `df['Passengers'].diff().diff()` and check the ADF test. Is the p-value better or worse? Plot it — does the series still look informative?
 
 ---
@@ -364,7 +368,7 @@ Now let's put everything together into a complete pipeline. We'll load a real to
 # Example 1.3: Full Time Series Exploration Pipeline
 # Purpose: Complete workflow — load, inspect, test, decompose, interpret
 # Prerequisites: pandas, matplotlib, statsmodels
-# Dataset: Australian quarterly international tourism visitors (1999–2010)
+# Dataset: Australian quarterly international visitor nights (1999–2010)
 # ============================================
 
 # Step 1: Import all libraries
@@ -375,17 +379,14 @@ from statsmodels.tsa.seasonal import seasonal_decompose
 from statsmodels.tsa.stattools import adfuller
 
 # Step 2: Load the Australian tourism dataset
-# Quarterly international visitor data from the Australian Bureau of Statistics
-url = ('https://raw.githubusercontent.com/jbrownlee/Datasets/master/'
-       'quarterly-australian-international-tourism.csv')
-tourism = pd.read_csv(url, header=0)
-tourism.columns = ['Visitors']                      # Simplify column name
+# Quarterly visitor nights (millions) spent by international tourists in Australia,
+# from Tourism Research Australia via Hyndman's forecasting textbook data
+url = ('https://raw.githubusercontent.com/c-marq/cap4767-data-mining/main/data/'
+       'australia-international-visitor-nights-quarterly.csv')
+tourism = pd.read_csv(url, parse_dates=['Quarter'], index_col='Quarter')  # Parse dates and set as index
 
-# Step 3: Create a proper quarterly date index
-tourism.index = pd.date_range(start='1999-01-01',   # Data starts Q1 1999
-                               periods=len(tourism),
-                               freq='QS')            # Quarterly start frequency
-tourism.index.name = 'Quarter'
+# Step 3: Enforce a proper quarterly date index
+tourism = tourism.asfreq('QS')                      # Quarterly start frequency (data starts Q1 1999)
 
 # Step 4: Inspect the dataset
 print("=" * 50)
@@ -401,10 +402,10 @@ print(tourism.describe().round(0))
 
 # Step 5: Plot the raw time series
 plt.figure(figsize=(12, 5))
-plt.plot(tourism['Visitors'], color='#1a5276', linewidth=1.5, marker='o', markersize=4)
-plt.title('Australian Quarterly International Tourism Visitors (1999–2010)', fontsize=14)
+plt.plot(tourism['VisitorNights'], color='#1a5276', linewidth=1.5, marker='o', markersize=4)
+plt.title('Quarterly International Visitor Nights in Australia (1999–2010)', fontsize=14)
 plt.xlabel('Quarter')
-plt.ylabel('Visitors (thousands)')
+plt.ylabel('Visitor nights (millions)')
 plt.grid(True, alpha=0.3)
 plt.tight_layout()
 plt.show()
@@ -413,7 +414,7 @@ plt.show()
 print("\n" + "=" * 50)
 print("ADF TEST — RAW SERIES")
 print("=" * 50)
-adf_raw = adfuller(tourism['Visitors'])
+adf_raw = adfuller(tourism['VisitorNights'])
 print(f"ADF Statistic: {adf_raw[0]:.4f}")
 print(f"p-value:       {adf_raw[1]:.4f}")
 print(f"Conclusion:    {'Stationary ✅' if adf_raw[1] < 0.05 else 'Non-Stationary ❌'}")
@@ -422,7 +423,7 @@ print(f"Conclusion:    {'Stationary ✅' if adf_raw[1] < 0.05 else 'Non-Stationa
 print("\n" + "=" * 50)
 print("SEASONAL DECOMPOSITION — ADDITIVE MODEL")
 print("=" * 50)
-decomp_add = seasonal_decompose(tourism['Visitors'],
+decomp_add = seasonal_decompose(tourism['VisitorNights'],
                                  model='additive',
                                  period=4)           # period=4 for quarterly data
 
@@ -436,7 +437,7 @@ plt.show()
 print("\n" + "=" * 50)
 print("SEASONAL DECOMPOSITION — MULTIPLICATIVE MODEL")
 print("=" * 50)
-decomp_mult = seasonal_decompose(tourism['Visitors'],
+decomp_mult = seasonal_decompose(tourism['VisitorNights'],
                                   model='multiplicative',
                                   period=4)
 
@@ -468,28 +469,80 @@ for i, (date, val) in enumerate(seasonal_pattern.items()):
     print(f"  {quarter_label}: {val:.4f}  ({direction})")
 
 # Expected Output:
+# ==================================================
+# DATASET OVERVIEW
+# ==================================================
 # Shape: (48, 1)
 # Date range: 1999-Q1 to 2010
-# ADF Test p-value: ~0.30 (Non-Stationary ❌)
+# Frequency: Quarterly
 #
-# Two four-panel decomposition plots (additive and multiplicative), each showing:
-#   - Observed: raw quarterly visitors with upward trend and seasonal oscillation
-#   - Trend: smooth upward line from ~3500 to ~5500 visitors
-#   - Seasonal: repeating quarterly pattern (peaks in Q3/Q4, valleys in Q1/Q2)
-#   - Residual: leftover variation after removing trend and seasonality
+# First 5 rows:
+#             VisitorNights
+# Quarter
+# 1999-01-01        30.0525
+# 1999-04-01        19.1485
+# 1999-07-01        25.3177
+# 1999-10-01        27.5914
+# 2000-01-01        32.0765
 #
-# Seasonal Pattern (Multiplicative):
-#   Q1: ~0.96  (↓ Below trend)
-#   Q2: ~0.92  (↓ Below trend)
-#   Q3: ~1.06  (↑ Above trend)
-#   Q4: ~1.06  (↑ Above trend)
+# Basic statistics:
+#        VisitorNights
+# count           48.0
+# mean            35.0
+# std              9.0
+# min             19.0
+# 25%             29.0
+# 50%             35.0
+# 75%             41.0
+# max             60.0
+#
+# [Plot: quarterly visitor nights climbing from 19–30 million in 1999 to 35–60 million
+#  in 2010, with a Q2 low every year and a Q1 peak in every year except 2000]
+#
+# ==================================================
+# ADF TEST — RAW SERIES
+# ==================================================
+# ADF Statistic: 1.8308
+# p-value:       0.9984
+# Conclusion:    Non-Stationary ❌
+#
+# ==================================================
+# SEASONAL DECOMPOSITION — ADDITIVE MODEL
+# ==================================================
+#
+# ==================================================
+# SEASONAL DECOMPOSITION — MULTIPLICATIVE MODEL
+# ==================================================
+#
+# [Two four-panel decomposition plots (additive and multiplicative), each showing:
+#   - Observed: raw quarterly visitor nights with upward trend and seasonal oscillation
+#   - Trend: upward line from ~26 to ~46 million visitor nights, flat from 2001 to 2003
+#   - Seasonal: repeating quarterly pattern (peak in Q1, low in Q2)
+#   - Residual: leftover variation after removing trend and seasonality]
+#
+# ==================================================
+# RESIDUAL COMPARISON — WHICH MODEL FITS BETTER?
+# ==================================================
+# Additive residuals std:       2.00
+# Multiplicative residuals std: 0.0446
+#
+# Note: For multiplicative model, residuals center around 1.0,
+# so compare the relative spread, not the raw numbers.
+#
+# ==================================================
+# SEASONAL PATTERN (Multiplicative)
+# ==================================================
+#   Q1: 1.2385  (↑ Above trend)
+#   Q2: 0.7704  (↓ Below trend)
+#   Q3: 0.9539  (↓ Below trend)
+#   Q4: 1.0372  (↑ Above trend)
 ```
 
 That's the complete pipeline — from raw CSV to decomposed components in a single notebook. Let's walk through what the output tells us.
 
-The raw plot shows international tourism to Australia growing over the decade with a clear seasonal pulse. The ADF test confirms what we see: a p-value around 0.30 means the series is non-stationary, driven by that upward trend.
+The raw plot shows international tourism to Australia growing over the decade with a clear seasonal pulse. The ADF test confirms what we see: a p-value of 0.998 means the series is non-stationary, driven by that upward trend.
 
-The decomposition plots split the series into its parts. The trend panel shows steady growth from roughly 3,500 to 5,500 thousand visitors per quarter, with a visible dip around 2003 (likely related to the SARS outbreak and its impact on international travel). The seasonal panel reveals a consistent quarterly rhythm: Q3 and Q4 are above trend (Southern Hemisphere spring and summer attract more visitors), while Q1 and Q2 fall below.
+The decomposition plots split the series into its parts. The trend panel shows growth from roughly 26 to 46 million visitor nights per quarter, with a flat stretch from 2001 to 2003 that bottoms out in early 2003 (likely related to the SARS outbreak and its impact on international travel). The seasonal panel reveals a consistent quarterly rhythm: Q1 runs about 24% above trend (January–March is the Australian summer, which falls during the Northern Hemisphere's winter), Q2 runs about 23% below, and Q3 and Q4 sit within about 5% of the trend line.
 
 The residual panel is where you check your model choice. If the residuals show no remaining pattern — just random scatter around zero (additive) or around 1.0 (multiplicative) — the decomposition did its job. If you still see seasonal waves in the residuals, you chose the wrong model.
 
@@ -508,9 +561,9 @@ The residual panel is where you check your model choice. If the residuals show n
 
 Let's step back from the code and talk about what we actually learned from the Full Pipeline output, because the numbers tell a story that connects directly back to the hotel group on Collins Avenue.
 
-The **trend component** shows that Australian tourism grew steadily across the decade, roughly doubling from the late 1990s to 2010. This tells us that any business relying on tourism volume — hotels, restaurants, tour operators — is operating in a growth market. But growth isn't constant: notice the flattening around 2003 and the acceleration after 2005. A business that assumed the same growth rate every year would misallocate resources during those periods of change.
+The **trend component** shows that Australian tourism grew across the decade, with annual visitor nights rising more than 80% from 1999 to 2010. This tells us that any business relying on tourism volume — hotels, restaurants, tour operators — is operating in a growth market. But growth isn't constant: notice the plateau from 2001 through 2003, when the trend stalled and dipped slightly, and the steady climb after that, with annual totals rising every year from 2003 on. A business that assumed the same growth rate every year would misallocate resources during those periods of change.
 
-The **seasonal component** is where the money is. The quarterly pattern shows that Q3 and Q4 consistently run about 6% above the trend line, while Q1 and Q2 run 4–8% below. That seasonal swing is not random and it's not a guess — it repeats with mechanical consistency every single year. For our Miami Beach hotel group (where the seasons are flipped — Q1 is peak), this same analysis would quantify exactly how many more rooms they can expect to fill in January versus September, and by how much they should adjust rates.
+The **seasonal component** is where the money is. The quarterly pattern shows that Q1 consistently runs about 24% above the trend line and Q2 about 23% below, while Q3 (about 5% below) and Q4 (about 4% above) sit close to it. That seasonal swing is not random and it's not a guess — it repeats with mechanical consistency every single year. For our Miami Beach hotel group (where Q1 is also the peak, thanks to snowbird season), this same analysis would quantify exactly how many more rooms they can expect to fill in January versus September, and by how much they should adjust rates.
 
 The **residual component** tells you how much variation is left after you account for trend and seasonality. Small residuals mean the series is highly structured — most of the movement is explained by long-term growth and seasonal rhythm. Large or patterned residuals suggest something the model is missing: a structural break, an external shock, or a component you haven't accounted for.
 
@@ -540,27 +593,12 @@ That's what forecasting is — and it's exactly what Chapter 2 delivers. You'll 
 
 ## 7. Chapter Lab
 
-### Lab 1: Rolling Averages and Seasonal Decomposition on Florida Tourism Data
+### Lab 1: Time Series Exploration & Forecasting
 
-**Objective**: Apply the complete time series exploration pipeline to a tourism dataset independently, producing a decomposition and business interpretation that a non-technical audience could understand.
+Lab 1 covers this chapter and Chapter 2 together, using the **Florida Hotel Occupancy** dataset (quarterly, 2005–2024). Choose **one numeric column** as your target, any column except `occupancy_rate_pct`. Part A of the lab uses this chapter's skills: a time series plot, rolling windows, resampling, the ADF test, and seasonal decomposition. Part B adds the SARIMAX vs Prophet forecasting from Chapter 2. The data is quarterly, so use `period=4` when you decompose it. The lab is worth **20 points**.
 
-**Dataset**: Use the Australian tourism dataset from Example 3 (URL provided in the code), or find a different quarterly or monthly tourism dataset. If you choose your own dataset, it should have at least 3 full years of data and clear seasonal patterns.
-
-**Milestones**:
-
-1. **Load and Inspect** — Load the dataset, set a proper DatetimeIndex, and report the shape, date range, frequency, and any missing values.
-
-2. **Visualize** — Plot the raw time series with proper title, axis labels, and gridlines. In a text cell, describe what you see: is there a visible trend? Can you spot seasonality?
-
-3. **Smooth** — Compute and plot rolling averages with two different window sizes (e.g., 4-quarter and 8-quarter for quarterly data, or 6-month and 12-month for monthly data). Describe what each rolling average reveals about the underlying trend.
-
-4. **Test** — Run the ADF test on the raw series. Report the p-value and interpret it. If the series is non-stationary, difference it and test again.
-
-5. **Decompose** — Apply `seasonal_decompose()` using both the additive and multiplicative models. Display all four component plots for each. Choose the model that produces better (more random) residuals and explain your choice.
-
-6. **Interpret** — In a text cell of at least 150 words, write a business interpretation. If you were advising a tourism board based on this data, what would you tell them about staffing, marketing spend, and budget planning for next year?
-
-**Deliverable**: A completed Google Colab notebook with all code cells executed, all plots visible, and written interpretations in text cells.
+- Starter notebook: [labs/lab01_forecasting.ipynb](https://github.com/c-marq/cap4767-data-mining/blob/main/labs/lab01_forecasting.ipynb)
+- Instructions and point breakdown: [labs/lab01-forecasting.md](https://github.com/c-marq/cap4767-data-mining/blob/main/labs/lab01-forecasting.md)
 
 ---
 
