@@ -4,7 +4,7 @@
 ---
 
 ## Overview
-After the Module 1 demo on Apple stock data and California wildfire records, your group applies the same time-series techniques (date ranges, reindexing, resampling, and rolling windows) to a stock dataset. Before coding, the group discusses what useful information you would lose, and what you might gain, by looking at stock data once per week instead of every day. The exercise is graded on completeness, correctness, and the group discussion response. Groups self-assign four roles: Lead Coder, Data Interpreter, QA Reviewer, and Presenter.
+After the Module 1 demo on Apple stock data and U.S. wildfire records, your group applies the same time-series techniques (date ranges, reindexing, resampling, and rolling windows) to a stock dataset. Before coding, the group discusses what useful information you would lose, and what you might gain, by looking at stock data once per week instead of every day. The exercise is graded on completeness, correctness, and the group discussion response. Groups self-assign four roles: Lead Coder, Data Interpreter, QA Reviewer, and Presenter.
 
 ---
 
