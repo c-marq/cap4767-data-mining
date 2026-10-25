@@ -25,7 +25,7 @@ The starter notebook has the full instructions for every task.
 |------|-------|
 | 1: Explore the Data | Summary statistics with `.describe()` · extract `occupancy_rate_pct` as a series with quarterly frequency |
 | 2: Exploratory Analysis | Time series plot · ADF stationarity test · seasonal decomposition (period = 4) |
-| 3: Train/Test Split | First 64 quarters for training, remaining 16 for testing · plot both with a red dashed line at the split |
+| 3: Train/Test Split | First 76 quarters (2005 through 2023) for training, the last 4 (2024) for testing · plot both with a red dashed line at the split |
 | 4: SARIMAX Forecasting | `auto_arima` with `seasonal=True`, `m=4` · fit SARIMAX and forecast the test period · calculate RMSE and R² |
 | 5: Prophet Forecasting | Prophet-formatted DataFrame · fit with multiplicative seasonality · forecast the test period · calculate RMSE and R² |
 | 6: Compare Models & Build Recommendation | Comparison table · combined overlay plot of both forecasts · group recommendation |
