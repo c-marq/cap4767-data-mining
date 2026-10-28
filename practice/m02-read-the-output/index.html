@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Module 2 Read the Output · CAP4767</title><meta name="description" content="Module 2 worksheet for CAP4767: read forecasting output (RMSE, R², MAPE, bias) and explain it to a CFO or a board. No code to write."><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=JetBrains+Mono:wght@400;600&family=Source+Sans+3:wght@400;600;700&display=swap"><style>
+/* Layout: one reading column; sticky progress strip; each exercise is a worksheet card with plan, target, hints, solution */
+:root{
+ --bg:#F6F7F9; --surface:#FFFFFF; --fg:#1C2433; --muted:#5A6577; --line:#DCE1E8;
+ --brand:#1B2A41; --brand-fg:#FFFFFF; --accent:#F5B82E; --accent-ink:#1B2A41; --link:#2F5F98;
+ --code-bg:#22272E; --code-fg:#E6EDF3; --out-bg:#EEF1F5; --out-fg:#1D232B;
+ --go-bg:#DDF3E6; --go-fg:#17663A; --why-bg:#DCEAF7; --why-fg:#1A4C78;
+ --hint-bg:#FCF3D9; --hint-fg:#6E5606; --stop-bg:#F8DDDA; --stop-fg:#8E2A20;
+ --f-display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+ --f-body:"Source Sans 3", "Segoe UI", system-ui, sans-serif;
+ --f-mono:"JetBrains Mono", ui-monospace, "Courier New", monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+ --bg:#11161F; --surface:#18202C; --fg:#E4E9F0; --muted:#9AA6B8; --line:#2C3747;
+ --brand:#0B111A; --brand-fg:#F2F5F9; --accent:#F5B82E; --accent-ink:#141A24; --link:#8DB7EA;
+ --code-bg:#0B0F15; --code-fg:#E6EDF3; --out-bg:#202A38; --out-fg:#DDE4EE;
+ --go-bg:#173826; --go-fg:#9FE0B9; --why-bg:#16304A; --why-fg:#A9CDF2;
+ --hint-bg:#3A3112; --hint-fg:#F2D98A; --stop-bg:#45211D; --stop-fg:#F4B2AA; color-scheme:dark}}
+:root[data-theme="dark"]{
+ --bg:#11161F; --surface:#18202C; --fg:#E4E9F0; --muted:#9AA6B8; --line:#2C3747;
+ --brand:#0B111A; --brand-fg:#F2F5F9; --accent:#F5B82E; --accent-ink:#141A24; --link:#8DB7EA;
+ --code-bg:#0B0F15; --code-fg:#E6EDF3; --out-bg:#202A38; --out-fg:#DDE4EE;
+ --go-bg:#173826; --go-fg:#9FE0B9; --why-bg:#16304A; --why-fg:#A9CDF2;
+ --hint-bg:#3A3112; --hint-fg:#F2D98A; --stop-bg:#45211D; --stop-fg:#F4B2AA; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:17px;line-height:1.6}
+.wrap{max-width:860px;margin:0 auto;padding-inline:18px;padding-block:0 64px}
+h1,h2,h3,h4{font-family:var(--f-display);text-wrap:balance;line-height:1.2}
+h1{font-size:clamp(28px,5vw,40px);margin:26px 0 6px;font-weight:700}
+h2{font-size:24px;margin:38px 0 10px}
+h4{font-size:16px;margin:16px 0 6px;font-family:var(--f-body);font-weight:700;letter-spacing:.02em}
+a{color:var(--link)}
+p{margin:8px 0}
+code{font-family:var(--f-mono);font-size:.88em;background:var(--out-bg);color:var(--out-fg);padding:1px 6px;border-radius:4px}
+.sub{color:var(--muted);font-size:15px;max-width:65ch}
+.prog{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:2px solid var(--accent);padding-block:10px;display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center}
+.prog .count{font-weight:700;font-variant-numeric:tabular-nums}
+.bar{flex:1 1 140px;height:10px;background:var(--line);border-radius:6px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--go-fg);transition:width .3s}
+.jump{display:flex;gap:4px;flex-wrap:wrap}
+.jump a{font-size:13px;text-decoration:none;color:var(--fg);border:1px solid var(--line);border-radius:12px;padding:1px 9px;font-variant-numeric:tabular-nums}
+.jump a.full{background:var(--go-bg);color:var(--go-fg);border-color:transparent}
+.save{font-size:13px;color:var(--muted);flex-basis:100%}
+.save[data-s="saved"]{color:var(--go-fg)} .save[data-s="error"]{color:var(--stop-fg)}
+.map{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0}
+.map span{padding:5px 11px;border-radius:14px;font-size:14px;border:1px solid var(--line)}
+.map .done{background:var(--go-bg);color:var(--go-fg);border-color:transparent;font-weight:600}
+.map .now{background:var(--accent);color:var(--accent-ink);border-color:transparent;font-weight:700}
+.box{border-radius:8px;padding:12px 16px;margin:12px 0}
+.box .boxlbl{font-weight:700;margin:0 0 4px;letter-spacing:.03em;font-size:14px;text-transform:uppercase}
+.go{background:var(--go-bg);color:var(--fg)} .go .boxlbl{color:var(--go-fg)}
+.why{background:var(--why-bg);color:var(--fg)} .why .boxlbl{color:var(--why-fg)}
+.warn{background:var(--hint-bg);color:var(--fg)} .warn .boxlbl{color:var(--hint-fg)}
+.stop{background:var(--stop-bg);color:var(--fg)} .stop .boxlbl{color:var(--stop-fg)}
+.box ol,.box ul{margin:4px 0;padding-left:22px}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:15.5px;margin:10px 0}
+th,td{border-bottom:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+th{font-family:var(--f-body);font-size:13px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+td.n{font-variant-numeric:tabular-nums;color:var(--muted);width:2em}
+.codewrap{position:relative;margin:8px 0;min-width:0}
+pre{margin:0;overflow-x:auto;white-space:pre;font-family:var(--f-mono);font-size:14px;line-height:1.5;border-radius:8px;padding:12px 14px}
+pre.code{background:var(--code-bg);color:var(--code-fg);padding-right:72px}
+pre.out{background:var(--out-bg);color:var(--out-fg);margin-bottom:10px}
+.lbl{font-size:12.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-top:8px}
+.copy{position:absolute;top:8px;right:8px;background:var(--accent);color:var(--accent-ink);border:0;border-radius:5px;padding:4px 10px;font:600 13px var(--f-body);cursor:pointer}
+.copy:focus-visible,button:focus-visible,summary:focus-visible,input:focus-visible{outline:3px solid var(--link);outline-offset:2px}
+.sec{background:var(--brand);color:var(--brand-fg);border-radius:10px;padding:14px 18px;margin:40px 0 12px;scroll-margin-top:70px}
+.sec h2{margin:0;color:var(--accent);font-size:22px}
+.sec p{margin:4px 0 0;opacity:.85;font-size:15px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 18px;margin:16px 0;scroll-margin-top:70px}
+.card.is-done{border-color:var(--go-fg)}
+.card h3{margin:0 0 6px;display:flex;gap:10px;align-items:center;font-size:20px}
+.card h3 label{display:flex;gap:10px;align-items:center;cursor:pointer}
+.tick{width:20px;height:20px;accent-color:var(--go-fg);flex:none}
+.tag{font-family:var(--f-mono);font-size:13px;background:var(--brand);color:var(--brand-fg);border-radius:5px;padding:1px 7px}
+details{margin:6px 0}
+summary{cursor:pointer;font-weight:700;padding:8px 12px;border-radius:6px;list-style:none}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"▸ "} details[open]>summary::before{content:"▾ "}
+details.hint>summary{background:var(--hint-bg);color:var(--hint-fg)}
+details.sol>summary{background:var(--stop-bg);color:var(--stop-fg)}
+details>div{padding:4px 4px 4px 12px}
+.rate{display:flex;gap:6px;flex-wrap:wrap}
+.rate input{position:absolute;opacity:0;pointer-events:none}
+.rate label{border:1px solid var(--line);border-radius:6px;padding:4px 12px;cursor:pointer;font-variant-numeric:tabular-nums;background:var(--surface)}
+.rate input:checked+label{background:var(--accent);color:var(--accent-ink);border-color:transparent;font-weight:700}
+.rate input:focus-visible+label{outline:3px solid var(--link);outline-offset:2px}
+.reset{background:none;border:1px solid var(--line);color:var(--muted);border-radius:6px;padding:6px 12px;font:inherit;font-size:14px;cursor:pointer}
+.reset.armed{border-color:var(--stop-fg);color:var(--stop-fg)}
+@media (prefers-reduced-motion: reduce){.bar i{transition:none}}
+@media (max-width:480px){body{font-size:16px} pre{font-size:13px}}
+body{margin:0}</style></head><body><main class="wrap"><div class="prog" role="region" aria-label="Progress"><span class="count"><span id="done">0</span> / 4 done</span><div class="bar" aria-hidden="true"><i id="barfill"></i></div><nav class="jump" aria-label="Jump to section"><a href="#secR" data-sec="R">R</a><a href="#secB" data-sec="B">B</a></nav><span class="save" id="save" data-s="wait">Checking whether this browser can save your progress…</span></div>
+<h1>Module 2: Read the Output</h1><p class="sub">CAP4767 Data Mining with Python · Miami Dade College · Four exercises on reading RMSE, R², MAPE and bias, and saying what they mean to a CFO or a board. You write no code. Your checkmarks and self-ratings save in this browser.</p>
+<h2>What&#x27;s covered</h2><div class="map"><span>Before breakouts · Group Exercise 2</span><span>R · Read the output · R1 to R4</span><span>B · Optional: build it yourself</span></div>
+<div class="box go"><p class="boxlbl">Practice, not graded</p><p>Nothing here is due. R1 is done together in class. R2 to R4 are for you. All the numbers come from the demo notebooks we ran and from the airline-passenger run, so you can trace each one.</p></div>
+<h2>Before breakouts: Group Exercise 2</h2>
+<div class="box why"><p class="boxlbl">Three questions to answer as a group before anyone codes</p><ul><li>Say the business question in one sentence: the decision, the number you forecast, how far ahead, and how often the data comes.</li><li>Guess before you plot: which quarter would be busiest for a Miami Beach hotel, and which slowest? Name one outside event that could cause a spike or a dip.</li><li>Know why the last 4 quarters are the test set (never shuffle), and what <code>m</code> means.</li></ul><p>Then plan each step of the notebook as a comment and build one step at a time. When you reach Step 7, use the frames from R4.</p></div>
+<h2>How to use this worksheet</h2><div class="box go"><p class="boxlbl">Do this</p><ol><li>You do not need Colab. Read on this page.</li><li>Read the story and the <b>What to look for</b> box. Look at <b>The output</b>. Open the code only if you are curious.</li><li>Answer the <b>Think first</b> questions out loud.</li><li>Fill in <b>Your answer</b>. Copy the frames into your notes and finish each sentence with the numbers from the output.</li><li>Stuck? Open Hint 1. Still stuck after a couple of minutes? Hint 2, then Hint 3.</li><li>Open the model answer last. Compare it with yours, then read the Watch out.</li><li>Tick the box beside the title. Your progress saves in this browser.</li></ol></div>
+<div class="box why"><p class="boxlbl">Why read before you report?</p><p>A number with no unit, no baseline and no sign tells a board nothing. The product of your analysis is not 22,927. It is one sentence a CFO can act on. Reading the output the same way every time, in the same order, is how you stop yourself from misreading it, and how you catch a bug before the board does.</p></div>
+<h3>The reading order, for every output</h3><div class="tablewrap"><table><thead><tr><th></th><th>Step</th><th>Ask yourself</th></tr></thead><tbody><tr><td class="n">1</td><td><b>Units</b></td><td>What is the number measured in? Millions of dollars, thousands of trips, a percent? Say it with the unit.</td></tr><tr><td class="n">2</td><td><b>Compare to a baseline</b></td><td>Compared with what? The other model, repeating last year, or guessing the average. R² below 0 means worse than guessing the average.</td></tr><tr><td class="n">3</td><td><b>Check the sign</b></td><td>Error = actual minus forecast. Positive: forecast too low. Negative: forecast too high. Bias is the average of the signed errors.</td></tr><tr><td class="n">4</td><td><b>Size relative to the typical value</b></td><td>Divide the RMSE by a typical value (RMSE as a % of an average month). MAPE is already a percent. Is the miss big or small for this decision?</td></tr><tr><td class="n">5</td><td><b>The plain-English sentence</b></td><td>Who is it for, how big is the miss in their units, which way does it lean, and what should they do with it?</td></tr></tbody></table></div>
+<div class="box why"><p class="boxlbl">The four numbers in one line each</p><ul><li><b>RMSE</b>: a typical miss, in the data&#x27;s own units. Big misses count more.</li><li><b>R²</b>: how much of the ups and downs the model explains, compared with guessing the average. 1 is perfect, 0 is no better than the average, below 0 is worse.</li><li><b>MAPE</b>: each month&#x27;s miss as a % of that month&#x27;s actual value, averaged.</li><li><b>Bias</b>: the average miss with its sign. It shows which way the forecast leans.</li></ul></div>
+<section class="sec" id="secR"><h2>R · Read the output</h2><p>Four exercises · no code · Retail (R1, R4), tourism (R2), airline passengers (R3)</p></section>
+<article class="card" id="R1"><h3><label><input type="checkbox" class="tick" id="tick-R1" data-id="R1" data-sec="R"><span class="tag">R1</span>Retail demo: SARIMAX vs Prophet, for the CFO (together in class)</label></h3><p>The CFO of a restaurant and food services group with 1,200 locations is deciding whether to open 80 new locations and whether to lock a 3-year food supply contract. The board asked for a forecast of U.S. retail and food services sales, in millions of dollars per month, as the market benchmark. Two models were trained on 2010 to 2022 and tested on the 36 months from 2023 to 2025 that they never saw. Read the output the way the CFO needs it read.</p><div class="box why"><p class="boxlbl">What to look for</p><ol><li><b>Units.</b> The RMSE row says $ millions. $22,927M is about $23 billion, not $22,927.</li><li><b>Baseline.</b> Compare the two models on the same test months. R² compares each model with a lazy forecast that predicts the test average ($700,707M) every month. R² below 0 means worse than that lazy forecast.</li><li><b>Sign.</b> Error = actual minus predicted. A negative bias means the forecast came out higher than what happened.</li><li><b>Size.</b> The table gives RMSE as a % of an average test month. That is RMSE divided by $700,707M. It is close to, but not the same as, MAPE (the average of each month&#x27;s % miss).</li><li><b>Sentence.</b> Turn it into a budget band: a projected $700B month, plus and minus one RMSE.</li></ol></div><h4>The output</h4><div class="lbl">Comparison table (retail demo)</div><pre class="out">Metric                                 SARIMAX         Prophet
+RMSE ($ millions)                     $22,927M        $51,176M
+RMSE as % of avg sales                    3.3%            7.3%
+R²                                      0.7577         -0.2075
+R² (interpretation)             75.8% captured      Negative ❌
+Approach                           Statistical   Curve-fitting
+Log-transform?                             Yes             Yes
+
+🏆 SARIMAX wins decisively.
+   RMSE advantage: $28,250M per month</pre><div class="lbl">Test set: 36 months, Jan 2023 to Dec 2025</div><pre class="out">Test mean (real dollars): $700,707M</pre><div class="lbl">Bias (error = actual minus predicted)</div><pre class="out">SARIMAX mean error (bias): $-17,900M</pre><p class="sub">The $28,250M comes from the unrounded RMSEs, so it can differ by $1M from subtracting the two rounded numbers. These are the numbers from the Colab run in class.</p><details><summary>Show the code (not required)</summary><div><div class="codewrap"><pre class="code">sarimax_rmse = np.sqrt(mean_squared_error(test_actual, sarimax_forecast))
+sarimax_r2 = r2_score(test_actual, sarimax_forecast)
+errors_sarimax = test_actual.values - sarimax_forecast.values   # actual minus predicted
+pct_error = sarimax_rmse / test_actual.mean() * 100            # RMSE as a % of an average test month</pre></div></div></details><h4>Think first</h4><ul><li>What are the units of the RMSE? Say $22,927M in billions.</li><li>Which model has the smaller RMSE, and by how much per month?</li><li>What does an R² of -0.2075 tell you about Prophet compared with predicting $700,707M every month?</li><li>SARIMAX&#x27;s bias is -$17,900M. Does it guess too high or too low? Is that the safe or the risky direction for 80 new locations?</li></ul><h4>Your answer (fill in the blanks, copy into your notes)</h4><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">1. UNITS: RMSE is in ____ (dollars, thousands, millions?). $22,927M is about $____ billion.
+2. SIZE: That is ____% of an average test month ($700,707M).
+3. BASELINE: SARIMAX R² is ____, so it explains about ____% of the ups and downs.
+   Prophet R² is ____, which is ____ than just guessing the average every month.
+4. SIGN: SARIMAX bias is -$17,900M. Error = actual minus predicted, so the forecast is too ____ on average.
+5. BAND: For a $700 billion month, budget between $____ and $____ (forecast minus and plus one RMSE).
+6. WINNER: ____ wins by $____ per month in RMSE.</pre></div><details class="hint"><summary>Hint 1</summary><div><p>Units: the table says $ millions, so 22,927 millions is 22.927 billions.</p></div></details><details class="hint"><summary>Hint 2</summary><div><p>R² below 0 means the model is worse than guessing the average ($700,707M) every month. Bias: error = actual minus predicted, so a negative error means predicted was bigger than actual.</p></div></details><details class="hint"><summary>Hint 3</summary><div><p>Band: 700,000 minus 22,927 and 700,000 plus 22,927. Winner: compare the two RMSE values.</p></div></details><details class="sol"><summary>Show model answer (try first)</summary><div><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">1. UNITS: RMSE is in millions of dollars. $22,927M is about $23 billion.
+2. SIZE: That is 3.3% of an average test month ($700,707M).
+3. BASELINE: SARIMAX R² is 0.7577, so it explains about 76% of the ups and downs.
+   Prophet R² is -0.2075, which is worse than just guessing the average every month.
+4. SIGN: SARIMAX bias is -$17,900M. Error = actual minus predicted, so the forecast is too high on average.
+5. BAND: For a $700 billion month, budget between $677,073M and $722,927M (forecast minus and plus one RMSE).
+6. WINNER: SARIMAX wins by $28,250M per month in RMSE.</pre></div><p>Say it out loud in one breath: &quot;SARIMAX misses by about $23 billion a month, 3.3% of a typical month. It explains about 76% of the ups and downs. Prophet is worse than guessing the average.&quot;</p><div class="box warn"><p class="boxlbl">Watch out: a common misread</p><ul><li>&quot;R² 0.7577 means 76% accurate.&quot; No. R² is not accuracy. It says how much of the ups and downs the model explains compared with guessing the average.</li><li>&quot;The bias is negative, so the model under-predicts.&quot; The sign is flipped. Error = actual minus predicted, so a negative bias means the forecast was too high. For a CFO this is the risky direction: revenue that never shows up.</li><li>&quot;$22,927M is huge.&quot; Compare it with an average month of $700,707M. It is 3.3%.</li><li>The plus or minus one RMSE band is a rule of thumb for budgeting, not a formal confidence interval.</li></ul></div></div></details></article>
+<article class="card" id="R2"><h3><label><input type="checkbox" class="tick" id="tick-R2" data-id="R2" data-sec="R"><span class="tag">R2</span>Tourism demo: same skills, different units</label></h3><p>A Miami travel company wants to test two forecasting models on a market with clear seasons before using them on Florida data. It borrowed a data set of holiday trips Australians took within Australia, in thousands of trips per quarter. The models trained on the first 64 quarters and were tested on the last 12 (three full years). Read the output.</p><div class="box why"><p class="boxlbl">What to look for</p><ol><li><b>Units.</b> Thousands of trips per quarter, not trips. This time there is no dollar sign.</li><li><b>Baseline.</b> R² near 0 means barely better than guessing the average. Near 1 means the model explains almost all the ups and downs.</li><li><b>Sign.</b> Error = actual minus forecast. Positive in 11 of 12 quarters means the forecast was too low most of the time.</li><li><b>Size.</b> Divide the RMSE by the typical quarter (9,623).</li><li><b>Sentence.</b> Which model, how big the miss in plain units, and which way it leans.</li></ol></div><h4>The output</h4><div class="lbl">Key numbers from the checked run (thousands of trips)</div><pre class="out">Metric          SARIMAX    Prophet
+RMSE (trips)      1,046        560
+R²               0.3073     0.8014
+
+Prophet wins on RMSE by 486 trips</pre><div class="lbl">The data (from the checked run)</div><pre class="out">Mean quarterly trips: 9,623   (76 quarters, 1998 Q1 to 2016 Q4)</pre><div class="lbl">From the residual table (error = actual minus forecast)</div><pre class="out">SARIMAX: error is positive in 11 of 12 test quarters
+Biggest miss, Q1 2016: SARIMAX 2,079 | Prophet 1,227 (thousand trips, both too low)</pre><p class="sub">The printout says &quot;trips&quot;, but the data is in thousands of trips, so read 1,046 as 1,046 thousand and 486 as 486 thousand. These numbers come from the instructor&#x27;s checked local run. Prophet in Colab may differ a little. The winner should be the same.</p><details><summary>Show the code (not required)</summary><div><div class="codewrap"><pre class="code">rmse = np.sqrt(mean_squared_error(test, forecast))
+r2 = r2_score(test, forecast)
+...
+&quot;SARIMAX_Error&quot;: test_data.values - sarimax_forecast.values   # actual minus forecast</pre></div></div></details><h4>Think first</h4><ul><li>How many trips is an RMSE of 1,046 when the data is in thousands?</li><li>Which model has the higher R²? Does the same model have the lower RMSE?</li><li>In retail, SARIMAX won. Here Prophet wins. What does that tell you about picking a model by reputation?</li><li>SARIMAX&#x27;s error was positive in 11 of 12 quarters. Is it forecasting too high or too low? Why might that happen when trips keep climbing?</li></ul><h4>Your answer (fill in the blanks, copy into your notes)</h4><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">1. UNITS: The data is in thousands of trips per quarter. SARIMAX&#x27;s RMSE of 1,046 means a typical miss of about ____ thousand trips (over ____ million).
+2. SIZE: An average quarter is 9,623, so SARIMAX misses by about ____% of an average quarter and Prophet (560) by about ____%.
+3. BASELINE: R² is 0.3073 for SARIMAX and 0.8014 for Prophet, so SARIMAX explains about ____% of the ups and downs and Prophet about ____%.
+4. SIGN: SARIMAX&#x27;s error was positive in 11 of 12 quarters. Error = actual minus forecast, so SARIMAX forecast too ____ as trips climbed.
+5. WINNER: ____ wins on RMSE by ____ thousand trips.</pre></div><details class="hint"><summary>Hint 1</summary><div><p>Units: 1,046 in thousands is 1,046,000 trips, a bit over a million.</p></div></details><details class="hint"><summary>Hint 2</summary><div><p>Size: RMSE divided by 9,623, times 100. Do it for both models. R² as a percent: 0.3073 is about 31%.</p></div></details><details class="hint"><summary>Hint 3</summary><div><p>Sign: error = actual minus forecast. A positive error means actual was higher, so the forecast was too low.</p></div></details><details class="sol"><summary>Show model answer (try first)</summary><div><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">1. UNITS: ... a typical miss of about 1,046 thousand trips (over 1 million).
+2. SIZE: ... SARIMAX misses by about 10.9% of an average quarter and Prophet (560) by about 5.8%.
+3. BASELINE: ... SARIMAX explains about 31% of the ups and downs and Prophet about 80%.
+4. SIGN: ... SARIMAX forecast too low as trips climbed.
+5. WINNER: Prophet wins on RMSE by 486 thousand trips.</pre></div>
+<p>The percentages are RMSE divided by 9,623 (1,046 / 9,623 = 10.9%, 560 / 9,623 = 5.8%). The test years sit higher than the overall average, so the true shares are a little smaller.</p><div class="box warn"><p class="boxlbl">Watch out: a common misread</p><ul><li>&quot;The RMSE is 1,046 trips.&quot; The data is in thousands, so it is about 1,046,000 trips.</li><li>&quot;Prophet won here, so Prophet is the better model.&quot; It won on this data. On the retail data SARIMAX won. Compare on your own data every time.</li><li>&quot;R² of 0.3073 is bad because it is under 0.5.&quot; Judge it against the alternative and the decision. Here Prophet&#x27;s 0.8014 is clearly better, and SARIMAX is still above 0, so it beats guessing the average.</li></ul></div></div></details></article>
+<article class="card" id="R3"><h3><label><input type="checkbox" class="tick" id="tick-R3" data-id="R3" data-sec="R"><span class="tag">R3</span>Spot the problem from the output</label></h3><p>It is the end of 1959. Three analysts at a Miami travel agency each forecast the 12 months of 1960 for international airline passengers (thousands). One repeated last year. One fit a seasonal model. One ran the model a different way. The manager has the three printouts and no time. Which ones can she trust, and which has a bug?</p><div class="box why"><p class="boxlbl">What to look for</p><ol><li><b>Units.</b> Thousands of passengers. MAPE is a percent.</li><li><b>Baseline.</b> A number alone means little. 18.59 only looks good next to 50.71.</li><li><b>Sign.</b> Not shown here, so say what you would check next.</li><li><b>Size.</b> Compare each RMSE with the passengers themselves (390 to 622). If the miss is as big as the data, stop.</li><li><b>Sentence.</b> Which analyst do you trust, and why, in one sentence.</li></ol></div><h4>The output</h4><div class="lbl">Analyst A: repeat last year (the baseline)</div><pre class="out">Seasonal naive RMSE: 50.71 thousand passengers
+Seasonal naive MAPE: 9.99%</pre><div class="lbl">Analyst B: a seasonal model</div><pre class="out">SARIMAX RMSE: 18.59 thousand passengers
+SARIMAX MAPE: 2.90%</pre><div class="lbl">Analyst C: the same kind of model, run a different way</div><pre class="out">SARIMAX RMSE: 475.82 thousand passengers
+SARIMAX MAPE: 98.68%</pre><p class="sub">Same data, same 12 test months. In the test year the monthly passengers ran from 390 to 622 thousand. From the airline-passenger run in the optional section.</p><details><summary>Show the code (not required)</summary><div><div class="codewrap"><pre class="code">errors = test.values - forecast.values
+rmse = np.sqrt(np.mean(errors ** 2))
+mape = np.mean(np.abs(errors / test.values)) * 100   # average % miss</pre></div></div></details><h4>Think first</h4><ul><li>Is 50.71 good or bad on its own? What do you need to know before you can say?</li><li>How much better is Analyst B than the baseline? Say it as a percent.</li><li>MAPE 98.68% means the forecast is off by about what share of the actual value? Is that believable for a seasonal model that works?</li><li>If one number is absurd for its units, is the model wrong or is the code wrong?</li></ul><h4>Your answer (fill in the blanks, copy into your notes)</h4><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">1. BASELINE: Repeating last year misses by RMSE ____ thousand passengers, or ____% (MAPE). That is the bar to beat.
+2. ANALYST B: RMSE ____ and MAPE ____%. Against the baseline that cuts the RMSE by about ____%. I would / would not use it because ____.
+3. ANALYST C: RMSE 475.82 is about as big as the passengers themselves (390 to 622). A MAPE of 98.68% means the forecast is off by almost ____% every month. That is not a model, it is a ____ in the code.
+4. MY RULE: Before I trust a number I check the ____ (units) and the ____ (what is it compared with).</pre></div><details class="hint"><summary>Hint 1</summary><div><p>50.71 means nothing alone. It is the baseline: the bar every model has to beat.</p></div></details><details class="hint"><summary>Hint 2</summary><div><p>(50.71 - 18.59) / 50.71 is about 63%. Compare the MAPE too: 9.99% against 2.90%.</p></div></details><details class="hint"><summary>Hint 3</summary><div><p>Analyst C&#x27;s RMSE is about the size of the passengers. When the answer is absurd for its units, check the code first. Think about the scale the forecast was left in.</p></div></details><details class="sol"><summary>Show model answer (try first)</summary><div><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">1. BASELINE: ... RMSE 50.71 thousand passengers, or 9.99% (MAPE). That is the bar to beat.
+2. ANALYST B: RMSE 18.59 and MAPE 2.90%. Against the baseline that cuts the RMSE by about 63%. I would use it because the typical miss falls from about 10% to about 3%.
+3. ANALYST C: ... off by almost 100% every month. That is not a model, it is a bug in the code.
+4. MY RULE: Before I trust a number I check the units and the baseline.</pre></div>
+<p>Why C is a bug: its RMSE is about the size of the data itself. Analyst C&#x27;s forecast was still on the log scale (about 6 instead of about 500), so it was never converted back with np.exp.</p><div class="box warn"><p class="boxlbl">Watch out: a common misread</p><ul><li>&quot;18.59 is a small number, so Analyst B is great.&quot; Small compared with what? Only the baseline (50.71) and the units (thousands) make it mean something.</li><li>&quot;Analyst C used a model, so the output must be right.&quot; An absurd number for its units, like an error as big as the data, means a bug until proven otherwise.</li></ul></div></div></details></article>
+<article class="card" id="R4"><h3><label><input type="checkbox" class="tick" id="tick-R4" data-id="R4" data-sec="R"><span class="tag">R4</span>The board slide: 3 to 5 sentences</label></h3><p>The board has one slide for the forecast and 30 seconds for it. You do not say RMSE, R² or bias to a board without turning each one into plain words and a decision. Use the R1 numbers and the five sentence frames below to write the slide.</p><div class="box why"><p class="boxlbl">What to look for</p><ol><li><b>Units.</b> Every number gets its unit or a percent. Dollars, not &quot;22,927&quot;.</li><li><b>Baseline.</b> The recommendation names the model and says why it beats the other one.</li><li><b>Sign.</b> Say which way the model leans and what that means for the plan.</li><li><b>Size.</b> Give the miss in dollars and as a percent of a typical month.</li><li><b>Sentence.</b> End with the one thing that could break it and what you will do.</li></ol></div><h4>The output</h4><div class="lbl">The R1 numbers you can use</div><pre class="out">RMSE:            $22,927M     (3.3% of an average test month, $700,707M)
+R²:              0.7577       (75.8% captured)
+Bias:            $-17,900M    (negative = forecast too high)
+Band, $700B month: $677,073M to $722,927M
+Prophet:         RMSE $51,176M, R² -0.2075</pre><details><summary>Show the code (not required)</summary><div><div class="codewrap"><pre class="code"># No code for this one. Every number is from R1.
+# Band = $700,000M minus and plus the SARIMAX RMSE (rule of thumb, not a formal interval).</pre></div></div></details><h4>Think first</h4><ul><li>Which two numbers does the board hear first? Which number (R²) do you turn into a percent of the ups and downs?</li><li>Does the bias help or hurt the CFO&#x27;s plan? Which end of the range do you plan near?</li><li>What could make this forecast wrong in the future, and how often will you check it?</li></ul><h4>Your answer (fill in the blanks, copy into your notes)</h4><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">In a typical month our forecast misses by about ____ (____%).
+That means for planning, a $700 billion month should be budgeted between ____ and ____.
+The model leans ____ (over-predicts or under-predicts) by about ____ per month, so plan near the ____ end.
+We recommend ____ because ____ (its typical miss is ____ compared with ____, and its R² is ____ compared with ____).
+Watch out for ____ (what could break the forecast) and we will ____ (what you will do about it).</pre></div><details class="hint"><summary>Hint 1</summary><div><p>Sentence 1: the RMSE in dollars and as a percent of an average month. Sentence 2: the band from R1.</p></div></details><details class="hint"><summary>Hint 2</summary><div><p>Sentence 3: the bias is negative, so the forecast is too high. A forecast that is too high is optimistic, so plan near the low end.</p></div></details><details class="hint"><summary>Hint 3</summary><div><p>Sentence 4: compare the RMSEs and the R²s of the two models. Sentence 5: a shock (like the COVID recovery) or a change in the growth rate. Fix: re-fit on the latest data every quarter.</p></div></details><details class="sol"><summary>Show model answer (try first)</summary><div><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">In a typical month our forecast misses by about $22,927 million (3.3%).
+That means for planning, a $700 billion month should be budgeted between $677,073 million and $722,927 million.
+The model leans high (over-predicts) by about $17,900 million per month, so plan near the low end.
+We recommend SARIMAX because its typical miss is less than half of Prophet's ($22,927M compared with $51,176M), and it captures 75.8% of the ups and downs while Prophet's R² of -0.2075 is worse than guessing the average.
+Watch out for a shock like the COVID recovery or a change in the growth rate, and we will re-fit the model on the latest data every quarter.</pre></div><p>Keep it to numbers you can defend: each one is in the R1 output.</p><div class="box warn"><p class="boxlbl">Watch out: a common misread</p><ul><li>&quot;The R² is 0.7577.&quot; Do not say that to a board. Say &quot;the model captures about 76% of the ups and downs in sales.&quot;</li><li>Quoting a number with no unit or no baseline (&quot;the RMSE is 22,927&quot;). The board cannot tell whether that is good.</li><li>Hiding the lean. If the model over-predicts, say so and say which end of the range to plan near.</li></ul><div class="box go"><p class="boxlbl">Use the same frames in your group</p><p>Your group can use these same five frames for Group Exercise 2 Step 7 and for your 3-minute presentation. Swap in your own numbers and keep the order: miss, planning meaning, lean, recommendation, risk.</p></div></div></div></details></article>
+<h2 id="rate">Rate yourself</h2><p>Give each section a 1 (shaky), 2 (okay) or 3 (solid). Your ratings save with your progress. Any 1s? Redo that exercise tomorrow with the model answer closed, and bring your questions to the next class.</p>
+<div class="tablewrap"><table><thead><tr><th>Section</th><th>Topic</th><th>Your rating</th></tr></thead><tbody><tr><td><b>R</b></td><td>Read the output and say it in plain English</td><td><div class="rate" role="radiogroup" aria-label="Rating for section R"><input type="radio" name="rate-R" id="rate-R-1" value="1" data-sec="R"><label for="rate-R-1">1</label><input type="radio" name="rate-R" id="rate-R-2" value="2" data-sec="R"><label for="rate-R-2">2</label><input type="radio" name="rate-R" id="rate-R-3" value="3" data-sec="R"><label for="rate-R-3">3</label></div></td></tr><tr><td><b>B</b></td><td>Optional: build it yourself</td><td><div class="rate" role="radiogroup" aria-label="Rating for section B"><input type="radio" name="rate-B" id="rate-B-1" value="1" data-sec="B"><label for="rate-B-1">1</label><input type="radio" name="rate-B" id="rate-B-2" value="2" data-sec="B"><label for="rate-B-2">2</label><input type="radio" name="rate-B" id="rate-B-3" value="3" data-sec="B"><label for="rate-B-3">3</label></div></td></tr></tbody></table></div>
+<section class="sec" id="secB"><h2>B · Optional: build it yourself</h2><p>Want to write the code behind R3? Three short exercises on the airline and electricity data. Not graded.</p></section>
+<details><summary>Open the optional coding exercises (B1 to B3)</summary><div>
+<div class="box warn"><p class="boxlbl">About the numbers</p><p>Every sample run and solution in B1 to B3 was produced by running the code on my computer (Python 3.14.8, pandas 3.0.6, numpy 2.5.4, statsmodels 0.15.0). Colab may use other versions, so your numbers can differ in the last digit or two. B2 uses B1&#x27;s variables, so run B1 first and put B2 in a cell below it. B3 reuses the names train and test, so start B3 in a new notebook.</p></div>
+<div class="box why"><p class="boxlbl">The data</p><p><b>B1 and B2:</b> monthly international airline passengers, in thousands, January 1949 to December 1960 (144 rows). Box and Jenkins (1976), through the Time Series Data Library.</p><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">url = &quot;https://raw.githubusercontent.com/c-marq/cap4767-data-mining/refs/heads/main/data/airline-passengers.csv&quot;</pre></div><p><b>B3:</b> monthly industrial production index for electric and gas utilities (2017 = 100), January 1985 to December 2018 (408 rows). Federal Reserve Board, series IPG2211A2N on FRED. It is a national index, not Florida data.</p><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">url = &quot;https://raw.githubusercontent.com/c-marq/cap4767-data-mining/refs/heads/main/data/us-electricity-production-monthly.csv&quot;</pre></div></div>
+<article class="card" id="B1"><h3><label><input type="checkbox" class="tick" id="tick-B1" data-id="B1" data-sec="B"><span class="tag">B1</span>Seasonal naive baseline</label></h3><p>It is the end of 1959. A Miami travel agency wants to know how many international seats its clients will need each month of 1960. You have monthly international airline passengers (in thousands) from 1949 on. Before any fancy model, build the simplest honest forecast: each month of 1960 will look like the same month of 1959. Hold out the last 12 months of the data as the test set and measure how far off that rule is.</p><div class="box why"><p class="boxlbl">How to think about the plan</p><ol><li>A baseline is the forecast you could make in 30 seconds. Every model has to beat it, or it is not worth the work.</li><li>This series has a seasonal pattern that repeats every 12 rows, so <code>m = 12</code>. The seasonal naive rule says: this month = the same month one year earlier.</li><li>Split by time. Train on the earlier months, test on the last 12. The forecast may only use training data.</li><li>RMSE is in the data&#x27;s units (thousands of passengers) and punishes big misses. MAPE is in percent, so it is easier to say to a manager.</li></ol></div><h4>Think first</h4><ul><li>What is the forecast for January 1960 under this rule? Which row of the data does it come from?</li><li>Why must the test set be the last 12 months and not 12 random months?</li><li>RMSE comes out in thousands of passengers and MAPE in percent. When would you quote each one to a manager?</li></ul><h4>Your plan (copy into a Colab cell)</h4><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code"># B1 · Seasonal naive baseline
+url = &quot;https://raw.githubusercontent.com/c-marq/cap4767-data-mining/refs/heads/main/data/airline-passengers.csv&quot;   # given: monthly passengers (thousands), 1949-1960
+
+# PLAN
+# 1. imports: pandas as pd, numpy as np
+# 2. load the CSV: parse_dates=[&quot;Month&quot;], index_col=&quot;Month&quot;; take the Passengers column; .asfreq(&quot;MS&quot;)
+# 3. split by time: train = everything except the last 12 months, test = the last 12 months
+# 4. baseline: forecast each test month with the same month one year earlier (the last 12 training months)
+# 5. errors = actual - forecast; snaive_rmse = sqrt(mean(errors squared)); snaive_mape = mean(abs(errors / actual)) * 100
+# 6. print: rows and date range, train and test sizes, first 3 rows of actual vs forecast, RMSE, MAPE
+# YOUR CODE HERE</pre></div><div class="lbl">Target · no input</div><pre class="out">Rows: 144 | 1949-01 to 1960-12
+Train: 132 months | Test: 12 months
+            actual  snaive
+Month                     
+1960-01-01     417     360
+1960-02-01     391     342
+1960-03-01     419     406
+Seasonal naive RMSE: 50.71 thousand passengers
+Seasonal naive MAPE: 9.99%</pre><p class="sub">Colab may print the last digits a little differently. Your wording can differ. The logic and the numbers should match.</p><details class="hint"><summary>Hint 1</summary><div><p><code>ts = df[&quot;Passengers&quot;].asfreq(&quot;MS&quot;)</code>, then <code>train = ts.iloc[:-12]</code> and <code>test = ts.iloc[-12:]</code>.</p></div></details><details class="hint"><summary>Hint 2</summary><div><p>The forecast is the last 12 training values, in order: <code>snaive = train.iloc[-12:].values</code>. They line up with the 12 test months.</p></div></details><details class="hint"><summary>Hint 3</summary><div><p><code>errors = test.values - snaive</code>, then <code>snaive_rmse = np.sqrt(np.mean(errors ** 2))</code> and <code>snaive_mape = np.mean(np.abs(errors / test.values)) * 100</code>. Use these exact names: B2 reads <code>snaive_rmse</code>.</p></div></details><details class="sol"><summary>Show solution (try first)</summary><div><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">import numpy as np
+import pandas as pd
+
+url = &quot;https://raw.githubusercontent.com/c-marq/cap4767-data-mining/refs/heads/main/data/airline-passengers.csv&quot;
+df = pd.read_csv(url, parse_dates=[&quot;Month&quot;], index_col=&quot;Month&quot;)
+ts = df[&quot;Passengers&quot;].asfreq(&quot;MS&quot;)
+print(f&quot;Rows: {len(ts)} | {ts.index[0]:%Y-%m} to {ts.index[-1]:%Y-%m}&quot;)
+
+# Split by time: the last 12 months are the test set
+train = ts.iloc[:-12]
+test = ts.iloc[-12:]
+print(f&quot;Train: {len(train)} months | Test: {len(test)} months&quot;)
+
+# Seasonal naive: each test month = the same month one year earlier
+snaive = train.iloc[-12:].values
+
+# Metrics
+errors = test.values - snaive
+snaive_rmse = np.sqrt(np.mean(errors ** 2))
+snaive_mape = np.mean(np.abs(errors / test.values)) * 100
+
+print(pd.DataFrame({&quot;actual&quot;: test.values, &quot;snaive&quot;: snaive}, index=test.index).head(3))
+print(f&quot;Seasonal naive RMSE: {snaive_rmse:.2f} thousand passengers&quot;)
+print(f&quot;Seasonal naive MAPE: {snaive_mape:.2f}%&quot;)</pre></div><div class="box warn"><p class="boxlbl">Watch out</p><p>If your RMSE is 0.00, the forecast was built from <code>test</code>, not <code>train</code>. A forecast can only use data from before the first test month. This is what that mistake prints:</p></div><pre class="out">Seasonal naive RMSE: 0.00 thousand passengers
+Seasonal naive MAPE: 0.00%</pre></div></details></article>
+<article class="card" id="B2"><h3><label><input type="checkbox" class="tick" id="tick-B2" data-id="B2" data-sec="B"><span class="tag">B2</span>Beat the baseline</label></h3><p>The travel agency manager asks: &quot;Is a statistical model worth the extra work, or can we just repeat last year?&quot; Use the same data and the same split as B1. Fit a SARIMAX model on the log of passengers, forecast the 12 test months, turn the forecast back into passengers, and compare its RMSE to the baseline from B1.</p><div class="box why"><p class="boxlbl">How to think about the plan</p><ol><li>Same split, same test months, same metric as B1. Only the model changes, so the comparison is fair.</li><li>The swings in this series grow as the level grows. Taking the log makes the swings about the same size, which suits SARIMAX better.</li><li>The order is fixed here, not picked by <code>auto_arima</code>, so everyone gets the same numbers. <code>order=(0, 1, 1)</code> means one regular difference and one moving-average term. <code>seasonal_order=(0, 1, 1, 12)</code> means one seasonal difference, one seasonal moving-average term, and <code>m = 12</code>.</li><li>The model forecasts <b>log</b> passengers. Convert back with <code>np.exp</code> before you compute any metric, or the units are wrong.</li><li>End with the manager sentence: which model, how big the typical miss, in what units, and the size of the improvement.</li></ol></div><h4>Think first</h4><ul><li>Before <code>np.exp</code>, what units is the forecast in? What kind of number should you expect: near 6, or near 500?</li><li>Why compare to the B1 RMSE and not to zero?</li><li>What does a manager need to hear in 2 or 3 sentences? Which two numbers go in?</li></ul><h4>Your plan (copy into a Colab cell)</h4><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code"># B2 · Beat the baseline
+# Run this in a cell BELOW your B1 cell. train, test and snaive_rmse already exist.
+
+# PLAN
+# 1. import SARIMAX from statsmodels.tsa.statespace.sarimax
+# 2. log_train = np.log(train)
+# 3. model = SARIMAX(log_train, order=(0, 1, 1), seasonal_order=(0, 1, 1, 12)); result = model.fit(disp=False)
+# 4. log_forecast = result.forecast(steps=12); then BACK-TRANSFORM: forecast = np.exp(log_forecast)
+# 5. RMSE and MAPE of forecast against test, in thousands of passengers
+# 6. print both, B1&#x27;s RMSE, and how much lower the new RMSE is
+# 7. write the manager sentence (2 or 3 sentences, with numbers) as a comment
+# YOUR CODE HERE</pre></div><div class="lbl">Target · no input</div><pre class="out">SARIMAX RMSE: 18.59 thousand passengers
+SARIMAX MAPE: 2.90%
+Seasonal naive RMSE (from B1): 50.71
+SARIMAX is better by 32.12 thousand passengers (63% lower RMSE)</pre><p class="sub">Model fits can differ in the last digit or two between versions of statsmodels. If your RMSE is within about 0.1 of this one, you are fine.</p><details class="hint"><summary>Hint 1</summary><div><p><code>result = SARIMAX(np.log(train), order=(0, 1, 1), seasonal_order=(0, 1, 1, 12)).fit(disp=False)</code></p></div></details><details class="hint"><summary>Hint 2</summary><div><p><code>forecast = np.exp(result.forecast(steps=12))</code>. The <code>np.exp</code> is the whole back-transform.</p></div></details><details class="hint"><summary>Hint 3</summary><div><p>Same metrics as B1, but use <code>forecast.values</code> so pandas does not try to line up dates: <code>errors = test.values - forecast.values</code>.</p></div></details><details class="sol"><summary>Show solution (try first)</summary><div><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code"># Run this in the same notebook, in a cell below B1.
+# train, test and snaive_rmse already exist from B1.
+from statsmodels.tsa.statespace.sarimax import SARIMAX
+
+# Log transform so the seasonal swings are about the same size
+log_train = np.log(train)
+
+# Fixed order (not auto_arima), so everyone gets the same numbers
+model = SARIMAX(log_train, order=(0, 1, 1), seasonal_order=(0, 1, 1, 12))
+result = model.fit(disp=False)
+
+# Forecast 12 months on the log scale, then back-transform
+log_forecast = result.forecast(steps=12)
+forecast = np.exp(log_forecast)
+
+# Metrics in thousands of passengers
+errors = test.values - forecast.values
+sarimax_rmse = np.sqrt(np.mean(errors ** 2))
+sarimax_mape = np.mean(np.abs(errors / test.values)) * 100
+
+print(f&quot;SARIMAX RMSE: {sarimax_rmse:.2f} thousand passengers&quot;)
+print(f&quot;SARIMAX MAPE: {sarimax_mape:.2f}%&quot;)
+print(f&quot;Seasonal naive RMSE (from B1): {snaive_rmse:.2f}&quot;)
+print(f&quot;SARIMAX is better by {round(snaive_rmse, 2) - round(sarimax_rmse, 2):.2f} thousand passengers ({(1 - sarimax_rmse / snaive_rmse) * 100:.0f}% lower RMSE)&quot;)</pre></div><div class="box why"><p class="boxlbl">Manager sentence (one way to say it)</p><p>&quot;The seasonal model missed 1960 by about 19 thousand passengers in a typical month (RMSE 18.59, about 3% off), while repeating 1959 missed by about 51 thousand (RMSE 50.71, about 10% off). The model cuts the error by about 63%, so it is worth the extra work.&quot;</p></div><div class="box warn"><p class="boxlbl">Watch out</p><p>Forgetting <code>np.exp</code> is the classic mistake. The forecast is near 6 (the log scale) and the actuals are 390 to 622, so the RMSE comes out about the size of the data itself. This is what it prints:</p></div><pre class="out">SARIMAX RMSE: 475.82 thousand passengers
+SARIMAX MAPE: 98.68%
+Seasonal naive RMSE (from B1): 50.71
+SARIMAX is better by -425.11 thousand passengers (-838% lower RMSE)</pre><p>If your RMSE is about as big as the data, check the units first.</p></div></details></article>
+<article class="card" id="B3"><h3><label><input type="checkbox" class="tick" id="tick-B3" data-id="B3" data-sec="B"><span class="tag">B3</span>A new series: plan and bar to beat</label></h3><p>A utility planning office tracks the Federal Reserve&#x27;s monthly index of electric and gas utility output (2017 = 100) as a national benchmark. It wants to know what output will look like over the next two years. This is a new series, so do the planning first: restate the question, find the frequency and <code>m</code>, choose the test window, and compute the seasonal naive RMSE. That number is the bar any model you build later has to beat. No model fitting here.</p><div class="box why"><p class="boxlbl">How to think about the plan</p><ol><li>Restate first: the decision (staffing, fuel), the number (the index, in index points), how far ahead (24 months) and the frequency (monthly).</li><li>Look at the data: how many rows, which months, any gaps? A gap would break the seasonal pattern.</li><li>Monthly data means the pattern repeats every 12 rows, so <code>m = 12</code>.</li><li>A 24-month test window holds out two full seasonal cycles. Train on everything before it.</li><li>The baseline now has to cover 24 months from 12 training months, so repeat the last 12 training months twice. <code>np.tile</code> does that.</li></ol></div><h4>Think first</h4><ul><li>Write the restatement in one sentence. What would you say to the planning office?</li><li>What is <code>m</code> here, and how do you know?</li><li>What do you gain and lose by testing on 24 months instead of 12?</li><li>What does the number you compute give the next person who builds a model?</li></ul><h4>Your plan (copy into a Colab cell)</h4><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code"># B3 · A new series: restate, plan, and find the bar to beat
+url = &quot;https://raw.githubusercontent.com/c-marq/cap4767-data-mining/refs/heads/main/data/us-electricity-production-monthly.csv&quot;   # given: columns Month, Production
+# Production is an index (2017 = 100), Federal Reserve data for electric and gas utilities.
+
+# PLAN
+# 1. RESTATE in one comment: decision, number forecast, how far ahead, frequency
+# 2. imports: pandas as pd, numpy as np
+# 3. load: parse_dates=[&quot;Month&quot;], index_col=&quot;Month&quot;; take Production; .asfreq(&quot;MS&quot;)
+# 4. look: print rows, first and last month, and how many values are missing
+# 5. set m (monthly data: how many rows until the pattern repeats?)
+# 6. choose the test window: the last 24 months; split by time
+# 7. seasonal naive: repeat the last m training months to cover the whole test window (np.tile)
+# 8. RMSE and MAPE; print &quot;Bar to beat: RMSE under ...&quot;
+# YOUR CODE HERE</pre></div><div class="lbl">Target · no input</div><pre class="out">Rows: 408 | 1985-01 to 2018-12
+Missing values: 0
+Train: 384 months | Test: 24 months (2017-01 to 2018-12)
+Seasonal naive RMSE: 5.13 index points
+Seasonal naive MAPE: 3.87%
+Bar to beat: RMSE under 5.13</pre><details class="hint"><summary>Hint 1</summary><div><p><code>ts = df[&quot;Production&quot;].asfreq(&quot;MS&quot;)</code>. Missing values: <code>ts.isna().sum()</code>.</p></div></details><details class="hint"><summary>Hint 2</summary><div><p><code>train = ts.iloc[:-24]</code> and <code>test = ts.iloc[-24:]</code>.</p></div></details><details class="hint"><summary>Hint 3</summary><div><p><code>snaive = np.tile(train.iloc[-12:].values, 2)</code> gives 24 values: the last training year, twice.</p></div></details><details class="sol"><summary>Show solution (try first)</summary><div><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">import numpy as np
+import pandas as pd
+
+url = &quot;https://raw.githubusercontent.com/c-marq/cap4767-data-mining/refs/heads/main/data/us-electricity-production-monthly.csv&quot;
+df = pd.read_csv(url, parse_dates=[&quot;Month&quot;], index_col=&quot;Month&quot;)
+ts = df[&quot;Production&quot;].asfreq(&quot;MS&quot;)
+
+# Look at the data
+print(f&quot;Rows: {len(ts)} | {ts.index[0]:%Y-%m} to {ts.index[-1]:%Y-%m}&quot;)
+print(f&quot;Missing values: {ts.isna().sum()}&quot;)
+
+# Monthly data, a pattern that repeats every 12 rows
+m = 12
+
+# Split by time: the last 24 months are the test set
+n_test = 24
+train = ts.iloc[:-n_test]
+test = ts.iloc[-n_test:]
+print(f&quot;Train: {len(train)} months | Test: {len(test)} months ({test.index[0]:%Y-%m} to {test.index[-1]:%Y-%m})&quot;)
+
+# Seasonal naive: repeat the last 12 training months, twice
+snaive = np.tile(train.iloc[-m:].values, n_test // m)
+
+# Metrics in index points
+errors = test.values - snaive
+rmse = np.sqrt(np.mean(errors ** 2))
+mape = np.mean(np.abs(errors / test.values)) * 100
+
+print(f&quot;Seasonal naive RMSE: {rmse:.2f} index points&quot;)
+print(f&quot;Seasonal naive MAPE: {mape:.2f}%&quot;)
+print(f&quot;Bar to beat: RMSE under {rmse:.2f}&quot;)</pre></div><div class="box why"><p class="boxlbl">Say it to the team</p><p>&quot;To forecast the 2017 and 2018 index, any model has to beat repeating the last training year, which misses by about 5.13 index points (RMSE), or 3.87% in a typical month.&quot;</p></div><div class="box warn"><p class="boxlbl">Watch out</p><p>You may be tempted to write <code>ts.shift(12)</code> and use the last 24 values. For the second year that copies a value from the test set itself, not from training. Here it only moves the RMSE from 5.13 to 5.15, but the method is still wrong: a forecast may only use data from before the first test month. <code>np.tile</code> on the training months keeps it honest.</p></div></div></details></article>
+</div></details>
+<p><button class="reset" id="reset" type="button">Reset my progress</button></p>
+<p class="sub">Progress is stored only in this browser on this device. A different browser, a private window or clearing your browsing data starts fresh.</p></main><script>
+(function(){
+const KEY="cap4767-m02-read-output-v1";
+const ticks=[...document.querySelectorAll('.tick')];
+const radios=[...document.querySelectorAll('.rate input')];
+const saveEl=document.getElementById('save');
+let state={done:{},ratings:{}}, canSave=false;
+function setStatus(s,m){saveEl.dataset.s=s;saveEl.textContent=m;}
+function render(){
+  ticks.forEach(t=>{t.checked=!!state.done[t.dataset.id];t.closest('.card').classList.toggle('is-done',t.checked);});
+  radios.forEach(r=>{r.checked=String(state.ratings[r.dataset.sec]||'')===r.value;});
+  const core=ticks.filter(t=>t.dataset.sec!=='B');const n=core.filter(t=>t.checked).length;
+  document.getElementById('done').textContent=n;
+  document.getElementById('barfill').style.width=(100*n/core.length)+'%';
+  document.querySelectorAll('.jump a').forEach(a=>{const ts=ticks.filter(t=>t.dataset.sec===a.dataset.sec);a.classList.toggle('full',ts.length>0&&ts.every(t=>t.checked));});
+}
+function save(){
+  render();
+  if(!canSave) return;
+  try{localStorage.setItem(KEY,JSON.stringify(state));setStatus('saved','Saved in this browser');}
+  catch(e){canSave=false;setStatus('error','This browser stopped saving. Your checkmarks last until you close the page.');}
+}
+try{
+  const raw=localStorage.getItem(KEY);
+  if(raw){const d=JSON.parse(raw);state={done:Object.assign({},d.done||{}),ratings:Object.assign({},d.ratings||{})};}
+  localStorage.setItem(KEY+'-test','1');localStorage.removeItem(KEY+'-test');
+  canSave=true;setStatus('saved',raw?'Progress loaded from this browser':'Progress saves in this browser');
+}catch(e){setStatus('local','This browser is blocking saving (private window?). Your checkmarks last until you close the page.');}
+ticks.forEach(t=>t.addEventListener('change',()=>{if(t.checked) state.done[t.dataset.id]=true; else delete state.done[t.dataset.id]; save();}));
+radios.forEach(r=>r.addEventListener('change',()=>{state.ratings[r.dataset.sec]=Number(r.value);save();}));
+const btn=document.getElementById('reset');let armed=false;
+btn.addEventListener('click',()=>{
+  if(!armed){armed=true;btn.classList.add('armed');btn.textContent='Tap again to clear every checkmark and rating';setTimeout(()=>{armed=false;btn.classList.remove('armed');btn.textContent='Reset my progress';},4000);return;}
+  armed=false;btn.classList.remove('armed');btn.textContent='Reset my progress';state={done:{},ratings:{}};save();
+});
+document.querySelectorAll('.copy').forEach(b=>b.addEventListener('click',()=>{
+  const pre=b.parentElement.querySelector('pre');const t=pre.innerText;
+  const done=m=>{b.textContent=m;setTimeout(()=>b.textContent='Copy',1400);};
+  const sel=()=>{const r=document.createRange();r.selectNodeContents(pre);const s=getSelection();s.removeAllRanges();s.addRange(r);done('Selected: press Ctrl+C');};
+  try{navigator.clipboard.writeText(t).then(()=>done('Copied'),sel);}catch(e){sel();}
+}));
+render();
+})();
+</script></body></html>
