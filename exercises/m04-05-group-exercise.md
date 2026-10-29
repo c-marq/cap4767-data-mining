@@ -4,7 +4,7 @@
 ---
 
 ## Overview
-This exercise has two parts, each with its own notebook. In Part 1, your group performs statistical EDA on a churn dataset (Cramér's V, Mann-Whitney U, and Cohen's d), estimates the business cost of churn, builds a logistic regression baseline, and interprets the coefficients as business insights. In Part 2, you build and compare a logistic regression model and a Keras neural network on the same data, and present confusion matrices, ROC curves, and a model recommendation. Each part starts with a short group discussion, ends with a 2–3 minute presentation, and uses the same four roles: Lead Coder, Data Interpreter, Presenter, and QA Reviewer.
+This exercise has two parts, each with its own notebook. In Part 1, your group performs statistical EDA on a churn dataset (Cramér's V, Mann-Whitney U, and Cohen's d), estimates the business cost of churn, builds a logistic regression baseline, and interprets the coefficients as business insights. In Part 2, you build and compare a logistic regression model and a Keras neural network on the same data, and present confusion matrices, ROC curves, and a model recommendation. Each part starts with a short group discussion, ends with a share-out (three groups present for about 3 minutes each, by volunteer or at random; every other group writes its share-out in the notebook), and uses the same four roles: Lead Coder, Data Interpreter, Presenter, and QA Reviewer.
 
 ---
 

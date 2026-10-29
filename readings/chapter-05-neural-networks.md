@@ -629,7 +629,7 @@ print(classification_report(y_test, v2_predictions, target_names=['Stayed', 'Chu
 # weighted avg       0.80      0.81      0.80      1406
 ```
 
-Now we're seeing improvement. The recall on churners climbed from 50% (vanilla ANN) to around 56%, and overall accuracy improved. More importantly, the precision didn't drop — we're catching more churners without flagging more false positives.
+Now the picture is healthier: dropout and early stopping stop the memorizing, and the tuned network's results sit close to logistic regression's. The printed block above is one possible draw, and your own numbers will differ. When we re-ran this code twice, the tuned network's recall on churners was 49.7% and 47.3% and its precision 60.4% and 62.8%, against 51.6% and 62.3% for the plain logistic regression. Regularization fixes the overfitting. It does not add signal that the data does not have.
 
 ```python
 # Step 6: ROC Curve Comparison — Logistic Regression vs Tuned ANN
@@ -670,7 +670,7 @@ print(f"AUC Improvement:        {(ann_auc - lr_auc):.4f}")
 # AUC Improvement:        0.0087
 ```
 
-The ROC curve tells a story that accuracy alone can't. AUC (Area Under the Curve) measures how well the model distinguishes between churners and non-churners *across all possible thresholds*. A perfect model has AUC = 1.0. A random guess has AUC = 0.5. Both of our models are well above random, and the ANN edges ahead — but the gap is modest.
+The ROC curve tells a story that accuracy alone can't. AUC (Area Under the Curve) measures how well the model distinguishes between churners and non-churners *across all possible thresholds*. A perfect model has AUC = 1.0. A random guess has AUC = 0.5. Both of our models are well above random, and they are very close. The printed block above shows the ANN a hair ahead, but it comes from an earlier run. When we re-ran this code twice, the tuned network's AUC was 0.8237 and 0.8225 against 0.8319 for logistic regression, and across 112 separate trainings of this network on the Telco data its AUC was never above logistic regression's (0.820 to 0.830 against 0.832). On this data the two are about even.
 
 ```python
 # Step 7: Side-by-side comparison table
@@ -714,7 +714,7 @@ print(comparison.to_string(index=False))
 #      Interpretable?  Yes — coefficients explain  No — black box
 ```
 
-This table is the deliverable you'd show a business stakeholder. The ANN is modestly better on every metric — but it requires 45 times more parameters and sacrifices interpretability.
+This table is the deliverable you'd show a business stakeholder. In the block above the ANN looks modestly better, but when we re-ran the code the two were about even (accuracy 78.0% and 78.5% against 78.8%, recall 49.7% and 47.3% against 51.6%), and the network needs far more parameters and sacrifices interpretability.
 
 ```python
 # Step 8: Customer Risk Scoring — ANN vs Logistic Regression
@@ -747,7 +747,7 @@ print(risk_df_sorted.to_string())
 # → These are the customers the neural network's extra complexity is finding.
 ```
 
-Those 15–20 additional correctly identified churners are the *marginal value* of the neural network. Each one represents a customer the retention team can now reach before it's too late. If the average customer lifetime value is $2,500, those additional catches are worth $37,500–$50,000 per year.
+(The Expected Output above is from an earlier run.) In our two re-runs the ANN flagged 28 and 19 customers that logistic regression missed, and 9 and 7 of them actually churned (across 98 trainings: 8 to 42 flagged, 1 to 19 churned). Those extra correct catches are the *marginal value* of the neural network, and they have to be weighed against the churners the network missed that logistic regression caught. If the average customer lifetime value is $2,500, 7 to 9 extra catches are worth $17,500 to $22,500 per year.
 
 ⚠️ **Common Pitfall**: Running the Full Pipeline and getting slightly *different* numbers each time. Neural networks involve random initialization and random dropout, so results vary between runs even with the same data. Setting `random_state` and `tf.random.set_seed()` helps, but small variations are normal. Focus on the patterns, not the exact digits.
 
@@ -802,7 +802,7 @@ graph TD
 
 **Figure 5.4: Decision framework for choosing between logistic regression and neural networks.** Start with your dataset size, then consider complexity and interpretability needs.
 
-Our Telco dataset sits in the gray zone — 7,000 rows, moderate complexity. The ANN showed a real but modest improvement. In practice, many data science teams would deploy the logistic regression for its interpretability and only switch to the ANN if the business demands every possible percentage point of accuracy.
+Our Telco dataset sits in the gray zone — 7,000 rows, moderate complexity. The ANN came out about even with logistic regression, with no clear gain. In practice, many data science teams would deploy the logistic regression for its interpretability and only switch to the ANN if it earns a clear gain on their own data.
 
 ---
 
@@ -812,15 +812,15 @@ Our Telco dataset sits in the gray zone — 7,000 rows, moderate complexity. The
 
 Let's step back from the code and read the story the results are telling us.
 
-The logistic regression achieved 80% accuracy and caught 54% of churners. The tuned neural network achieved 81% accuracy and caught 56% of churners. The AUC improved from 0.841 to 0.850. These are real improvements, but they're not dramatic.
+When we ran this code, the logistic regression achieved 78.8% accuracy, caught 51.6% of churners and had an AUC of 0.8319. The tuned neural network achieved 78.0% and 78.5% accuracy in two runs, caught 49.7% and 47.3% of churners, and had an AUC of 0.8237 and 0.8225. The Expected Output blocks earlier in the chapter show the network a little ahead, and the logistic regression benchmark earlier in the chapter says 80% accuracy and 54% recall; they come from an earlier run. Across 112 separate trainings of this network on the Telco data, its AUC was never above logistic regression's. The honest reading is that the two models are about even here. That is not dramatic, and it is not a failure.
 
-Here's what this means in plain language. Out of 370 churners in the test set, the logistic regression correctly identified about 200 of them. The neural network correctly identified about 207. Those extra 7 customers, extrapolated across the full customer base and across multiple quarters, add up. But the logistic regression was already doing most of the heavy lifting.
+Here's what this means in plain language. Out of 374 churners in the test set, the logistic regression correctly identified 193 of them. The neural network correctly identified about 177 to 186. The logistic regression was already doing the heavy lifting, and the network did not add to it.
 
-The confusion matrix comparison tells us *where* the improvement happened. The ANN reduced false negatives (churners it missed) without significantly increasing false positives (non-churners it incorrectly flagged). That's the ideal tradeoff for a retention campaign — you catch more people who need help without wasting resources on people who are already happy.
+The confusion matrix comparison tells us *where* the two models differ. In most re-runs the network missed slightly more churners (more false negatives) than logistic regression and flagged about the same number of non-churners, so there is no improvement to explain. The ideal tradeoff for a retention campaign is to catch more people who need help without wasting resources on people who are already happy, and on this data the network did not do that.
 
-The side-by-side comparison table in Step 7 is the artifact you'd present to a VP of Customer Success. It shows that the ANN wins on every metric, but the margin is slim and the interpretability cost is real. A logistic regression can tell you that *month-to-month contracts increase churn risk by factor X* — the ANN can only tell you the prediction is 0.73.
+The side-by-side comparison table in Step 7 is the artifact you'd present to a VP of Customer Success. It shows that the two models are about even, so the interpretability cost of the network is real and buys nothing here. A logistic regression can tell you that *month-to-month contracts increase churn risk by factor X* — the ANN can only tell you the prediction is 0.73.
 
-💡 **Key Insight**: The value of a neural network isn't always in the overall accuracy improvement. Sometimes the real value is in the *specific customers* it catches that simpler models miss. Step 8 of our pipeline identified 25–35 customers that only the ANN flagged. If even half of those are genuine churners, the neural network is paying for itself.
+💡 **Key Insight**: The value of a neural network isn't always in the overall accuracy improvement. Sometimes the real value is in the *specific customers* it catches that simpler models miss. Step 8 of our pipeline identified 28 and 19 customers in our two re-runs that only the ANN flagged, and 9 and 7 of them actually churned. Count the churners the network missed that logistic regression caught before you decide the network is paying for itself.
 
 ---
 
@@ -970,10 +970,10 @@ b) A dataset with 500 rows and 5 features
 c) A telecommunications company with 500,000 customers and complex feature interactions ✓  
 d) A startup that needs to deploy a model in one afternoon
 
-**10.** In the side-by-side comparison, the ANN had higher AUC but 45 times more parameters than logistic regression. A data scientist recommends deploying logistic regression instead. This could be justified because:
+**10.** In the side-by-side comparison, the ANN had a similar AUC but far more parameters than logistic regression. A data scientist recommends deploying logistic regression instead. This could be justified because:
 
 a) Logistic regression is always the better model  
-b) The interpretability and simplicity of logistic regression outweigh the small accuracy gain ✓  
+b) The interpretability and simplicity of logistic regression outweigh the network's small or missing gain ✓  
 c) AUC is not a valid metric for comparing models  
 d) Neural networks cannot be deployed in production environments
 
@@ -981,7 +981,7 @@ d) Neural networks cannot be deployed in production environments
 
 ## Reflection Questions
 
-**1.** In our Telco churn example, the neural network improved recall on churners by only a few percentage points over logistic regression. Under what business circumstances would those few percentage points justify the added complexity, reduced interpretability, and higher computational cost? Under what circumstances would they not?
+**1.** In our Telco churn example, the tuned neural network came out about even with logistic regression. Under what business circumstances would a few percentage points of recall justify the added complexity, reduced interpretability, and higher computational cost? Under what circumstances would they not?
 
 **2.** We saw that Example 2's vanilla neural network actually performed *worse* than logistic regression before we added dropout and early stopping. What does this teach you about the relationship between model complexity and model performance? How does this relate to the broader principle that more data, more features, or more parameters don't automatically lead to better results?
 
