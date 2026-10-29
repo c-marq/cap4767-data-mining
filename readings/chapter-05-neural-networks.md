@@ -8,7 +8,7 @@
 
 ## The Business Problem
 
-In Chapter 4, we built something genuinely useful. Our logistic regression model scored every customer in the Telco dataset by churn probability, identified 587 high-risk customers who hadn't left yet, and gave the business a ranked list of people to call before it was too late. The model hit 79% recall on churners — meaning it caught roughly four out of every five customers who were about to walk out the door.
+In Chapter 4, we built something genuinely useful. Our logistic regression model scored every customer in the Telco dataset by churn probability, identified 587 high-risk customers who hadn't left yet, and gave the business a ranked list of people to call before it was too late. The model hit 79% recall on churners when we trained it with balanced class weights, meaning it caught roughly four out of every five customers who were about to walk out the door. (The plain model we rebuild below, without class weights, is the benchmark for this chapter, and it catches about half.)
 
 That's a real win. A retention team armed with that list could save the company hundreds of thousands of dollars.
 
@@ -20,7 +20,7 @@ But what if the *combination* of fiber optic internet and month-to-month contrac
 
 That's the gap neural networks are designed to fill.
 
-A telecommunications company in South Florida recently ran exactly this experiment. Their logistic regression model was catching 78% of churners. After deploying a neural network on the same data, they pushed that to 84%. Those six percentage points translated to 47 additional customers saved per quarter — worth approximately $142,000 in annual retained revenue.
+Imagine a telecommunications company that ran exactly this experiment. Its logistic regression model was catching 78% of churners. After deploying a neural network on the same data, it pushed that to 84%. Those six percentage points would mean 47 additional customers saved per quarter, worth approximately $142,000 in annual retained revenue. This is an illustration of the question, not a reported result. Whether a neural network really helps depends on the data, and you will test that on the Telco data in this chapter.
 
 In this chapter, you'll build a neural network from scratch using the same Telco dataset from Chapter 4. You'll start with a single neuron — which, as you'll discover, is secretly just logistic regression in disguise — then add layers and complexity until you have a genuine deep learning model. Along the way, you'll learn what "deep" actually means, why more layers don't automatically mean better results, and how to make the critical business decision: *is the improvement worth the tradeoff in interpretability?*
 

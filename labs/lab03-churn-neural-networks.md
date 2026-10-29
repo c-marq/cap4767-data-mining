@@ -9,7 +9,7 @@ In this lab you run a full churn prediction pipeline on one of two datasets: sta
 ---
 
 ## Your Dataset
-Choose **one** of the following. Uncomment ONE option in the dataset cell and run it; the cell handles all preprocessing and gives you clean train/test splits.
+Choose **one** of the following. Option A is already switched on in the dataset cell; to use Option B, remove the `#` from each Option B line. Then run the cell; it handles all preprocessing and gives you clean train/test splits.
 
 | Option | Dataset | Target | Domain |
 |--------|---------|--------|--------|

@@ -37,7 +37,7 @@ In Chapter 3, you learned to predict continuous values — house prices, admissi
 
 That shift from "how much" to "yes or no" is the dividing line between regression and classification. And here's the good news: the logistic regression model you built in Sections 3.6–3.8 is the exact tool you need. The mechanics are the same — sigmoid function, probability output, decision threshold. What changes is the *context*: the stakes are financial, the features are mostly categorical, and the way you evaluate the model has to account for the fact that "wrong" doesn't mean the same thing in both directions.
 
-Missing a customer who's about to churn costs you $272 in lifetime value. Flagging a loyal customer as at-risk costs you a $30 retention call. Those costs aren't symmetric, and that asymmetry will shape every decision in this chapter — from which metrics you prioritize to how you set your classification threshold.
+Missing a customer who's about to churn costs you about $168 in lifetime value. Flagging a loyal customer as at-risk costs you a $30 retention call. Those costs aren't symmetric, and that asymmetry will shape every decision in this chapter — from which metrics you prioritize to how you set your classification threshold.
 
 ### Why EDA for Classification Is Different
 
@@ -115,7 +115,7 @@ In the Telco dataset, tenure has a Cohen's d of –0.857 — a large effect. Chu
 >
 > The analytics team runs Mann-Whitney U on tenure for churned vs. retained customers. The p-value is 0.000001 — far beyond any reasonable significance threshold. Then they compute Cohen's d: –0.857, a large effect. The distributions aren't just statistically different — they're *dramatically* different.
 >
-> The company launches a "First 12 Months" engagement program: monthly check-in calls, a 90-day satisfaction survey, and an automatic loyalty discount at month 10. The program costs $15 per customer per month — a fraction of the $272 average LTV they'd lose to churn.
+> The company launches a "First 12 Months" engagement program: monthly check-in calls, a 90-day satisfaction survey, and an automatic loyalty discount at month 10. The program costs $15 per customer per month — a fraction of the $168 average LTV they'd lose to churn.
 >
 > *Connection*: Mann-Whitney U tells you a difference is real. Cohen's d tells you if it's big enough to justify spending money on. Together, they answer the question every business asks: "Is this worth acting on?"
 
@@ -158,11 +158,11 @@ Think of it like a container ship cancelling its route at the Port of Miami. The
 >
 > A Doral-based VOIP company is debating whether to hire a proactive retention specialist at a cost of roughly $30 per customer per month in outreach time. The CFO pushes back: "We're going to spend money calling people who might not even leave?"
 >
-> The analytics team models it: the average churned customer represents $272 in lost lifetime value. Even if the retention specialist only prevents 15% of high-risk churners from leaving, the LTV saved exceeds the outreach cost within two months. A false positive — calling a customer who wasn't going to leave — costs $30. A false negative — missing a customer who does leave — costs $272.
+> The analytics team models it: the average churned customer represents about $168 in lost lifetime value. Even if the retention specialist only prevents 15% of high-risk churners from leaving, the LTV saved exceeds the outreach cost within two months. A false positive — calling a customer who wasn't going to leave — costs $30. A false negative — missing a customer who does leave — costs about $168.
 >
-> The math is simple: the cost of being wrong in one direction is nine times the cost of being wrong in the other. That asymmetry is why this chapter optimizes for **recall** — catching as many true churners as possible, even if it means some false alarms.
+> The math is simple: the cost of being wrong in one direction is about six times the cost of being wrong in the other. That asymmetry is why this chapter optimizes for **recall** — catching as many true churners as possible, even if it means some false alarms.
 >
-> *Connection*: The churn cost calculation isn't academic. It directly determines whether you optimize your model for precision (fewer false alarms) or recall (fewer missed churners). When the cost of missing someone is 9x the cost of a false alarm, the answer is clear.
+> *Connection*: The churn cost calculation isn't academic. It directly determines whether you optimize your model for precision (fewer false alarms) or recall (fewer missed churners). When the cost of missing someone is about 6x the cost of a false alarm, the answer is clear.
 
 ### The Precision-Recall Tradeoff
 
@@ -173,7 +173,7 @@ Here's a South Florida analogy that makes this concrete. When Miami-Dade County 
 - **High recall** means evacuating everyone in the zone. You catch all the at-risk residents, but some people evacuate unnecessarily — they pack up, drive to Orlando, and the storm misses their neighborhood entirely. Those are your false positives.
 - **High precision** means only evacuating areas with confirmed flooding. Fewer false alarms, but you might miss some neighborhoods that flood unexpectedly. Those are your false negatives — and in a hurricane, false negatives can be fatal.
 
-In churn prediction, the stakes are financial rather than life-or-death, but the logic is identical. A false positive (flagging a loyal customer as at-risk) costs you a $30 retention call — annoying, but cheap. A false negative (missing a customer who actually churns) costs you $272 in lifetime value. When the cost ratio is 9:1, you optimize for recall.
+In churn prediction, the stakes are financial rather than life-or-death, but the logic is identical. A false positive (flagging a loyal customer as at-risk) costs you a $30 retention call — annoying, but cheap. A false negative (missing a customer who actually churns) costs you about $168 in lifetime value. When the cost ratio is about 6:1, you optimize for recall.
 
 ```mermaid
 graph LR
@@ -183,10 +183,10 @@ graph LR
     actual1 -->|Yes| tp[True Positive<br>Correctly caught]
     actual1 -->|No| fp[False Positive<br>Cost: $30 call]
     actual2 -->|No| tn[True Negative<br>Correctly left alone]
-    actual2 -->|Yes| fn[False Negative<br>Cost: $272 LTV lost]
+    actual2 -->|Yes| fn[False Negative<br>Cost: $168 LTV lost]
 ```
 
-**Figure 4.3: The Confusion Matrix as a Cost Matrix** — Each outcome has a different business cost. False negatives (missing a churner) cost 9x more than false positives (flagging a loyal customer).
+**Figure 4.3: The Confusion Matrix as a Cost Matrix** — Each outcome has a different business cost. False negatives (missing a churner) cost about 6x more than false positives (flagging a loyal customer).
 
 🤔 **Think About It**: What if you worked at a high-end medical device company where a "retention offer" was a free $5,000 equipment upgrade? In that case, false positives become very expensive. Would you still optimize for recall? This is why the cost framework matters — the right metric depends on the business context, not a universal rule.
 
@@ -597,7 +597,7 @@ plt.show()
 #     accuracy                           0.74      2107
 ```
 
-Let's read this output carefully. The model achieves **79.4% recall** on the churn class — meaning it correctly identifies roughly four out of five customers who actually leave. That's the number we care about most. The precision is lower at 49.0%, meaning about half the customers flagged as "churn risk" are actually going to stay. In a different context, that might be concerning. But remember the cost asymmetry: a false positive costs $30 (one retention call), while a false negative costs $272 (lost LTV). At a 9:1 cost ratio, the tradeoff is well worth it.
+Let's read this output carefully. The model achieves **79.4% recall** on the churn class — meaning it correctly identifies roughly four out of five customers who actually leave. That's the number we care about most. The precision is lower at 49.0%, meaning about half the customers flagged as "churn risk" are actually going to stay. In a different context, that might be concerning. But remember the cost asymmetry: a false positive costs $30 (one retention call), while a false negative costs about $168 (lost LTV). At a cost ratio of about 6:1, the tradeoff is well worth it.
 
 The AUC-ROC of 0.839 tells us the model has strong discriminative ability — it's much better than random at ranking customers by churn risk. We'll use this as our baseline when Chapter 5 introduces neural networks.
 
@@ -1042,7 +1042,7 @@ d) It is required by scikit-learn
 
 **1.** Think about a business you work for, have worked for, or interact with regularly as a customer. What would the equivalent of "churn" look like in that context — and which feature do you think would be the strongest predictor? Explain your reasoning using the statistical concepts from this chapter (association, effect size, or cost asymmetry).
 
-**2.** This chapter optimized for recall because the cost of missing a churner ($272 LTV) far exceeds the cost of a false alarm ($30 call). Describe a real-world scenario where you would optimize for **precision** instead — where false positives are more expensive than false negatives. What changes about the model evaluation when you flip that priority?
+**2.** This chapter optimized for recall because the cost of missing a churner (about $168 LTV) far exceeds the cost of a false alarm ($30 call). Describe a real-world scenario where you would optimize for **precision** instead — where false positives are more expensive than false negatives. What changes about the model evaluation when you flip that priority?
 
 ---
 

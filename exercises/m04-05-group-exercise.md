@@ -55,6 +55,6 @@ Each part is worth **5 points**, so the whole exercise is **10 points**.
 ## Submission
 Each student submits their own copy individually via Canvas.
 
-**File naming:** `LastName_FirstName_Exercise04.ipynb`
+**File naming:** two files, `LastName_FirstName_Exercise04_Part1.ipynb` and `LastName_FirstName_Exercise04_Part2.ipynb`
 
-**What to submit:** Completed notebooks for both parts with all cells run and all markdown discussion cells filled in.
+**What to submit:** Completed notebooks for both parts, one file per part, with all cells run and all markdown discussion cells filled in.
