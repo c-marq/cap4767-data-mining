@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Module 3 Practice · CAP4767</title><meta name="description" content="Module 3 practice for CAP4767: run the regression workflow on a dataset your group picks (Part A), then go deeper on your own (Part B)."><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=JetBrains+Mono:wght@400;600&family=Source+Sans+3:wght@400;600;700&display=swap"><style>
+/* Practice page base: one reading column; sticky progress strip; each step is a card: do, look for, write down, hint, solution */
+:root{
+ --bg:#F6F7F9; --surface:#FFFFFF; --fg:#1C2433; --muted:#5A6577; --line:#DCE1E8;
+ --brand:#1B2A41; --brand-fg:#FFFFFF; --accent:#F5B82E; --accent-ink:#1B2A41; --link:#2F5F98;
+ --code-bg:#22272E; --code-fg:#E6EDF3; --out-bg:#EEF1F5; --out-fg:#1D232B;
+ --go-bg:#DDF3E6; --go-fg:#17663A; --why-bg:#DCEAF7; --why-fg:#1A4C78;
+ --hint-bg:#FCF3D9; --hint-fg:#6E5606; --stop-bg:#F8DDDA; --stop-fg:#8E2A20;
+ --f-display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+ --f-body:"Source Sans 3", "Segoe UI", system-ui, sans-serif;
+ --f-mono:"JetBrains Mono", ui-monospace, "Courier New", monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+ --bg:#11161F; --surface:#18202C; --fg:#E4E9F0; --muted:#9AA6B8; --line:#2C3747;
+ --brand:#0B111A; --brand-fg:#F2F5F9; --accent:#F5B82E; --accent-ink:#141A24; --link:#8DB7EA;
+ --code-bg:#0B0F15; --code-fg:#E6EDF3; --out-bg:#202A38; --out-fg:#DDE4EE;
+ --go-bg:#173826; --go-fg:#9FE0B9; --why-bg:#16304A; --why-fg:#A9CDF2;
+ --hint-bg:#3A3112; --hint-fg:#F2D98A; --stop-bg:#45211D; --stop-fg:#F4B2AA; color-scheme:dark}}
+:root[data-theme="dark"]{
+ --bg:#11161F; --surface:#18202C; --fg:#E4E9F0; --muted:#9AA6B8; --line:#2C3747;
+ --brand:#0B111A; --brand-fg:#F2F5F9; --accent:#F5B82E; --accent-ink:#141A24; --link:#8DB7EA;
+ --code-bg:#0B0F15; --code-fg:#E6EDF3; --out-bg:#202A38; --out-fg:#DDE4EE;
+ --go-bg:#173826; --go-fg:#9FE0B9; --why-bg:#16304A; --why-fg:#A9CDF2;
+ --hint-bg:#3A3112; --hint-fg:#F2D98A; --stop-bg:#45211D; --stop-fg:#F4B2AA; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:17px;line-height:1.6}
+.wrap{max-width:860px;margin:0 auto;padding-inline:18px;padding-block:0 64px}
+h1,h2,h3,h4{font-family:var(--f-display);text-wrap:balance;line-height:1.2}
+h1{font-size:clamp(28px,5vw,40px);margin:26px 0 6px;font-weight:700}
+h2{font-size:24px;margin:38px 0 10px}
+h4{font-size:16px;margin:16px 0 6px;font-family:var(--f-body);font-weight:700;letter-spacing:.02em}
+a{color:var(--link)}
+p{margin:8px 0}
+code{font-family:var(--f-mono);font-size:.88em;background:var(--out-bg);color:var(--out-fg);padding:1px 6px;border-radius:4px}
+.sub{color:var(--muted);font-size:15px;max-width:65ch}
+.prog{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:2px solid var(--accent);padding-block:10px;display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center}
+.prog .count{font-weight:700;font-variant-numeric:tabular-nums}
+.bar{flex:1 1 140px;height:10px;background:var(--line);border-radius:6px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--go-fg);transition:width .3s}
+.jump{display:flex;gap:4px;flex-wrap:wrap}
+.jump a{font-size:13px;text-decoration:none;color:var(--fg);border:1px solid var(--line);border-radius:12px;padding:1px 9px;font-variant-numeric:tabular-nums}
+.jump a.full{background:var(--go-bg);color:var(--go-fg);border-color:transparent}
+.save{font-size:13px;color:var(--muted);flex-basis:100%}
+.save[data-s="saved"]{color:var(--go-fg)} .save[data-s="error"]{color:var(--stop-fg)}
+.map{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0}
+.map span{padding:5px 11px;border-radius:14px;font-size:14px;border:1px solid var(--line)}
+.map .done{background:var(--go-bg);color:var(--go-fg);border-color:transparent;font-weight:600}
+.map .now{background:var(--accent);color:var(--accent-ink);border-color:transparent;font-weight:700}
+.box{border-radius:8px;padding:12px 16px;margin:12px 0}
+.box .boxlbl{font-weight:700;margin:0 0 4px;letter-spacing:.03em;font-size:14px;text-transform:uppercase}
+.go{background:var(--go-bg);color:var(--fg)} .go .boxlbl{color:var(--go-fg)}
+.why{background:var(--why-bg);color:var(--fg)} .why .boxlbl{color:var(--why-fg)}
+.warn{background:var(--hint-bg);color:var(--fg)} .warn .boxlbl{color:var(--hint-fg)}
+.stop{background:var(--stop-bg);color:var(--fg)} .stop .boxlbl{color:var(--stop-fg)}
+.box ol,.box ul{margin:4px 0;padding-left:22px}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:15.5px;margin:10px 0}
+th,td{border-bottom:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+th{font-family:var(--f-body);font-size:13px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+td.n{font-variant-numeric:tabular-nums;color:var(--muted);width:2em}
+.codewrap{position:relative;margin:8px 0;min-width:0}
+pre{margin:0;overflow-x:auto;white-space:pre;font-family:var(--f-mono);font-size:14px;line-height:1.5;border-radius:8px;padding:12px 14px}
+pre.code{background:var(--code-bg);color:var(--code-fg);padding-right:72px}
+pre.out{background:var(--out-bg);color:var(--out-fg);margin-bottom:10px}
+.lbl{font-size:12.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-top:8px}
+.copy{position:absolute;top:8px;right:8px;background:var(--accent);color:var(--accent-ink);border:0;border-radius:5px;padding:4px 10px;font:600 13px var(--f-body);cursor:pointer}
+.copy:focus-visible,button:focus-visible,summary:focus-visible,input:focus-visible{outline:3px solid var(--link);outline-offset:2px}
+.sec{background:var(--brand);color:var(--brand-fg);border-radius:10px;padding:14px 18px;margin:40px 0 12px;scroll-margin-top:70px}
+.sec h2{margin:0;color:var(--accent);font-size:22px}
+.sec p{margin:4px 0 0;opacity:.85;font-size:15px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 18px;margin:16px 0;scroll-margin-top:70px}
+.card.is-done{border-color:var(--go-fg)}
+.card h3{margin:0 0 6px;display:flex;gap:10px;align-items:center;font-size:20px}
+.card h3 label{display:flex;gap:10px;align-items:center;cursor:pointer}
+.tick{width:20px;height:20px;accent-color:var(--go-fg);flex:none}
+.tag{font-family:var(--f-mono);font-size:13px;background:var(--brand);color:var(--brand-fg);border-radius:5px;padding:1px 7px}
+details{margin:6px 0}
+summary{cursor:pointer;font-weight:700;padding:8px 12px;border-radius:6px;list-style:none}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"▸ "} details[open]>summary::before{content:"▾ "}
+details.hint>summary{background:var(--hint-bg);color:var(--hint-fg)}
+details.sol>summary{background:var(--stop-bg);color:var(--stop-fg)}
+details>div{padding:4px 4px 4px 12px}
+.rate{display:flex;gap:6px;flex-wrap:wrap}
+.rate input{position:absolute;opacity:0;pointer-events:none}
+.rate label{border:1px solid var(--line);border-radius:6px;padding:4px 12px;cursor:pointer;font-variant-numeric:tabular-nums;background:var(--surface)}
+.rate input:checked+label{background:var(--accent);color:var(--accent-ink);border-color:transparent;font-weight:700}
+.rate input:focus-visible+label{outline:3px solid var(--link);outline-offset:2px}
+.reset{background:none;border:1px solid var(--line);color:var(--muted);border-radius:6px;padding:6px 12px;font:inherit;font-size:14px;cursor:pointer}
+.reset.armed{border-color:var(--stop-fg);color:var(--stop-fg)}
+@media (prefers-reduced-motion: reduce){.bar i{transition:none}}
+@media (max-width:480px){body{font-size:16px} pre{font-size:13px}}
+body{margin:0}
+.ask{background:var(--surface);border:2px solid var(--accent);border-left-width:10px;border-radius:10px;padding:14px 20px;margin:18px 0}
+.ask .boxlbl{margin:0 0 4px;font-weight:700;letter-spacing:.06em;font-size:13px;text-transform:uppercase;color:var(--muted)}
+.ask .big{font-family:var(--f-display);font-size:clamp(19px,3.4vw,23px);line-height:1.35;font-weight:600;margin:2px 0 6px}
+.ask .small{color:var(--muted);font-size:15px;margin:4px 0 0}
+.meta{color:var(--muted);font-size:14.5px;margin:0 0 8px}
+.card h3{align-items:flex-start}
+.card .tag{margin-top:2px}
+.pick{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+.pick input{position:absolute;opacity:0;pointer-events:none}
+.pick label{border:1px solid var(--line);border-radius:8px;padding:8px 16px;cursor:pointer;background:var(--surface);font-weight:600}
+.pick input:checked+label{background:var(--accent);color:var(--accent-ink);border-color:transparent}
+.pick input:focus-visible+label{outline:3px solid var(--link);outline-offset:2px}
+body[data-ds="gym"] .ds-bank{display:none}
+body[data-ds="bank"] .ds-gym{display:none}
+body[data-ds] .ds-none{display:none}
+body:not([data-ds]) .ds-after{display:none}
+.dstag{margin:10px 0 4px;font-family:var(--f-body)}
+.dstag span{display:inline-block;font-size:12.5px;font-weight:700;letter-spacing:.02em;border-radius:999px;padding:2px 11px;background:var(--why-bg);color:var(--why-fg)}
+body[data-ds] .dstag .tag-both{display:none}
+body:not([data-ds]) .dstag .tag-one{display:none}
+.tablewrap table td:first-child,.tablewrap table th:first-child{white-space:nowrap}
+.sol .lbl{margin-top:12px}
+/* highlighted lines (M3 explainer style: subtle amber tint plus a left bar); the Copy button still copies plain code */
+pre .cb{display:block;width:max-content;min-width:100%}
+pre .hl{display:inline-block;vertical-align:top;box-sizing:border-box;width:calc(100% + 28px);margin:0 -14px;padding:0 14px;background:rgba(245,176,65,.17);box-shadow:inset 4px 0 0 #F5B041}
+pre,.hl{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+</style></head><body><main class="wrap"><div class="prog" role="region" aria-label="Progress"><span class="count">Part A: <span id="done">0</span> / 6 steps done</span><div class="bar" aria-hidden="true"><i id="barfill"></i></div><nav class="jump" aria-label="Jump to part"><a href="#secA" data-sec="A">A</a><a href="#secB" data-sec="B">B</a></nav><span class="save" id="save" data-s="wait">Checking whether this browser can save your progress…</span></div>
+<h1>Module 3 Practice: Explain and Predict with Regression</h1><p class="sub">CAP4767 Data Mining with Python · Miami Dade College · Part A is for your breakout group and runs in two sittings: A1 to A3 right after the demo, A4 to A6 at the start of the next session. Part B is on your own. Your checkmarks save in this browser.</p>
+<div class="ds-none"><div class="ask"><p class="boxlbl">The ask</p><p class="big">By the end, your group hands a decision maker a 4-sentence recommendation: what moves the number you predicted, how far off your model typically is in the data&#x27;s own units, and how that compares with just guessing the average.</p><p class="small">Every step below builds one piece of those four sentences, including how your model compares with guessing the average.</p></div></div><div class="ds-gym ds-after"><p class="dstag"><span class="tag-one">Showing: Gym members</span><span class="tag-both">Showing both datasets: pick one at the top (this block: Gym members)</span></p><div class="ask"><p class="boxlbl">The ask</p><p class="big">By the end, your group hands the fitness club chain a 4-sentence recommendation: what moves the calories a member burns, how far off your model typically is in calories, and how that compares with just guessing the average.</p><p class="small">Every step below builds one piece of those four sentences, including how your model compares with guessing the average.</p></div></div><div class="ds-bank ds-after"><p class="dstag"><span class="tag-one">Showing: Credit card customers</span><span class="tag-both">Showing both datasets: pick one at the top (this block: Credit card customers)</span></p><div class="ask"><p class="boxlbl">The ask</p><p class="big">By the end, your group hands the bank&#x27;s credit card business a 4-sentence recommendation: what moves a customer&#x27;s yearly card spending, how far off your model typically is in dollars, and how that compares with just guessing the average.</p><p class="small">Every step below builds one piece of those four sentences, including how your model compares with guessing the average.</p></div></div>
+<h2>Choose your dataset</h2>
+<p>Your group works on one dataset through all of Part A. Your instructor's default is odd-numbered breakout rooms on the gym data and even-numbered rooms on the card data, and a group may pick the other one. Each one comes with a decision maker whose question your four sentences answer. Both datasets come back in later modules (credit card customers in Lab 3, gym members in Module 9), so the time you spend with one now is not wasted.</p>
+<div class="pick" role="radiogroup" aria-label="Choose your dataset"><input type="radio" name="ds" id="ds-pick-gym" value="gym"><label for="ds-pick-gym">Gym members</label><input type="radio" name="ds" id="ds-pick-bank" value="bank"><label for="ds-pick-bank">Credit card customers</label></div>
+<p class="sub">Pick one and the page shows only your lines and outputs, each marked <b>Showing: your dataset</b>. Until you pick, you see both, marked <b>Showing both datasets</b>. You can switch later.</p>
+<div class="ds-gym"><p class="dstag"><span class="tag-one">Showing: Gym members</span><span class="tag-both">Showing both datasets: pick one at the top (this block: Gym members)</span></p><p><b>Gym members</b> (the fitness club industry). <b>Heads up:</b> this file is generated, not measured on real members (the Kaggle page says it was generated to look like real tracking data), so it is cleaner than real club data would be. A fitness club chain is deciding whether its app should show members a calorie estimate after each workout, and what to tell them about how to raise it. You have one row for each of 973 made-up gym members, with session length, heart rates, age, gender, workout type and the calories burned. The column to predict is <code>Calories_Burned</code>. Source: Kaggle, Gym Members Exercise Dataset (valakhorasani), Apache 2.0.</p></div><div class="ds-bank"><p class="dstag"><span class="tag-one">Showing: Credit card customers</span><span class="tag-both">Showing both datasets: pick one at the top (this block: Credit card customers)</span></p><p><b>Credit card customers</b> (the banking industry). The credit card business of a bank is setting next year's rewards budget and has to decide where to put it. You have one row for each of 10,127 customers, with their card activity over the last 12 months, credit limit, number of products held with the bank, card tier and age. The column to predict is <code>Total_Trans_Amt</code>, the dollars spent on the card in those 12 months. Source: Kaggle, Credit Card customers (sakshigoyal7), CC0 (public domain). The file has an ID column and two extra columns the source says to ignore; the setup cell drops them. One caution to keep in mind: the strongest column, the number of transactions, counts the same card activity that the dollars add up to.</p></div>
+<h2>How each step works</h2>
+<div class="box go"><p class="boxlbl">Every step has the same five parts</p><ol><li><b>Do</b>: what to run, and the few lines to write yourselves.</li><li><b>Look for</b>: what the output should show.</li><li><b>Write down</b>: fill in the blanks and keep them. They become your four sentences. Paste each Write down block into a text cell in your notebook under that step, and fill it in there.</li><li><b>Hint</b>: closed. Open it if you are stuck.</li><li><b>Solution</b>: closed. Open it last, with sample output from a real run. Then tick the box beside the step title.</li></ol></div>
+<p>Do the steps in order. Each one uses what you wrote down in the step before.</p>
+<h3>The six steps of Part A at a glance</h3><div class="tablewrap"><table><thead><tr><th>Step</th><th>You do</th><th>You write down</th></tr></thead><tbody><tr><td><b>A1</b></td><td>explore the data and plot the strongest column</td><td>strongest column and what the plot shows</td></tr><tr><td><b>A2</b></td><td>split into train and test, and set the guess-the-average baseline</td><td>the guess-the-average RMSE, with its unit</td></tr><tr><td><b>A3</b></td><td>one-feature regression</td><td>R², RMSE and what the coefficient says</td></tr><tr><td><b>A4</b></td><td>multiple regression with the text columns turned into 0/1</td><td>what the extra columns added</td></tr><tr><td><b>A5</b></td><td>read the coefficients</td><td>the largest effect, in plain words</td></tr><tr><td><b>A6</b></td><td>the four sentences</td><td>the recommendation</td></tr></tbody></table></div>
+<h2>Before you start Part A</h2>
+<div class="box warn"><p class="boxlbl">Four things about the template cells</p><ol><li>Open a new Colab notebook (colab.new). Nothing needs installing. Paste each cell from this page into its own cell and run the cells in order, because each one uses the variables the one before it made.</li><li>Each template cell has gaps marked <code># YOUR CODE HERE</code>, with a number when a cell has more than one. Replace each gap with your own lines. The Hint and the Solution show them.</li><li>Colab shows only the value of the <b>last line</b> of a cell. To see something from the middle of a cell, wrap it in <code>print( )</code> or <code>display( )</code>.</li><li>The setup cell loads the dataset from the course repository. If it fails to load, check your internet connection and run the cell again.</li></ol></div>
+<p><b>Close is fine.</b> Colab may use other library versions than the sample outputs, so a layout can differ a little, and your numbers should match the samples closely. <b>Roles</b> (from the group exercises): the Lead Coder types, the Data Interpreter reads each output aloud, the QA Reviewer checks it against <b>Look for</b>, and the Presenter reads the four sentences at the end.</p>
+<section class="sec" id="secA"><h2>A · In your breakout group</h2><p>Six steps · A1 to A3 in the first session (about 30 minutes), A4 to A6 in the second (about 25 minutes) · one dataset per group</p></section>
+<div class="box go"><p class="boxlbl">How Part A is split across two sessions</p><ul><li><b>First session, right after the demo (about 30 minutes, in your breakout room):</b> A1 to A3. Explore the data, split it and set the guess-the-average baseline, then fit the simple regression. Stop after A3.</li><li><b>Second session, at the start of class (about 25 minutes):</b> A4 to A6, then one read-out per dataset, then Group Exercise 3.</li><li><b>If the first session runs long,</b> finish A1 to A6 on your own before the second session.</li></ul></div>
+<article class="card" id="A1"><h3><label><input type="checkbox" class="tick" id="tick-A1" data-id="A1" data-sec="A"><span class="tag">A1</span>Explore: load, summarize, correlate and plot</label></h3><p class="meta">about 10 minutes</p><div class="box go"><p class="boxlbl">Do</p><ol><li>Before you code, guess as a group: which one column do you expect to be the strongest predictor of the number you predict, and why? Write it on the first line of <b>Write down</b>.</li><li>In the first cell of your Colab notebook, paste the setup cell for your dataset and run it. The five highlighted lines are the ones you change for a new dataset. (The card data also has one extra line after them that drops columns it does not need.)<div class="ds-gym"><p class="dstag"><span class="tag-one">Showing: Gym members</span><span class="tag-both">Showing both datasets: pick one at the top (this block: Gym members)</span></p><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code"><span class="cb">import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error, r2_score
+
+plt.rcParams[&quot;figure.figsize&quot;] = (10, 5)
+
+# ---- THE LINES YOU CHANGE FOR A NEW DATASET ----
+<span class="hl">data_url   = &quot;https://raw.githubusercontent.com/c-marq/cap4767-data-mining/refs/heads/main/data/gym_members_exercise_tracking.csv&quot;</span>
+<span class="hl">target     = &quot;Calories_Burned&quot;                        # the column you predict</span>
+<span class="hl">unit       = &quot;calories&quot;                               # used in the printouts</span>
+<span class="hl">numbers    = [&quot;Session_Duration (hours)&quot;, &quot;Avg_BPM&quot;, &quot;Age&quot;, &quot;Fat_Percentage&quot;]   # number columns for the multiple model</span>
+<span class="hl">categories = [&quot;Gender&quot;, &quot;Workout_Type&quot;]               # text columns, turned into 0/1 columns</span>
+# ------------------------------------------------
+
+df = pd.read_csv(data_url)
+print(f&quot;Loaded {df.shape[0]:,} rows x {df.shape[1]} columns&quot;)</span></pre></div></div><div class="ds-bank"><p class="dstag"><span class="tag-one">Showing: Credit card customers</span><span class="tag-both">Showing both datasets: pick one at the top (this block: Credit card customers)</span></p><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code"><span class="cb">import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error, r2_score
+
+plt.rcParams[&quot;figure.figsize&quot;] = (10, 5)
+
+# ---- THE LINES YOU CHANGE FOR A NEW DATASET ----
+<span class="hl">data_url   = &quot;https://raw.githubusercontent.com/c-marq/cap4767-data-mining/refs/heads/main/data/BankChurners.csv&quot;</span>
+<span class="hl">target     = &quot;Total_Trans_Amt&quot;                        # the column you predict</span>
+<span class="hl">unit       = &quot;dollars&quot;                                # used in the printouts</span>
+<span class="hl">numbers    = [&quot;Total_Trans_Ct&quot;, &quot;Total_Relationship_Count&quot;, &quot;Credit_Limit&quot;, &quot;Customer_Age&quot;]   # number columns for the multiple model</span>
+<span class="hl">categories = [&quot;Card_Category&quot;]                        # text columns, turned into 0/1 columns</span>
+# ------------------------------------------------
+
+df = pd.read_csv(data_url)
+# an ID column and two columns the source says to ignore, dropped here
+df = df.drop(columns=[&quot;CLIENTNUM&quot;] + [c for c in df.columns if c.startswith(&quot;Naive_Bayes&quot;)])
+print(f&quot;Loaded {df.shape[0]:,} rows x {df.shape[1]} columns&quot;)</span></pre></div></div></li><li>In a second cell, paste the explore cell. Replace each <code># YOUR CODE HERE</code> with your own lines (the number says which gap; an instruction may continue on the next lines, which also start with a <code>#</code>), then run the cell:<div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">print(f&quot;{target}: mean {df[target].mean():,.1f} | min {df[target].min():,.1f} | max {df[target].max():,.1f} ({unit})&quot;)
+
+# YOUR CODE HERE 1: show the summary statistics of df, rounded to 2 decimals
+#   (add .T to turn the table on its side)
+
+# YOUR CODE HERE 2: make corr = the correlation of every number column with
+#   the target (leave the target itself out). Print it sorted from strongest
+#   to weakest, ignoring the sign, rounded to 3 decimals
+
+# YOUR CODE HERE 3: set one_feature to the name of the column with the
+#   strongest correlation
+print(f&quot;Strongest column: {one_feature} (r = {corr[one_feature]:.3f})&quot;)
+
+plt.figure()
+# YOUR CODE HERE 4: scatterplot of the target (y) against one_feature (x),
+#   with a title, axis labels and a grid
+plt.tight_layout()
+plt.show()
+
+for col in categories:
+    print(df.groupby(col)[target].agg([&quot;mean&quot;, &quot;count&quot;]).round(1))
+    print()</pre></div></li></ol></div><div class="box why"><p class="boxlbl">Look for</p><ul><li><b>Setup cell:</b> how many rows and columns the table has.</li><li><b>The target line:</b> its average, lowest and highest value, in the data's own units.</li><li><b>describe():</b> one row for each number column. A <code>count</code> that equals the row count means no missing values in that column.</li><li><b>The sorted correlations:</b> the first line is the strongest column. The sign tells which way the target moves with it. A few columns sit near 0.</li><li><b>The scatterplot:</b> do the dots follow one band, or spread out, or split into separate groups?</li><li><b>The group averages:</b> one small table for each text column. Do the groups differ much, and how many rows does each one have?</li></ul></div><h4>Write down</h4><div class="ds-gym"><p class="dstag"><span class="tag-one">Showing: Gym members</span><span class="tag-both">Showing both datasets: pick one at the top (this block: Gym members)</span></p><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">Our guess before we ran anything: ___
+Rows ___ x columns ___ | Calories_Burned: average ___, lowest ___, highest ___ (calories)
+Strongest column: ___ (r = ___) | Second strongest: ___ (r = ___)
+What the scatterplot shows: ___
+A text column whose groups differ: ___ (averages ___ and ___ calories)</pre></div></div><div class="ds-bank"><p class="dstag"><span class="tag-one">Showing: Credit card customers</span><span class="tag-both">Showing both datasets: pick one at the top (this block: Credit card customers)</span></p><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">Our guess before we ran anything: ___
+Rows ___ x columns ___ | Total_Trans_Amt: average ___, lowest ___, highest ___ (dollars)
+Strongest column: ___ (r = ___) | Second strongest: ___ (r = ___)
+What the scatterplot shows: ___
+A text column whose groups differ: ___ (averages ___ and ___ dollars)</pre></div></div><details class="hint"><summary>Hint</summary><div><p>Gap 1: <code>.describe()</code> makes the table, <code>.round(2)</code> rounds it and <code>.T</code> turns it on its side. Colab shows only the last line of a cell, so wrap it in <code>display( )</code>.</p><p>Gap 2: <code>df.select_dtypes(&quot;number&quot;)</code> keeps the number columns. Then take <code>.corr()[target]</code>, <code>.drop(target)</code> and <code>.sort_values(key=abs, ascending=False)</code>.</p><p>Gap 3: <code>.abs().idxmax()</code> returns the name of the largest value in a column of numbers.</p><p>Gap 4: <code>plt.scatter(x, y, alpha=0.3)</code>. The <code>alpha</code> makes overlapping dots visible.</p></div></details><details class="sol"><summary>Show solution (open this last)</summary><div><div class="ds-gym"><p class="dstag"><span class="tag-one">Showing: Gym members</span><span class="tag-both">Showing both datasets: pick one at the top (this block: Gym members)</span></p><div class="lbl">Sample output: setup cell</div><pre class="out">Loaded 973 rows x 15 columns</pre><div class="lbl">Sample output: explore cell (the plot has no text, so the group averages come right after the strongest-column line)</div><pre class="out">Calories_Burned: mean 905.4 | min 303.0 | max 1,783.0 (calories)
+                               count    mean     std     min     25%     50%      75%      max
+Age                            973.0   38.68   12.18   18.00   28.00   40.00    49.00    59.00
+Weight (kg)                    973.0   73.85   21.21   40.00   58.10   70.00    86.00   129.90
+Height (m)                     973.0    1.72    0.13    1.50    1.62    1.71     1.80     2.00
+Max_BPM                        973.0  179.88   11.53  160.00  170.00  180.00   190.00   199.00
+Avg_BPM                        973.0  143.77   14.35  120.00  131.00  143.00   156.00   169.00
+Resting_BPM                    973.0   62.22    7.33   50.00   56.00   62.00    68.00    74.00
+Session_Duration (hours)       973.0    1.26    0.34    0.50    1.04    1.26     1.46     2.00
+Calories_Burned                973.0  905.42  272.64  303.00  720.00  893.00  1076.00  1783.00
+Fat_Percentage                 973.0   24.98    6.26   10.00   21.30   26.20    29.30    35.00
+Water_Intake (liters)          973.0    2.63    0.60    1.50    2.20    2.60     3.10     3.70
+Workout_Frequency (days/week)  973.0    3.32    0.91    2.00    3.00    3.00     4.00     5.00
+Experience_Level               973.0    1.81    0.74    1.00    1.00    2.00     2.00     3.00
+BMI                            973.0   24.91    6.66   12.32   20.11   24.16    28.56    49.84
+Session_Duration (hours)         0.908
+Experience_Level                 0.694
+Fat_Percentage                  -0.598
+Workout_Frequency (days/week)    0.576
+Water_Intake (liters)            0.357
+Avg_BPM                          0.340
+Age                             -0.155
+Weight (kg)                      0.095
+Height (m)                       0.086
+BMI                              0.060
+Resting_BPM                      0.017
+Max_BPM                          0.002
+Name: Calories_Burned, dtype: float64
+Strongest column: Session_Duration (hours) (r = 0.908)
+         mean  count
+Gender              
+Female  862.2    462
+Male    944.5    511
+
+               mean  count
+Workout_Type              
+Cardio        884.5    255
+HIIT          925.8    221
+Strength      910.7    258
+Yoga          903.2    239</pre><div class="lbl">Your four gaps, filled in</div><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code"># gap 1
+display(df.describe().round(2).T)
+
+# gap 2
+corr = df.select_dtypes(&quot;number&quot;).corr()[target].drop(target)
+print(corr.sort_values(key=abs, ascending=False).round(3))
+
+# gap 3
+one_feature = corr.abs().idxmax()
+
+# gap 4
+plt.scatter(df[one_feature], df[target], alpha=0.3, s=12, color=&quot;steelblue&quot;)
+plt.title(f&quot;{target} against {one_feature}&quot;)
+plt.xlabel(one_feature)
+plt.ylabel(f&quot;{target} ({unit})&quot;)
+plt.grid(True, alpha=0.3)</pre></div><div class="lbl">Write down, filled in</div><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">Our guess before we ran anything: (your group&#x27;s guess)
+Rows 973 x columns 15 | Calories_Burned: average 905.4, lowest 303.0, highest 1,783.0 (calories)
+Strongest column: Session_Duration (hours) (r = 0.908) | Second strongest: Experience_Level (r = 0.694)
+What the scatterplot shows: the dots climb from lower left to upper right and fan out a little at long sessions
+A text column whose groups differ: Gender (averages 862.2 for Female and 944.5 for Male, in calories)</pre></div></div><div class="ds-bank"><p class="dstag"><span class="tag-one">Showing: Credit card customers</span><span class="tag-both">Showing both datasets: pick one at the top (this block: Credit card customers)</span></p><div class="lbl">Sample output: setup cell</div><pre class="out">Loaded 10,127 rows x 20 columns</pre><div class="lbl">Sample output: explore cell (the plot has no text, so the group averages come right after the strongest-column line)</div><pre class="out">Total_Trans_Amt: mean 4,404.1 | min 510.0 | max 18,484.0 (dollars)
+                            count     mean      std     min      25%      50%       75%       max
+Customer_Age              10127.0    46.33     8.02    26.0    41.00    46.00     52.00     73.00
+Dependent_count           10127.0     2.35     1.30     0.0     1.00     2.00      3.00      5.00
+Months_on_book            10127.0    35.93     7.99    13.0    31.00    36.00     40.00     56.00
+Total_Relationship_Count  10127.0     3.81     1.55     1.0     3.00     4.00      5.00      6.00
+Months_Inactive_12_mon    10127.0     2.34     1.01     0.0     2.00     2.00      3.00      6.00
+Contacts_Count_12_mon     10127.0     2.46     1.11     0.0     2.00     2.00      3.00      6.00
+Credit_Limit              10127.0  8631.95  9088.78  1438.3  2555.00  4549.00  11067.50  34516.00
+Total_Revolving_Bal       10127.0  1162.81   814.99     0.0   359.00  1276.00   1784.00   2517.00
+Avg_Open_To_Buy           10127.0  7469.14  9090.69     3.0  1324.50  3474.00   9859.00  34516.00
+Total_Amt_Chng_Q4_Q1      10127.0     0.76     0.22     0.0     0.63     0.74      0.86      3.40
+Total_Trans_Amt           10127.0  4404.09  3397.13   510.0  2155.50  3899.00   4741.00  18484.00
+Total_Trans_Ct            10127.0    64.86    23.47    10.0    45.00    67.00     81.00    139.00
+Total_Ct_Chng_Q4_Q1       10127.0     0.71     0.24     0.0     0.58     0.70      0.82      3.71
+Avg_Utilization_Ratio     10127.0     0.27     0.28     0.0     0.02     0.18      0.50      1.00
+Total_Trans_Ct              0.807
+Total_Relationship_Count   -0.347
+Credit_Limit                0.172
+Avg_Open_To_Buy             0.166
+Contacts_Count_12_mon      -0.113
+Total_Ct_Chng_Q4_Q1         0.086
+Avg_Utilization_Ratio      -0.083
+Total_Revolving_Bal         0.064
+Customer_Age               -0.046
+Total_Amt_Chng_Q4_Q1        0.040
+Months_on_book             -0.039
+Months_Inactive_12_mon     -0.037
+Dependent_count             0.025
+Name: Total_Trans_Amt, dtype: float64
+Strongest column: Total_Trans_Ct (r = 0.807)
+                 mean  count
+Card_Category               
+Blue           4225.4   9436
+Gold           7685.6    116
+Platinum       8999.8     20
+Silver         6590.5    555</pre><div class="lbl">Your four gaps, filled in</div><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code"># gap 1
+display(df.describe().round(2).T)
+
+# gap 2
+corr = df.select_dtypes(&quot;number&quot;).corr()[target].drop(target)
+print(corr.sort_values(key=abs, ascending=False).round(3))
+
+# gap 3
+one_feature = corr.abs().idxmax()
+
+# gap 4
+plt.scatter(df[one_feature], df[target], alpha=0.3, s=12, color=&quot;steelblue&quot;)
+plt.title(f&quot;{target} against {one_feature}&quot;)
+plt.xlabel(one_feature)
+plt.ylabel(f&quot;{target} ({unit})&quot;)
+plt.grid(True, alpha=0.3)</pre></div><div class="lbl">Write down, filled in</div><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">Our guess before we ran anything: (your group&#x27;s guess)
+Rows 10,127 x columns 20 | Total_Trans_Amt: average 4,404.1, lowest 510.0, highest 18,484.0 (dollars)
+Strongest column: Total_Trans_Ct (r = 0.807) | Second strongest: Total_Relationship_Count (r = -0.347)
+What the scatterplot shows: the dots climb from lower left to upper right, but they form separate groups: a low band, a middle band and a band of very high spenders
+A text column whose groups differ: Card_Category (averages 4,225.4 for Blue and 8,999.8 for Platinum, in dollars)</pre></div></div><div class="box warn"><p class="boxlbl">Watch out</p><ul><li>Colab shows only the value of the <b>last line</b> of a cell. If the explore cell shows no summary table, you typed <code>df.describe()</code> on its own in the middle of the cell. Wrap it in <code>display( )</code> or <code>print( )</code>.</li><li>A correlation says two columns move together. It does not say one causes the other, and it only looks at one column at a time.</li></ul></div></div></details></article>
+<article class="card" id="A2"><h3><label><input type="checkbox" class="tick" id="tick-A2" data-id="A2" data-sec="A"><span class="tag">A2</span>Prepare and split, then set the guess-the-average baseline</label></h3><p class="meta">about 6 minutes</p><div class="box go"><p class="boxlbl">Do</p><ol><li>In a new cell, paste the prepare cell. Replace the three gaps with your own lines, then run the cell:<div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code"># YOUR CODE HERE 1: make X from the columns in numbers and categories, turning
+#   each text column into 0/1 columns (drop the first category of each,
+#   dtype=int)
+y = df[target]
+
+# YOUR CODE HERE 2: split X and y into X_train, X_test, y_train, y_test with
+#   test_size=0.25 and random_state=42
+print(f&quot;X has {X.shape[1]} columns: {list(X.columns)}&quot;)
+print(f&quot;Train: {len(X_train):,} rows | Test: {len(X_test):,} rows&quot;)
+
+# YOUR CODE HERE 3: the guess-the-average baseline. Predict the average of
+#   y_train for every test row (baseline_pred). Make baseline_rmse and
+#   baseline_r2, and print both</pre></div></li><li>Use the split the gap gives you, <code>test_size=0.25</code>. The housing demo and the group exercise used 0.33; this page and Lab 2 use 0.25.</li></ol></div><div class="box why"><p class="boxlbl">Look for</p><ul><li><b>The word baseline:</b> on this page, baseline always means guessing the average. The demo and Lab 2 also call the first simple model a baseline; here that is the simple model.</li><li><b>X has ... columns:</b> your number columns first, then 0/1 columns named like <code>column_category</code>. Each text column is missing one category. That is the one <code>drop_first=True</code> dropped.</li><li><b>Train and test rows:</b> about three training rows for each test row.</li><li><b>The guess-the-average line:</b> the RMSE of guessing the same number every time, in the data's own units, and its R². The R² is almost exactly 0. That is what R² measures against: it asks how much better than this guess a model does.</li><li>The guess-the-average RMSE is the number every model after this one has to beat.</li></ul></div><h4>Write down</h4><div class="ds-gym"><p class="dstag"><span class="tag-one">Showing: Gym members</span><span class="tag-both">Showing both datasets: pick one at the top (this block: Gym members)</span></p><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">X has ___ columns | Train ___ rows | Test ___ rows
+Guess-the-average baseline (the average of y_train for every test row): RMSE ___ calories | R² ___
+Why we score on the test rows, not the training rows: ___
+Why the guess-the-average baseline uses y_train.mean(), not y_test.mean(): ___</pre></div></div><div class="ds-bank"><p class="dstag"><span class="tag-one">Showing: Credit card customers</span><span class="tag-both">Showing both datasets: pick one at the top (this block: Credit card customers)</span></p><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">X has ___ columns | Train ___ rows | Test ___ rows
+Guess-the-average baseline (the average of y_train for every test row): RMSE ___ dollars | R² ___
+Why we score on the test rows, not the training rows: ___
+Why the guess-the-average baseline uses y_train.mean(), not y_test.mean(): ___</pre></div></div><details class="hint"><summary>Hint</summary><div><p>Gap 1: use <code>pd.get_dummies</code> on <code>df[numbers + categories]</code>. Its <code>columns=</code> argument names the text columns to turn into 0/1, and it also takes <code>drop_first</code> and <code>dtype</code>.</p><p>Gap 2: <code>train_test_split</code> takes X and y plus <code>test_size</code> and <code>random_state</code>, and returns four pieces in the order the names are listed in the gap.</p><p>Gap 3: <code>np.full(len(y_test), y_train.mean())</code> makes one copy of the average for each test row. Then use <code>mean_squared_error</code>, <code>np.sqrt</code> and <code>r2_score</code>.</p><p>For the two &quot;why&quot; lines: when the model is used, does it know the answers for the rows it has not seen?</p></div></details><details class="sol"><summary>Show solution (open this last)</summary><div><div class="ds-gym"><p class="dstag"><span class="tag-one">Showing: Gym members</span><span class="tag-both">Showing both datasets: pick one at the top (this block: Gym members)</span></p><div class="lbl">Sample output: prepare cell</div><pre class="out">X has 8 columns: [&#x27;Session_Duration (hours)&#x27;, &#x27;Avg_BPM&#x27;, &#x27;Age&#x27;, &#x27;Fat_Percentage&#x27;, &#x27;Gender_Male&#x27;, &#x27;Workout_Type_HIIT&#x27;, &#x27;Workout_Type_Strength&#x27;, &#x27;Workout_Type_Yoga&#x27;]
+Train: 729 rows | Test: 244 rows
+Guess the average (906.8 calories) every time: RMSE 284.2 calories, R² -0.0004</pre><div class="lbl">Your three gaps, filled in</div><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code"># gap 1
+X = pd.get_dummies(df[numbers + categories], columns=categories, drop_first=True, dtype=int)
+
+# gap 2
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42)
+
+# gap 3
+baseline_pred = np.full(len(y_test), y_train.mean())
+baseline_rmse = np.sqrt(mean_squared_error(y_test, baseline_pred))
+baseline_r2 = r2_score(y_test, baseline_pred)
+print(f&quot;Guess the average ({y_train.mean():,.1f} {unit}) every time: RMSE {baseline_rmse:,.1f} {unit}, R² {baseline_r2:.4f}&quot;)</pre></div><div class="lbl">Write down, filled in</div><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">X has 8 columns | Train 729 rows | Test 244 rows
+Guess-the-average baseline (the average of y_train for every test row): RMSE 284.2 calories | R² -0.0004
+Why we score on the test rows, not the training rows: a model can fit the rows it was trained on very well and still do badly on new ones. The test rows stand in for new rows it has never seen.
+Why the guess-the-average baseline uses y_train.mean(), not y_test.mean(): in real use we do not know the new answers, so the guess has to come from the rows we have. (Using the test mean here would score 284.1, almost the same, but it peeks.)</pre></div></div><div class="ds-bank"><p class="dstag"><span class="tag-one">Showing: Credit card customers</span><span class="tag-both">Showing both datasets: pick one at the top (this block: Credit card customers)</span></p><div class="lbl">Sample output: prepare cell</div><pre class="out">X has 7 columns: [&#x27;Total_Trans_Ct&#x27;, &#x27;Total_Relationship_Count&#x27;, &#x27;Credit_Limit&#x27;, &#x27;Customer_Age&#x27;, &#x27;Card_Category_Gold&#x27;, &#x27;Card_Category_Platinum&#x27;, &#x27;Card_Category_Silver&#x27;]
+Train: 7,595 rows | Test: 2,532 rows
+Guess the average (4,429.1 dollars) every time: RMSE 3,322.3 dollars, R² -0.0009</pre><div class="lbl">Your three gaps, filled in</div><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code"># gap 1
+X = pd.get_dummies(df[numbers + categories], columns=categories, drop_first=True, dtype=int)
+
+# gap 2
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42)
+
+# gap 3
+baseline_pred = np.full(len(y_test), y_train.mean())
+baseline_rmse = np.sqrt(mean_squared_error(y_test, baseline_pred))
+baseline_r2 = r2_score(y_test, baseline_pred)
+print(f&quot;Guess the average ({y_train.mean():,.1f} {unit}) every time: RMSE {baseline_rmse:,.1f} {unit}, R² {baseline_r2:.4f}&quot;)</pre></div><div class="lbl">Write down, filled in</div><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">X has 7 columns | Train 7,595 rows | Test 2,532 rows
+Guess-the-average baseline (the average of y_train for every test row): RMSE 3,322.3 dollars | R² -0.0009
+Why we score on the test rows, not the training rows: a model can fit the rows it was trained on very well and still do badly on new ones. The test rows stand in for new rows it has never seen.
+Why the guess-the-average baseline uses y_train.mean(), not y_test.mean(): in real use we do not know the new answers, so the guess has to come from the rows we have. (Using the test mean here would score 3,320.8, almost the same, but it peeks.)</pre></div></div><div class="ds-gym"><p class="dstag"><span class="tag-one">Showing: Gym members</span><span class="tag-both">Showing both datasets: pick one at the top (this block: Gym members)</span></p><div class="box warn"><p class="boxlbl">Watch out</p><p>Split at random, as <code>train_test_split</code> does by default. If you instead train on the first 75% of the rows and test on the last 25%, the gym data still works (R² 0.9767 against 0.9816), but only because its rows happen to be in no particular order.</p></div></div><div class="ds-bank"><p class="dstag"><span class="tag-one">Showing: Credit card customers</span><span class="tag-both">Showing both datasets: pick one at the top (this block: Credit card customers)</span></p><div class="box warn"><p class="boxlbl">Watch out</p><p>Split at random, as <code>train_test_split</code> does by default. This file is not in random order: it runs roughly from low spenders to high spenders, and 754 of the 757 customers who spent over $10,000 sit in its last tenth. Train on the first 75% of the rows and test on the last 25% and the average spending is 3,076 dollars in training and 8,386 dollars in testing. The model then scores an R² of -0.3266 and an RMSE of 5,157 dollars, against 0.6780 and 1,884 dollars on a random split. (R² is below 0 here because it compares with the average of the test rows; even the training average, 3,076 dollars, would miss the test rows by 6,946 dollars.) A score from a split like this tells you nothing reliable about new customers.</p></div></div></div></details></article>
+<article class="card" id="A3"><h3><label><input type="checkbox" class="tick" id="tick-A3" data-id="A3" data-sec="A"><span class="tag">A3</span>Simple regression: one feature</label></h3><p class="meta">about 7 minutes</p><div class="box go"><p class="boxlbl">Do</p><ol><li>In a new cell, paste the simple-model cell. Replace the two gaps, then run the cell:<div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">simple_model = LinearRegression()
+# YOUR CODE HERE 1: fit simple_model on the training rows, using only the
+#   one_feature column (double brackets)
+
+simple_pred = simple_model.predict(X_test[[one_feature]])
+simple_rmse = np.sqrt(mean_squared_error(y_test, simple_pred))
+simple_r2 = r2_score(y_test, simple_pred)
+print(f&quot;Simple model: {target} from {one_feature}&quot;)
+print(f&quot;  R²:   {simple_r2:.4f}&quot;)
+print(f&quot;  RMSE: {simple_rmse:,.1f} {unit}   (guessing the average: {baseline_rmse:,.1f})&quot;)
+
+# YOUR CODE HERE 2: print the coefficient and the intercept, each with its
+#   unit</pre></div></li></ol></div><div class="box why"><p class="boxlbl">Look for</p><ul><li><b>R²</b> is clearly above the guess-the-average baseline's R² (about 0), and <b>RMSE</b> is clearly below the baseline's RMSE. By how much?</li><li><b>The coefficient</b> has the same sign as the correlation in A1. Read it as: for each 1 unit more of the feature, the model predicts this many more (or fewer) units of the target.</li><li><b>The intercept</b> is the prediction when the feature is 0. It is often not a value you would ever see in the data.</li></ul></div><h4>Write down</h4><div class="ds-gym"><p class="dstag"><span class="tag-one">Showing: Gym members</span><span class="tag-both">Showing both datasets: pick one at the top (this block: Gym members)</span></p><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">Simple model: Calories_Burned from ___ | R² ___ | RMSE ___ calories
+The guess-the-average baseline misses by ___ calories | the simple model misses by ___ calories, so it removes about ___% of that miss
+In plain words: each extra 1 unit of ___ goes with about ___ more (or fewer) calories</pre></div></div><div class="ds-bank"><p class="dstag"><span class="tag-one">Showing: Credit card customers</span><span class="tag-both">Showing both datasets: pick one at the top (this block: Credit card customers)</span></p><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">Simple model: Total_Trans_Amt from ___ | R² ___ | RMSE ___ dollars
+The guess-the-average baseline misses by ___ dollars | the simple model misses by ___ dollars, so it removes about ___% of that miss
+In plain words: each extra 1 unit of ___ goes with about ___ more (or fewer) dollars</pre></div></div><details class="hint"><summary>Hint</summary><div><p>Gap 1: <code>.fit(X, y)</code> needs a table for X. Double brackets, <code>X_train[[one_feature]]</code>, give a table with one column. Single brackets give a single column and an error.</p><p>Gap 2: <code>simple_model.coef_[0]</code> is the coefficient and <code>simple_model.intercept_</code> is the intercept.</p><p>The share of the miss removed is <code>(1 - simple_rmse / baseline_rmse) * 100</code>. A6 prints it too, so you can check.</p></div></details><details class="sol"><summary>Show solution (open this last)</summary><div><div class="ds-gym"><p class="dstag"><span class="tag-one">Showing: Gym members</span><span class="tag-both">Showing both datasets: pick one at the top (this block: Gym members)</span></p><div class="lbl">Sample output: simple-model cell</div><pre class="out">Simple model: Calories_Burned from Session_Duration (hours)
+  R²:   0.8313
+  RMSE: 116.7 calories   (guessing the average: 284.2)
+  Coefficient: 722.97 calories for each 1 unit of Session_Duration (hours)
+  Intercept:   -4.22 calories</pre><div class="lbl">Your two gaps, filled in</div><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code"># gap 1
+simple_model.fit(X_train[[one_feature]], y_train)
+
+# gap 2
+print(f&quot;  Coefficient: {simple_model.coef_[0]:,.2f} {unit} for each 1 unit of {one_feature}&quot;)
+print(f&quot;  Intercept:   {simple_model.intercept_:,.2f} {unit}&quot;)</pre></div><div class="lbl">Write down, filled in</div><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">Simple model: Calories_Burned from Session_Duration (hours) | R² 0.8313 | RMSE 116.7 calories
+The guess-the-average baseline misses by 284.2 calories | the simple model misses by 116.7 calories, so it removes about 59% of that miss
+In plain words: each extra hour of session length goes with about 723 more calories</pre></div></div><div class="ds-bank"><p class="dstag"><span class="tag-one">Showing: Credit card customers</span><span class="tag-both">Showing both datasets: pick one at the top (this block: Credit card customers)</span></p><div class="lbl">Sample output: simple-model cell</div><pre class="out">Simple model: Total_Trans_Amt from Total_Trans_Ct
+  R²:   0.6437
+  RMSE: 1,982.2 dollars   (guessing the average: 3,322.3)
+  Coefficient: 117.27 dollars for each 1 unit of Total_Trans_Ct
+  Intercept:   -3,212.06 dollars</pre><div class="lbl">Your two gaps, filled in</div><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code"># gap 1
+simple_model.fit(X_train[[one_feature]], y_train)
+
+# gap 2
+print(f&quot;  Coefficient: {simple_model.coef_[0]:,.2f} {unit} for each 1 unit of {one_feature}&quot;)
+print(f&quot;  Intercept:   {simple_model.intercept_:,.2f} {unit}&quot;)</pre></div><div class="lbl">Write down, filled in</div><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">Simple model: Total_Trans_Amt from Total_Trans_Ct | R² 0.6437 | RMSE 1,982.2 dollars
+The guess-the-average baseline misses by 3,322.3 dollars | the simple model misses by 1,982.2 dollars, so it removes about 40% of that miss
+In plain words: each extra transaction goes with about $117 more spending over the year</pre></div></div><div class="box warn"><p class="boxlbl">Watch out</p><ul><li>If you type <code>X_train[one_feature]</code> with single brackets, you get this error: <code>ValueError: Expected a 2-dimensional container but got &lt;class &#x27;pandas.Series&#x27;&gt; instead. Pass a DataFrame containing a single row (i.e. single sample) or a single column (i.e. single feature) instead.</code> Older versions of scikit-learn word it differently (<code>Expected 2D array, got 1D array instead</code>). The fix is the same: double brackets.</li><li>Say the unit every time. The RMSE is in calories for the gym data and in dollars for the card data, not in percent.</li></ul></div></div></details></article>
+<div class="box stop"><p class="boxlbl">Stop here in the first session</p><p>This is where the first session ends. Before you leave, save your notebook in Colab so you can reopen it. If you did not get to A3, see the line above about finishing on your own.</p></div>
+<div class="box go"><p class="boxlbl">Start here in the second session</p><p>Reopen your notebook and run every cell from the top, so the variables from A1 to A3 exist again. Then continue with A4. You have about 25 minutes for A4 to A6, then one read-out per dataset (one group per dataset reads its four sentences), then Group Exercise 3.</p></div>
+<article class="card" id="A4"><h3><label><input type="checkbox" class="tick" id="tick-A4" data-id="A4" data-sec="A"><span class="tag">A4</span>Multiple regression: add columns and compare</label></h3><p class="meta">about 8 minutes</p><div class="box go"><p class="boxlbl">Do</p><ol><li>In a new cell, paste the multiple-regression cell. Replace the three gaps, then run the cell:<div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">num_model = LinearRegression()
+# YOUR CODE HERE 1: fit num_model on the numbers columns of the training rows
+num_pred = num_model.predict(X_test[numbers])
+
+multi_model = LinearRegression()
+# YOUR CODE HERE 2: fit multi_model on every column of the training rows
+multi_pred = multi_model.predict(X_test)
+
+multi_rmse = np.sqrt(mean_squared_error(y_test, multi_pred))
+multi_r2 = r2_score(y_test, multi_pred)
+rows = []
+for name, pred in [(&quot;Guess the average&quot;, baseline_pred), (&quot;Simple&quot;, simple_pred),
+                   (&quot;Numbers only&quot;, num_pred), (&quot;Numbers + text columns&quot;, multi_pred)]:
+    rows.append({&quot;model&quot;: name, &quot;test R²&quot;: r2_score(y_test, pred), &quot;test RMSE&quot;: np.sqrt(mean_squared_error(y_test, pred))})
+print(pd.DataFrame(rows).round({&quot;test R²&quot;: 4, &quot;test RMSE&quot;: 1}).to_string(index=False))
+
+# YOUR CODE HERE 3: print multi_model&#x27;s R² on the training rows next to its R²
+#   on the test rows</pre></div></li></ol></div><div class="box why"><p class="boxlbl">Look for</p><ul><li><b>The table:</b> four rows, one for each model so far. Going down, does R² climb and RMSE fall? How much does each step add?</li><li><b>Numbers only against Numbers + text columns:</b> that gap is what the 0/1 columns added.</li><li><b>Train R² against test R²:</b> a test R² far below the train R² would mean the model fits the training rows better than new rows. A small gap means it does not.</li></ul></div><h4>Write down</h4><div class="ds-gym"><p class="dstag"><span class="tag-one">Showing: Gym members</span><span class="tag-both">Showing both datasets: pick one at the top (this block: Gym members)</span></p><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">Numbers only: R² ___ | RMSE ___ calories || Numbers + text columns: R² ___ | RMSE ___ calories
+Compared with the simple model: R² went from ___ to ___ and the RMSE from ___ to ___ calories
+Train R² ___ against test R² ___: the gap is (small / large)
+Did adding columns help a lot, a little, or hardly at all? ___</pre></div></div><div class="ds-bank"><p class="dstag"><span class="tag-one">Showing: Credit card customers</span><span class="tag-both">Showing both datasets: pick one at the top (this block: Credit card customers)</span></p><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">Numbers only: R² ___ | RMSE ___ dollars || Numbers + text columns: R² ___ | RMSE ___ dollars
+Compared with the simple model: R² went from ___ to ___ and the RMSE from ___ to ___ dollars
+Train R² ___ against test R² ___: the gap is (small / large)
+Did adding columns help a lot, a little, or hardly at all? ___</pre></div></div><details class="hint"><summary>Hint</summary><div><p>Gap 1 fits on <code>X_train[numbers]</code> (only the number columns). Gap 2 fits on <code>X_train</code> (every column, including the 0/1 ones). Both use <code>y_train</code>.</p><p>Gap 3: <code>multi_model.score(X, y)</code> returns R². Score it once on the training rows and once on the test rows.</p><p>For the last line, compare the gain from the simple model to the multiple model with the gain from the guess-the-average baseline to the simple model.</p></div></details><details class="sol"><summary>Show solution (open this last)</summary><div><div class="ds-gym"><p class="dstag"><span class="tag-one">Showing: Gym members</span><span class="tag-both">Showing both datasets: pick one at the top (this block: Gym members)</span></p><div class="lbl">Sample output: multiple-regression cell</div><pre class="out">                 model  test R²  test RMSE
+     Guess the average  -0.0004      284.2
+                Simple   0.8313      116.7
+          Numbers only   0.9628       54.8
+Numbers + text columns   0.9816       38.6
+multi_model: train R² 0.9781 | test R² 0.9816</pre><div class="lbl">Your three gaps, filled in</div><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code"># gap 1
+num_model.fit(X_train[numbers], y_train)
+
+# gap 2
+multi_model.fit(X_train, y_train)
+
+# gap 3
+print(f&quot;multi_model: train R² {multi_model.score(X_train, y_train):.4f} | test R² {multi_model.score(X_test, y_test):.4f}&quot;)</pre></div><div class="lbl">Write down, filled in</div><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">Numbers only: R² 0.9628 | RMSE 54.8 calories || Numbers + text columns: R² 0.9816 | RMSE 38.6 calories
+Compared with the simple model: R² went from 0.8313 to 0.9816 and the RMSE from 116.7 to 38.6 calories
+Train R² 0.9781 against test R² 0.9816: the gap is small
+Did adding columns help a lot, a little, or hardly at all? a lot: R² went from 0.83 to 0.98, and the typical miss fell to about a third of the simple model&#x27;s</pre></div></div><div class="ds-bank"><p class="dstag"><span class="tag-one">Showing: Credit card customers</span><span class="tag-both">Showing both datasets: pick one at the top (this block: Credit card customers)</span></p><div class="lbl">Sample output: multiple-regression cell</div><pre class="out">                 model  test R²  test RMSE
+     Guess the average  -0.0009     3322.3
+                Simple   0.6437     1982.2
+          Numbers only   0.6767     1888.1
+Numbers + text columns   0.6780     1884.2
+multi_model: train R² 0.6906 | test R² 0.6780</pre><div class="lbl">Your three gaps, filled in</div><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code"># gap 1
+num_model.fit(X_train[numbers], y_train)
+
+# gap 2
+multi_model.fit(X_train, y_train)
+
+# gap 3
+print(f&quot;multi_model: train R² {multi_model.score(X_train, y_train):.4f} | test R² {multi_model.score(X_test, y_test):.4f}&quot;)</pre></div><div class="lbl">Write down, filled in</div><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">Numbers only: R² 0.6767 | RMSE 1,888.1 dollars || Numbers + text columns: R² 0.6780 | RMSE 1,884.2 dollars
+Compared with the simple model: R² went from 0.6437 to 0.6780 and the RMSE from 1,982.2 to 1,884.2 dollars
+Train R² 0.6906 against test R² 0.6780: the gap is small
+Did adding columns help a lot, a little, or hardly at all? only a little: R² went from 0.64 to 0.68, and the RMSE fell by about 100 dollars. Most of the signal was already in the transaction count</pre></div></div><div class="box warn"><p class="boxlbl">Watch out</p><ul><li>If you build the model from <code>df[numbers + categories]</code> instead of <code>X</code>, the text columns are still text and you get: <code>ValueError: could not convert string to float: &#x27;Male&#x27;</code> for the gym data, or <code>ValueError: could not convert string to float: &#x27;Blue&#x27;</code> for the card data. That is why A2 turns them into 0/1 columns first.</li><li>More columns do not always mean a much better model. The table shows what each step really bought.</li></ul></div></div></details></article>
+<article class="card" id="A5"><h3><label><input type="checkbox" class="tick" id="tick-A5" data-id="A5" data-sec="A"><span class="tag">A5</span>Read the coefficients: which columns matter</label></h3><p class="meta">about 7 minutes</p><div class="box go"><p class="boxlbl">Do</p><ol><li>In a new cell, paste the coefficient cell. Replace the gap, then run the cell:<div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">coef = pd.Series(multi_model.coef_, index=X_train.columns)
+# YOUR CODE HERE 1: make a DataFrame called table with two columns: &quot;per unit&quot;
+#   (coef rounded to 2) and &quot;per 1 SD&quot; (coef times X_train.std(), rounded to
+#   1). Print it sorted by &quot;per 1 SD&quot; from largest to smallest, ignoring the
+#   sign
+
+print(f&quot;Intercept: {multi_model.intercept_:,.2f} {unit}&quot;)
+print(f&quot;Largest effect per 1 SD: {table[&#x27;per 1 SD&#x27;].abs().idxmax()}&quot;)</pre></div></li></ol></div><div class="box why"><p class="boxlbl">Look for</p><ul><li><b>The sign</b> of each coefficient: positive means the target goes up with that column, negative means it goes down, holding the other columns fixed.</li><li><b>Per unit</b> is the change in the target for 1 more unit of that column. Its size depends on the column's unit (1 hour, 1 dollar, 1 year), so do not compare per-unit numbers across columns.</li><li><b>Per 1 SD</b> is the change for one standard deviation of that column. It puts every column on a comparable scale, so it shows which columns matter most.</li><li><b>The 0/1 columns:</b> each shows the difference between that category and the category that was dropped, holding the other columns fixed. For a 0/1 column, read the per-unit number; per 1 SD mostly reflects how common the category is.</li></ul></div><h4>Write down</h4><div class="ds-gym"><p class="dstag"><span class="tag-one">Showing: Gym members</span><span class="tag-both">Showing both datasets: pick one at the top (this block: Gym members)</span></p><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">Largest effect per 1 SD: ___ (___ calories per unit, ___ calories per 1 SD)
+A column that pulls the other way (negative): ___
+A column that barely matters: ___ (___ calories per 1 SD)
+In plain words, for the largest column: ___</pre></div></div><div class="ds-bank"><p class="dstag"><span class="tag-one">Showing: Credit card customers</span><span class="tag-both">Showing both datasets: pick one at the top (this block: Credit card customers)</span></p><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">Largest effect per 1 SD: ___ (___ dollars per unit, ___ dollars per 1 SD)
+A column that pulls the other way (negative): ___
+A column that barely matters: ___ (___ dollars per 1 SD)
+In plain words, for the largest column: ___</pre></div></div><details class="hint"><summary>Hint</summary><div><p>Make the table with <code>pd.DataFrame({&quot;per unit&quot;: ..., &quot;per 1 SD&quot;: ...})</code>, and call it <code>table</code>, because the line after the gap uses that name. <code>coef.round(2)</code> is the first column. <code>coef * X_train.std()</code>, rounded to 1, is the second.</p><p>To sort by size and ignore the sign: <code>.sort_values(&quot;per 1 SD&quot;, key=abs, ascending=False)</code>.</p></div></details><details class="sol"><summary>Show solution (open this last)</summary><div><div class="ds-gym"><p class="dstag"><span class="tag-one">Showing: Gym members</span><span class="tag-both">Showing both datasets: pick one at the top (this block: Gym members)</span></p><div class="lbl">Sample output: coefficient cell</div><pre class="out">                          per unit  per 1 SD
+Session_Duration (hours)    715.29     241.0
+Avg_BPM                       6.23      89.7
+Gender_Male                  85.98      42.9
+Age                          -3.37     -40.7
+Workout_Type_Yoga            -8.61      -3.6
+Fat_Percentage               -0.54      -3.4
+Workout_Type_HIIT            -3.31      -1.4
+Workout_Type_Strength        -2.23      -1.0
+Intercept: -787.22 calories
+Largest effect per 1 SD: Session_Duration (hours)</pre><div class="lbl">Your gap, filled in</div><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code"># gap 1
+table = pd.DataFrame({&quot;per unit&quot;: coef.round(2), &quot;per 1 SD&quot;: (coef * X_train.std()).round(1)})
+print(table.sort_values(&quot;per 1 SD&quot;, key=abs, ascending=False).to_string())</pre></div><div class="lbl">Write down, filled in</div><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">Largest effect per 1 SD: Session_Duration (hours) (715.29 calories per unit, 241.0 calories per 1 SD)
+A column that pulls the other way (negative): Age (-3.37 calories per unit, -40.7 calories per 1 SD)
+A column that barely matters: Workout_Type_Strength (-1.0 calories per 1 SD)
+In plain words, for the largest column: each extra hour of session length goes with about 715 more calories, holding heart rate, age, fat percentage, gender and workout type fixed</pre></div></div><div class="ds-bank"><p class="dstag"><span class="tag-one">Showing: Credit card customers</span><span class="tag-both">Showing both datasets: pick one at the top (this block: Credit card customers)</span></p><div class="lbl">Sample output: coefficient cell</div><pre class="out">                          per unit  per 1 SD
+Total_Trans_Ct              110.16    2599.3
+Total_Relationship_Count   -345.81    -537.8
+Credit_Limit                  0.03     283.1
+Card_Category_Silver        501.06     113.9
+Card_Category_Gold          487.14      51.8
+Card_Category_Platinum     1122.28      48.1
+Customer_Age                  2.44      19.6
+Intercept: -1,848.83 dollars
+Largest effect per 1 SD: Total_Trans_Ct</pre><div class="lbl">Your gap, filled in</div><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code"># gap 1
+table = pd.DataFrame({&quot;per unit&quot;: coef.round(2), &quot;per 1 SD&quot;: (coef * X_train.std()).round(1)})
+print(table.sort_values(&quot;per 1 SD&quot;, key=abs, ascending=False).to_string())</pre></div><div class="lbl">Write down, filled in</div><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">Largest effect per 1 SD: Total_Trans_Ct (110.16 dollars per unit, 2,599.3 dollars per 1 SD)
+A column that pulls the other way (negative): Total_Relationship_Count (-345.81 dollars per unit, -537.8 dollars per 1 SD)
+A column that barely matters: Customer_Age (19.6 dollars per 1 SD)
+In plain words, for the largest column: each extra transaction goes with about $110 more spending over the year, holding the other columns fixed</pre></div></div><div class="ds-gym"><p class="dstag"><span class="tag-one">Showing: Gym members</span><span class="tag-both">Showing both datasets: pick one at the top (this block: Gym members)</span></p><div class="box warn"><p class="boxlbl">Watch out</p><p><code>Fat_Percentage</code> had the third strongest correlation in A1 (-0.598), yet here it is only -3.4 per 1 SD. B2 shows it adds only about 0.001 to R² even when it is the second column added. A column can look strong alone and add little next to others.</p></div></div><div class="ds-bank"><p class="dstag"><span class="tag-one">Showing: Credit card customers</span><span class="tag-both">Showing both datasets: pick one at the top (this block: Credit card customers)</span></p><div class="box warn"><p class="boxlbl">Watch out</p><ul><li>Do not read the per-unit column across rows. <code>Credit_Limit</code> shows 0.03 per unit because one unit is one dollar of limit. Per 1 SD it is 283.1 dollars, which puts it on the same scale as the other columns.</li><li><code>Total_Trans_Ct</code> counts the transactions that add up to <code>Total_Trans_Amt</code>, so part of the link is built in. Without it, the same model on the same split falls from R² 0.6780 to 0.1516 (RMSE 3,059 dollars, against 3,322 for guessing the average). The model shows who spends more. It does not show that getting customers to swipe more will raise their spending.</li></ul></div></div></div></details></article>
+<article class="card" id="A6"><h3><label><input type="checkbox" class="tick" id="tick-A6" data-id="A6" data-sec="A"><span class="tag">A6</span>The four sentences</label></h3><p class="meta">about 8 minutes</p><div class="box go"><p class="boxlbl">Do</p><ol><li>In a new cell, run this. It gives you the numbers for sentences 1 and 2:<div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">print(f&quot;Typical miss of the multiple model: {multi_rmse:,.1f} {unit}, which is {multi_rmse / y_test.mean() * 100:.1f}% of the average {target} in the test rows ({y_test.mean():,.1f})&quot;)
+print(f&quot;Guessing the average misses by {baseline_rmse:,.1f} {unit}; the model removes {(1 - multi_rmse / baseline_rmse) * 100:.0f}% of that miss&quot;)
+print(f&quot;The simple model removes {(1 - simple_rmse / baseline_rmse) * 100:.0f}% of it&quot;)</pre></div></li><li>In your notebook, paste the four sentence frames from <b>Write down</b> and fill every blank from your write-down lines in A2 to A5. Use these notes for the blanks:<div class="ds-gym"><p class="dstag"><span class="tag-one">Showing: Gym members</span><span class="tag-both">Showing both datasets: pick one at the top (this block: Gym members)</span></p><ul><li><b>Sentence 1.</b> The largest column from A5, with its unit and its per-unit number.</li><li><b>Sentence 2.</b> The multiple model's RMSE in calories, the percent of an average row, the guess-the-average RMSE and the percent of the miss removed. All four are on the lines the numbers cell printed.</li><li><b>Sentence 3.</b> One thing the fitness club chain should do with a calorie estimate, in the club's words and not in model words, and the number that backs it up.</li><li><b>Sentence 4.</b> One limit: something the model still misses, something the columns do not measure, or what the data is (the gym file is generated).</li></ul></div><div class="ds-bank"><p class="dstag"><span class="tag-one">Showing: Credit card customers</span><span class="tag-both">Showing both datasets: pick one at the top (this block: Credit card customers)</span></p><ul><li><b>Sentence 1.</b> The largest column from A5, with its unit and its per-unit number.</li><li><b>Sentence 2.</b> The multiple model's RMSE in dollars, the percent of an average row, the guess-the-average RMSE and the percent of the miss removed. All four are on the lines the numbers cell printed.</li><li><b>Sentence 3.</b> One thing the bank's credit card business should do with its rewards budget, in the business's words and not in model words, and the number that backs it up. Say how sure you are: the data shows who spends more, not what makes them spend more.</li><li><b>Sentence 4.</b> One limit: something the model still misses, something the columns do not measure, or what the data is.</li></ul></div></li><li>Read the four sentences out loud. Do they answer the ask at the top?</li></ol></div><div class="box why"><p class="boxlbl">Look for</p><ul><li>Sentences 1 and 2 each hold a number with its unit, and sentence 2 says how the model compares with guessing the average.</li><li>Your numbers match your write-down lines.</li><li>Sentence 3 says what to do, not only what the model found.</li><li>Together the four sentences answer the ask at the top: what moves the number, how far off the model is, and how that compares with guessing the average.</li></ul></div><h4>Write down</h4><div class="ds-gym"><p class="dstag"><span class="tag-one">Showing: Gym members</span><span class="tag-both">Showing both datasets: pick one at the top (this block: Gym members)</span></p><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">For the fitness club chain, deciding whether its app should show members a calorie estimate:
+1. The biggest driver of calories burned is ___: each extra ___ goes with about ___ more calories, holding the other columns fixed.
+2. Our model typically misses by about ___ calories (___% of an average ___ calories), where guessing the average misses by ___ calories, so it removes about ___% of that miss.
+3. We recommend that the club ___ because ___.
+4. Before relying on it, watch out for ___.</pre></div></div><div class="ds-bank"><p class="dstag"><span class="tag-one">Showing: Credit card customers</span><span class="tag-both">Showing both datasets: pick one at the top (this block: Credit card customers)</span></p><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">For the bank&#x27;s credit card business, setting next year&#x27;s rewards budget:
+1. The biggest driver of yearly card spending is ___: each extra ___ goes with about ___ more dollars, holding the other columns fixed.
+2. Our model typically misses by about ___ dollars per customer (___% of an average ___ dollars), where guessing the average misses by ___ dollars, so it removes about ___% of that miss.
+3. We recommend that the card business ___ because ___.
+4. Before relying on it, watch out for ___.</pre></div></div><details class="hint"><summary>Hint</summary><div><p>For sentence 3, think about what the decision maker controls. A club can change what it tells members. A card business can choose what to try with its rewards budget. Then use the largest column from A5 as the reason.</p><p>One typical miss either side of an estimate is a handy range. It is a rule of thumb, not a formal interval.</p><p>The percent of the miss removed compares typical misses, so it is smaller than R², which compares squared misses (gym 86% against R² 0.98; card 43% against R² 0.68). Quote one of them and say which.</p><p>For sentence 4, look back at your write-down lines: R² below 1 means something is still unexplained, the A5 columns that barely matter are not worth acting on, and the data itself can be a limit (the gym file is generated).</p></div></details><details class="sol"><summary>Show solution (open this last)</summary><div><div class="ds-gym"><p class="dstag"><span class="tag-one">Showing: Gym members</span><span class="tag-both">Showing both datasets: pick one at the top (this block: Gym members)</span></p><div class="lbl">Sample output: numbers cell</div><pre class="out">Typical miss of the multiple model: 38.6 calories, which is 4.3% of the average Calories_Burned in the test rows (901.3)
+Guessing the average misses by 284.2 calories; the model removes 86% of that miss
+The simple model removes 59% of it</pre><div class="lbl">Sample recommendation</div><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">For the fitness club chain, deciding whether its app should show members a calorie estimate:
+1. The biggest driver of calories burned is session length: each extra hour goes with about 715 more calories, holding the other columns fixed, and average heart rate comes next at about 6 calories for each extra beat per minute.
+2. Our model typically misses by about 39 calories (4.3% of an average 901 calories), where guessing the average misses by 284 calories, so it removes about 86% of that miss.
+3. We recommend that the club show members a calorie estimate with a range of about 39 calories either side, and coach them to raise it with longer sessions at a higher heart rate, because those two columns carry most of the effect.
+4. Before relying on it, watch out for the data itself: this file is generated (the Kaggle page says so), so real members will fit less well than an R² of 0.98 suggests, and the estimate should be checked on a sample of real sessions first.</pre></div></div><div class="ds-bank"><p class="dstag"><span class="tag-one">Showing: Credit card customers</span><span class="tag-both">Showing both datasets: pick one at the top (this block: Credit card customers)</span></p><div class="lbl">Sample output: numbers cell</div><pre class="out">Typical miss of the multiple model: 1,884.2 dollars, which is 43.5% of the average Total_Trans_Amt in the test rows (4,329.1)
+Guessing the average misses by 3,322.3 dollars; the model removes 43% of that miss
+The simple model removes 40% of it</pre><div class="lbl">Sample recommendation</div><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">For the bank&#x27;s credit card business, setting next year&#x27;s rewards budget:
+1. The biggest driver of yearly card spending is how often a customer uses the card: each extra transaction goes with about $110 more dollars of spending over the year, holding the other columns fixed.
+2. Our model typically misses by about 1,884 dollars per customer (43.5% of an average 4,329 dollars), where guessing the average misses by 3,322 dollars, so it removes about 43% of that miss.
+3. We recommend that the card business try rewards that encourage using the card more often, rather than higher credit limits or a particular card tier, because transaction count has by far the largest effect (about $2,599 per 1 SD, against about $538 for the next column), and that it test the idea with a small pilot first, because the data shows who spends more, not what makes them spend more.
+4. Before relying on it, watch out for how much is left unexplained (R² is 0.68, so about a third of the variation is still unexplained) and for the fact that the columns cover the same 12 months as the spending, and the strongest one counts the same transactions the dollars add up to, so this describes last year&#x27;s spending and does not forecast next year&#x27;s.</pre></div></div><div class="box warn"><p class="boxlbl">Watch out</p><p>Do not leave a number without its unit. &quot;Misses by 38.6&quot; means nothing to the club. &quot;38.6 calories in a typical workout&quot; does. The same goes for dollars on the card data.</p></div></div></details></article>
+<section class="sec" id="secB"><h2>B · On your own (lab)</h2><p>Six steps · about 45 minutes · go deeper on your dataset, then run the other one</p></section>
+<div class="box go"><p class="boxlbl">About Lab 2</p><p>Lab 2 is already assigned. Part B continues Part A the way the lab does, on your own. Submit what Canvas asks for.</p></div>
+<div class="box go"><p class="boxlbl">How Part B works</p><ol><li>Keep working in the same Colab notebook, so the variables from Part A are still there. If you open a new notebook, run your Part A cells again first.</li><li>B1 to B4 go deeper on your dataset. B5 runs the other dataset with only the setup lines changed. B6 is your final recommendation to the decision maker.</li><li>Each step has the same five parts as Part A, with Hint and Solution closed.</li></ol></div>
+<article class="card" id="B1"><h3><label><input type="checkbox" class="tick" id="tick-B1" data-id="B1" data-sec="B"><span class="tag">B1</span>Residuals: where does the model miss?</label></h3><p class="meta">about 8 minutes</p><div class="box go"><p class="boxlbl">Do</p><ol><li>In a new cell of the same notebook, paste the residual cell. Replace the two gaps, then run the cell:<div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">residuals = y_test - multi_pred
+
+plt.figure()
+# YOUR CODE HERE 1: scatterplot of multi_pred (x) against residuals (y), with
+#   a red horizontal line at 0, a title, axis labels and a grid
+plt.tight_layout()
+plt.show()
+
+# YOUR CODE HERE 2: print the 5 test rows with the biggest misses, ignoring
+#   the sign: the actual value, the prediction and the miss, rounded to 1
+#   decimal
+
+fifth = pd.qcut(multi_pred, 5, labels=False)
+print(&quot;Typical miss (RMSE) inside each fifth of the predictions, lowest to highest:&quot;)
+print([round(float(np.sqrt((residuals[fifth == i] ** 2).mean())), 1) for i in range(5)])
+print(f&quot;Average miss with its sign: {residuals.mean():+.1f} {unit}  (positive means the model ran low)&quot;)
+print(f&quot;Average miss for each {categories[0]}:&quot;)
+print(residuals.groupby(df.loc[residuals.index, categories[0]]).mean().round(1))</pre></div></li></ol></div><div class="box why"><p class="boxlbl">Look for</p><ul><li><b>The plot:</b> is it a shapeless cloud around the red line, or is there a pattern: a curve, a funnel, a tilt, or a separate group of dots? A pattern means the model is missing something.</li><li><b>The five biggest misses:</b> a positive miss means the model predicted too low. Are the big misses mostly one sign?</li><li><b>The fifths:</b> five typical-miss numbers, from the lowest predictions to the highest. Do they stay similar, or does the miss grow somewhere?</li><li><b>The average miss for each group</b> of the first text column: any group the model is consistently too low or too high for?</li></ul></div><h4>Write down</h4><div class="ds-gym"><p class="dstag"><span class="tag-one">Showing: Gym members</span><span class="tag-both">Showing both datasets: pick one at the top (this block: Gym members)</span></p><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">Shape of the residual plot: ___ (cloud / curve / funnel / tilt / separate group)
+Biggest miss: actual ___, predicted ___, miss ___ calories (too low or too high: ___)
+Typical miss in the lowest fifth ___ | highest fifth ___ (calories)
+One thing a straight line cannot capture, or the columns do not measure, that might explain the pattern: ___</pre></div></div><div class="ds-bank"><p class="dstag"><span class="tag-one">Showing: Credit card customers</span><span class="tag-both">Showing both datasets: pick one at the top (this block: Credit card customers)</span></p><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">Shape of the residual plot: ___ (cloud / curve / funnel / tilt / separate group)
+Biggest miss: actual ___, predicted ___, miss ___ dollars (too low or too high: ___)
+Typical miss in the lowest fifth ___ | highest fifth ___ (dollars)
+One thing a straight line cannot capture, or the columns do not measure, that might explain the pattern: ___</pre></div></div><details class="hint"><summary>Hint</summary><div><p>Gap 1: <code>plt.scatter(multi_pred, residuals, alpha=0.3)</code>, then <code>plt.axhline(0, color=&quot;red&quot;)</code> for the zero line.</p><p>Gap 2: build a small DataFrame of <code>y_test</code>, <code>multi_pred</code> and <code>residuals</code>, then sort it by the absolute size of the miss: <code>.reindex(worst[&quot;miss&quot;].abs().sort_values(ascending=False).index)</code>.</p></div></details><details class="sol"><summary>Show solution (open this last)</summary><div><div class="ds-gym"><p class="dstag"><span class="tag-one">Showing: Gym members</span><span class="tag-both">Showing both datasets: pick one at the top (this block: Gym members)</span></p><div class="lbl">Sample output: residual cell</div><pre class="out">     actual  predicted   miss
+712  1766.0     1638.0  128.0
+797  1138.0     1252.3 -114.3
+736  1598.0     1483.9  114.1
+428  1042.0     1153.5 -111.5
+77    363.0      251.9  111.1
+Typical miss (RMSE) inside each fifth of the predictions, lowest to highest:
+[44.5, 25.7, 25.0, 28.3, 57.9]
+Average miss with its sign: +1.4 calories  (positive means the model ran low)
+Average miss for each Gender:
+Gender
+Female    0.9
+Male      1.9
+Name: Calories_Burned, dtype: float64</pre><div class="lbl">Your two gaps, filled in</div><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code"># gap 1
+plt.scatter(multi_pred, residuals, alpha=0.3, s=12, color=&quot;steelblue&quot;)
+plt.axhline(0, color=&quot;red&quot;, linewidth=2)
+plt.title(&quot;Residuals of the multiple model&quot;)
+plt.xlabel(f&quot;Predicted {target} ({unit})&quot;)
+plt.ylabel(&quot;Miss: actual minus predicted&quot;)
+plt.grid(True, alpha=0.3)
+
+# gap 2
+worst = pd.DataFrame({&quot;actual&quot;: y_test, &quot;predicted&quot;: multi_pred, &quot;miss&quot;: residuals}).round(1)
+print(worst.reindex(worst[&quot;miss&quot;].abs().sort_values(ascending=False).index).head(5))</pre></div><p class="sub">Your plot should show a cloud around the red line, a little wider at both ends. The typical miss is smallest in the middle fifths (25.0 to 28.3) and larger at the two ends (44.5 and 57.9). The model does not lean: the average miss is +1.4 calories.</p><div class="lbl">Write down, filled in</div><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">Shape of the residual plot: a cloud around the red line, a little wider at both ends
+Biggest miss: actual 1,766.0, predicted 1,638.0, miss 128.0 calories (too low or too high: too low)
+Typical miss in the lowest fifth 44.5 | highest fifth 57.9 (calories)
+One thing a straight line cannot capture, or the columns do not measure, that might explain the pattern: heart-rate zones or how hard the member actually worked within the session</pre></div></div><div class="ds-bank"><p class="dstag"><span class="tag-one">Showing: Credit card customers</span><span class="tag-both">Showing both datasets: pick one at the top (this block: Credit card customers)</span></p><div class="lbl">Sample output: residual cell</div><pre class="out">       actual  predicted    miss
+10099   16737     6863.8  9873.2
+9995    15709     6948.0  8761.0
+9922    15313     6678.9  8634.1
+9812    15475     7183.1  8291.9
+9872    15559     7301.0  8258.0
+Typical miss (RMSE) inside each fifth of the predictions, lowest to highest:
+[1252.1, 871.7, 1254.0, 1580.4, 3367.9]
+Average miss with its sign: +36.6 dollars  (positive means the model ran low)
+Average miss for each Card_Category:
+Card_Category
+Blue         36.7
+Gold        441.9
+Platinum   -391.0
+Silver      -29.8
+Name: Total_Trans_Amt, dtype: float64</pre><div class="lbl">Your two gaps, filled in</div><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code"># gap 1
+plt.scatter(multi_pred, residuals, alpha=0.3, s=12, color=&quot;steelblue&quot;)
+plt.axhline(0, color=&quot;red&quot;, linewidth=2)
+plt.title(&quot;Residuals of the multiple model&quot;)
+plt.xlabel(f&quot;Predicted {target} ({unit})&quot;)
+plt.ylabel(&quot;Miss: actual minus predicted&quot;)
+plt.grid(True, alpha=0.3)
+
+# gap 2
+worst = pd.DataFrame({&quot;actual&quot;: y_test, &quot;predicted&quot;: multi_pred, &quot;miss&quot;: residuals}).round(1)
+print(worst.reindex(worst[&quot;miss&quot;].abs().sort_values(ascending=False).index).head(5))</pre></div><p class="sub">Your plot should show two things: the main cloud tilts downward from left to right (the average miss goes from +1,061 dollars in the lowest fifth of estimates to -1,035 in the fourth, because the big spenders pull the line up for everyone), and a separate group of dots far above the red line on the right. The typical miss is far bigger in the top fifth of estimates (3,367.9) than in the other four (871.7 to 1,580.4). Of the 151 test customers missed by more than two RMSE, 141 were missed too low. All 169 test customers who spent over $10,000 were missed too low, by $4,754 on average. The model also predicts negative spending for 115 of 2,532 test customers, which cannot happen.</p><div class="lbl">Write down, filled in</div><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">Shape of the residual plot: a main cloud that tilts downward, plus a separate group of dots far above the red line on the right
+Biggest miss: actual 16,737, predicted 6,863.8, miss 9,873.2 dollars (too low or too high: too low)
+Typical miss in the lowest fifth 1,252.1 | highest fifth 3,367.9 (dollars)
+One thing a straight line cannot capture, or the columns do not measure, that might explain the pattern: what sets the big spenders apart. In the whole file the 757 customers above $10,000 average $134.5 per transaction, against $56.8 for everyone else, and a straight line on the other columns cannot find what sets them apart (it explains only about 17% of dollars per transaction)</pre></div></div></div></details></article>
+<article class="card" id="B2"><h3><label><input type="checkbox" class="tick" id="tick-B2" data-id="B2" data-sec="B"><span class="tag">B2</span>Columns one at a time: which ones earn their place?</label></h3><p class="meta">about 6 minutes</p><div class="box go"><p class="boxlbl">Do</p><ol><li>In a new cell, paste the cell below. It orders the columns by the size of their correlation with the target and adds them to the model one at a time. Replace the gap inside the loop (keep the indent), then run the cell:<div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">order = X_train.corrwith(y_train).abs().sort_values(ascending=False).index.tolist()
+rows = []
+for k in range(1, len(order) + 1):
+    cols_k = order[:k]
+    # YOUR CODE HERE: fit LinearRegression on the first k columns of the
+    #   training rows, predict the test rows, and append a dict with &quot;k&quot;,
+    #   &quot;column added&quot;, &quot;test R²&quot; and &quot;test RMSE&quot;
+print(pd.DataFrame(rows).round({&quot;test R²&quot;: 4, &quot;test RMSE&quot;: 1}).to_string(index=False))</pre></div></li></ol></div><div class="box why"><p class="boxlbl">Look for</p><ul><li><b>R²</b> after each added column. Where is the biggest jump? Where does it flatten out?</li><li><b>The order:</b> the column added second is the next most correlated with the target on its own. Does it earn its place?</li><li>A column can look strong on its own and add almost nothing, because the columns before it already carry the same information. Another column that looks weak alone can add a lot once the strong ones are in.</li></ul></div><h4>Write down</h4><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">Biggest jump: adding ___ (R² from ___ to ___)
+The last column that adds 0.01 or more to R²: ___ (k = ___)
+A column that looked strong in A1 but added almost nothing here: ___
+How many of the columns would you really keep? ___</pre></div><details class="hint"><summary>Hint</summary><div><p>Inside the loop, <code>X_train[cols_k]</code> is the first <code>k</code> columns. Fit on it with <code>y_train</code>, predict <code>X_test[cols_k]</code>, then score against <code>y_test</code>.</p><p><code>rows.append({...})</code> adds one dictionary per column count. The table at the end is built from the list of dictionaries.</p></div></details><details class="sol"><summary>Show solution (open this last)</summary><div><div class="ds-gym"><p class="dstag"><span class="tag-one">Showing: Gym members</span><span class="tag-both">Showing both datasets: pick one at the top (this block: Gym members)</span></p><div class="lbl">Sample output: the cell</div><pre class="out"> k             column added  test R²  test RMSE
+ 1 Session_Duration (hours)   0.8313      116.7
+ 2           Fat_Percentage   0.8324      116.3
+ 3                  Avg_BPM   0.9404       69.4
+ 4              Gender_Male   0.9572       58.8
+ 5                      Age   0.9816       38.6
+ 6        Workout_Type_HIIT   0.9816       38.6
+ 7        Workout_Type_Yoga   0.9816       38.6
+ 8    Workout_Type_Strength   0.9816       38.6</pre><div class="lbl">Your gap, filled in</div><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code"># gap 1
+model_k = LinearRegression().fit(X_train[cols_k], y_train)
+pred_k = model_k.predict(X_test[cols_k])
+rows.append({&quot;k&quot;: k, &quot;column added&quot;: order[k - 1], &quot;test R²&quot;: r2_score(y_test, pred_k),
+             &quot;test RMSE&quot;: np.sqrt(mean_squared_error(y_test, pred_k))})</pre></div><div class="lbl">Write down, filled in</div><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">Biggest jump: adding Avg_BPM (R² from 0.8324 to 0.9404)
+The last column that adds 0.01 or more to R²: Age (k = 5)
+A column that looked strong in A1 but added almost nothing here: Fat_Percentage (the third strongest correlation in A1, but adding it moved R² only from 0.8313 to 0.8324)
+How many of the columns would you really keep? four: session length, average heart rate, gender and age (those four alone score R² 0.9816, the same as all eight columns). Fat percentage added about 0.001 and the three workout-type columns added nothing</pre></div></div><div class="ds-bank"><p class="dstag"><span class="tag-one">Showing: Credit card customers</span><span class="tag-both">Showing both datasets: pick one at the top (this block: Credit card customers)</span></p><div class="lbl">Sample output: the cell</div><pre class="out"> k             column added  test R²  test RMSE
+ 1           Total_Trans_Ct   0.6437     1982.2
+ 2 Total_Relationship_Count   0.6658     1919.8
+ 3             Credit_Limit   0.6768     1887.9
+ 4     Card_Category_Silver   0.6774     1886.2
+ 5       Card_Category_Gold   0.6780     1884.3
+ 6   Card_Category_Platinum   0.6781     1884.0
+ 7             Customer_Age   0.6780     1884.2</pre><div class="lbl">Your gap, filled in</div><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code"># gap 1
+model_k = LinearRegression().fit(X_train[cols_k], y_train)
+pred_k = model_k.predict(X_test[cols_k])
+rows.append({&quot;k&quot;: k, &quot;column added&quot;: order[k - 1], &quot;test R²&quot;: r2_score(y_test, pred_k),
+             &quot;test RMSE&quot;: np.sqrt(mean_squared_error(y_test, pred_k))})</pre></div><div class="lbl">Write down, filled in</div><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">Biggest jump: adding Total_Relationship_Count (R² from 0.6437 to 0.6658)
+The last column that adds 0.01 or more to R²: Credit_Limit (k = 3)
+A column that looked strong in A1 but added almost nothing here: none. The three strongest columns in A1 all earned their place, and the card tier and age columns, which looked weak, each moved R² by less than 0.001
+How many of the columns would you really keep? three: transaction count, number of products with the bank and credit limit. Every column after those added less than 0.001 to R²</pre></div></div><div class="box warn"><p class="boxlbl">Watch out</p><p>This ordering uses each column's correlation with the target on its own, so it is a rough guide and not a proof of what to keep. Dropping columns changes the model's coefficients too.</p></div></div></details></article>
+<article class="card" id="B3"><h3><label><input type="checkbox" class="tick" id="tick-B3" data-id="B3" data-sec="B"><span class="tag">B3</span>Ten splits: how far can you trust one R²?</label></h3><p class="meta">about 5 minutes</p><div class="box go"><p class="boxlbl">Do</p><ol><li>In a new cell, paste the cell below. It repeats the multiple regression on ten different splits. Replace the two gaps inside the loop (keep the indent), then run the cell:<div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">rows = []
+for seed in range(10):
+    # YOUR CODE HERE 1: split X and y with test_size=0.25 and
+    #   random_state=seed (call the pieces Xa, Xb, ya, yb)
+    # YOUR CODE HERE 2: fit LinearRegression on Xa and ya, predict Xb, and
+    #   append a dict with &quot;seed&quot;, &quot;test R²&quot; and &quot;test RMSE&quot; (scored against
+    #   yb)
+seeds_df = pd.DataFrame(rows)
+print(seeds_df.round({&quot;test R²&quot;: 4, &quot;test RMSE&quot;: 1}).to_string(index=False))
+print(f&quot;R² from {seeds_df[&#x27;test R²&#x27;].min():.4f} to {seeds_df[&#x27;test R²&#x27;].max():.4f} | RMSE from {seeds_df[&#x27;test RMSE&#x27;].min():,.1f} to {seeds_df[&#x27;test RMSE&#x27;].max():,.1f} {unit}&quot;)
+print(f&quot;Your A4 split (random_state=42): R² {multi_r2:.4f} | RMSE {multi_rmse:,.1f} {unit}&quot;)</pre></div></li></ol></div><div class="box why"><p class="boxlbl">Look for</p><ul><li><b>The ten rows:</b> the same model, scored on ten different test sets. How much do R² and RMSE move?</li><li><b>The range line:</b> the lowest and highest R² and RMSE. Where does your A4 split (random_state=42) sit?</li><li>Which digits of R² held steady across the splits, and which ones moved?</li></ul></div><h4>Write down</h4><div class="ds-gym"><p class="dstag"><span class="tag-one">Showing: Gym members</span><span class="tag-both">Showing both datasets: pick one at the top (this block: Gym members)</span></p><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">Across ten splits: R² from ___ to ___ | RMSE from ___ to ___ (calories)
+Our A4 split (random_state=42): R² ___ | RMSE ___ calories | inside the range? ___
+If someone quotes one R² from one split, which digits would you trust? ___</pre></div></div><div class="ds-bank"><p class="dstag"><span class="tag-one">Showing: Credit card customers</span><span class="tag-both">Showing both datasets: pick one at the top (this block: Credit card customers)</span></p><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">Across ten splits: R² from ___ to ___ | RMSE from ___ to ___ (dollars)
+Our A4 split (random_state=42): R² ___ | RMSE ___ dollars | inside the range? ___
+If someone quotes one R² from one split, which digits would you trust? ___</pre></div></div><details class="hint"><summary>Hint</summary><div><p>Gap 1: <code>train_test_split(X, y, test_size=0.25, random_state=seed)</code> with the pieces named <code>Xa, Xb, ya, yb</code>. The only change from A2 is <code>seed</code> in place of 42.</p><p>Gap 2: fit on <code>Xa, ya</code>, predict <code>Xb</code>, and score the prediction against <code>yb</code>.</p></div></details><details class="sol"><summary>Show solution (open this last)</summary><div><div class="ds-gym"><p class="dstag"><span class="tag-one">Showing: Gym members</span><span class="tag-both">Showing both datasets: pick one at the top (this block: Gym members)</span></p><div class="lbl">Sample output: the cell</div><pre class="out"> seed  test R²  test RMSE
+    0   0.9797       39.2
+    1   0.9787       37.1
+    2   0.9798       37.5
+    3   0.9803       37.1
+    4   0.9784       42.6
+    5   0.9780       37.7
+    6   0.9774       40.3
+    7   0.9780       39.1
+    8   0.9788       39.9
+    9   0.9778       41.6
+R² from 0.9774 to 0.9803 | RMSE from 37.1 to 42.6 calories
+Your A4 split (random_state=42): R² 0.9816 | RMSE 38.6 calories</pre><div class="lbl">Your two gaps, filled in</div><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code"># gap 1
+Xa, Xb, ya, yb = train_test_split(X, y, test_size=0.25, random_state=seed)
+
+# gap 2
+pred_b = LinearRegression().fit(Xa, ya).predict(Xb)
+rows.append({&quot;seed&quot;: seed, &quot;test R²&quot;: r2_score(yb, pred_b), &quot;test RMSE&quot;: np.sqrt(mean_squared_error(yb, pred_b))})</pre></div><div class="lbl">Write down, filled in</div><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">Across ten splits: R² from 0.9774 to 0.9803 | RMSE from 37.1 to 42.6 (calories)
+Our A4 split (random_state=42): R² 0.9816 | RMSE 38.6 calories | inside the range? no, it is a little above the top of the range (0.9816 against 0.9803), so our A4 split was a slightly lucky one
+If someone quotes one R² from one split, which digits would you trust? the first two decimals: every split rounds to 0.98; the third decimal moved from one split to the next</pre></div></div><div class="ds-bank"><p class="dstag"><span class="tag-one">Showing: Credit card customers</span><span class="tag-both">Showing both datasets: pick one at the top (this block: Credit card customers)</span></p><div class="lbl">Sample output: the cell</div><pre class="out"> seed  test R²  test RMSE
+    0   0.6862     1895.6
+    1   0.6804     1884.2
+    2   0.6899     1964.0
+    3   0.6787     1878.1
+    4   0.6882     1964.7
+    5   0.6819     1913.9
+    6   0.6664     1901.3
+    7   0.6810     1876.2
+    8   0.6861     1947.4
+    9   0.6901     1902.9
+R² from 0.6664 to 0.6901 | RMSE from 1,876.2 to 1,964.7 dollars
+Your A4 split (random_state=42): R² 0.6780 | RMSE 1,884.2 dollars</pre><div class="lbl">Your two gaps, filled in</div><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code"># gap 1
+Xa, Xb, ya, yb = train_test_split(X, y, test_size=0.25, random_state=seed)
+
+# gap 2
+pred_b = LinearRegression().fit(Xa, ya).predict(Xb)
+rows.append({&quot;seed&quot;: seed, &quot;test R²&quot;: r2_score(yb, pred_b), &quot;test RMSE&quot;: np.sqrt(mean_squared_error(yb, pred_b))})</pre></div><div class="lbl">Write down, filled in</div><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">Across ten splits: R² from 0.6664 to 0.6901 | RMSE from 1,876.2 to 1,964.7 (dollars)
+Our A4 split (random_state=42): R² 0.6780 | RMSE 1,884.2 dollars | inside the range? yes
+If someone quotes one R² from one split, which digits would you trust? the first decimal and about the second (0.67 to 0.69); the third decimal moved. Quote it as about 0.68</pre></div></div></div></details></article>
+<article class="card" id="B4"><h3><label><input type="checkbox" class="tick" id="tick-B4" data-id="B4" data-sec="B"><span class="tag">B4</span>Yes or no: a logistic regression and the always-no baseline</label></h3><p class="meta">about 8 minutes</p><div class="box go"><p class="boxlbl">Do</p><ol><li>In a new cell, paste the cell below. It turns the target into a yes/no question (is this row in the top quarter?) and fits a logistic regression on the same columns and the same split rows. Replace the two gaps, then run the cell:<div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">from sklearn.linear_model import LogisticRegression
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import confusion_matrix, classification_report
+
+cut = y.quantile(0.75)
+yes = (y &gt; cut).astype(int)
+print(f&quot;Yes means {target} above {cut:,.1f} {unit}: {yes.mean():.1%} of the rows&quot;)
+
+Xc_train, Xc_test, yes_train, yes_test = train_test_split(X, yes, test_size=0.25, random_state=42)
+scaler = StandardScaler().fit(Xc_train)
+
+# YOUR CODE HERE 1: fit LogisticRegression(max_iter=1000, random_state=42) on
+#   the scaled training rows, then predict the scaled test rows into yes_pred
+
+print(f&quot;Accuracy: {(yes_pred == yes_test).mean():.3f} | always saying no: {(yes_test == 0).mean():.3f}&quot;)
+# YOUR CODE HERE 2: print the confusion matrix and the classification report
+#   (target_names no and yes)</pre></div></li></ol></div><div class="box why"><p class="boxlbl">Look for</p><ul><li><b>The first line:</b> where the cut is, and the share of yes rows (about one in four, because the cut is the 75th percentile). The cut is computed on all rows, which is fine for defining the yes/no label.</li><li><b>Accuracy against always saying no:</b> the second number is what a model scores by answering &quot;no&quot; for every row. Does the model beat it, and by how much?</li><li><b>The confusion matrix:</b> rows are the real answers (no, yes), columns are the predictions (no, yes). The bottom right is the yes rows it caught. The bottom left is the yes rows it missed.</li><li><b>Recall for yes:</b> of the real yes rows, the share the model caught. <b>Precision for yes:</b> of the rows it called yes, the share that really were.</li></ul></div><h4>Write down</h4><div class="ds-gym"><p class="dstag"><span class="tag-one">Showing: Gym members</span><span class="tag-both">Showing both datasets: pick one at the top (this block: Gym members)</span></p><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">Yes means Calories_Burned is above ___ calories | share of yes rows ___%
+Accuracy ___ against always saying no ___ | precision for yes ___ | recall for yes ___
+Of every 100 real yes rows, the model catches about ___ and misses about ___.</pre></div></div><div class="ds-bank"><p class="dstag"><span class="tag-one">Showing: Credit card customers</span><span class="tag-both">Showing both datasets: pick one at the top (this block: Credit card customers)</span></p><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">Yes means Total_Trans_Amt is above ___ dollars | share of yes rows ___%
+Accuracy ___ against always saying no ___ | precision for yes ___ | recall for yes ___
+Of every 100 real yes rows, the model catches about ___ and misses about ___.</pre></div></div><details class="hint"><summary>Hint</summary><div><p>Gap 1: <code>LogisticRegression(max_iter=1000, random_state=42)</code>, then <code>.fit(scaler.transform(Xc_train), yes_train)</code>, then <code>.predict(scaler.transform(Xc_test))</code>.</p><p>Gap 2: <code>confusion_matrix(yes_test, yes_pred)</code> and <code>classification_report(yes_test, yes_pred, target_names=[&quot;no&quot;, &quot;yes&quot;])</code>. Print both.</p></div></details><details class="sol"><summary>Show solution (open this last)</summary><div><div class="ds-gym"><p class="dstag"><span class="tag-one">Showing: Gym members</span><span class="tag-both">Showing both datasets: pick one at the top (this block: Gym members)</span></p><div class="lbl">Sample output: the cell</div><pre class="out">Yes means Calories_Burned above 1,076.0 calories: 25.0% of the rows
+Accuracy: 0.951 | always saying no: 0.738
+[[173   7]
+ [  5  59]]
+              precision    recall  f1-score   support
+
+          no       0.97      0.96      0.97       180
+         yes       0.89      0.92      0.91        64
+
+    accuracy                           0.95       244
+   macro avg       0.93      0.94      0.94       244
+weighted avg       0.95      0.95      0.95       244</pre><div class="lbl">Your two gaps, filled in</div><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code"># gap 1
+logit = LogisticRegression(max_iter=1000, random_state=42)
+logit.fit(scaler.transform(Xc_train), yes_train)
+yes_pred = logit.predict(scaler.transform(Xc_test))
+
+# gap 2
+print(confusion_matrix(yes_test, yes_pred))
+print(classification_report(yes_test, yes_pred, target_names=[&quot;no&quot;, &quot;yes&quot;]))</pre></div><div class="lbl">Write down, filled in</div><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">Yes means Calories_Burned is above 1,076.0 calories | share of yes rows 25.0%
+Accuracy 0.951 against always saying no 0.738 | precision for yes 0.89 | recall for yes 0.92
+Of every 100 real yes rows, the model catches about 92 and misses about 8.</pre></div></div><div class="ds-bank"><p class="dstag"><span class="tag-one">Showing: Credit card customers</span><span class="tag-both">Showing both datasets: pick one at the top (this block: Credit card customers)</span></p><div class="lbl">Sample output: the cell</div><pre class="out">Yes means Total_Trans_Amt above 4,741.0 dollars: 25.0% of the rows
+Accuracy: 0.855 | always saying no: 0.754
+[[1801  108]
+ [ 259  364]]
+              precision    recall  f1-score   support
+
+          no       0.87      0.94      0.91      1909
+         yes       0.77      0.58      0.66       623
+
+    accuracy                           0.86      2532
+   macro avg       0.82      0.76      0.79      2532
+weighted avg       0.85      0.86      0.85      2532</pre><div class="lbl">Your two gaps, filled in</div><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code"># gap 1
+logit = LogisticRegression(max_iter=1000, random_state=42)
+logit.fit(scaler.transform(Xc_train), yes_train)
+yes_pred = logit.predict(scaler.transform(Xc_test))
+
+# gap 2
+print(confusion_matrix(yes_test, yes_pred))
+print(classification_report(yes_test, yes_pred, target_names=[&quot;no&quot;, &quot;yes&quot;]))</pre></div><div class="lbl">Write down, filled in</div><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">Yes means Total_Trans_Amt is above 4,741.0 dollars | share of yes rows 25.0%
+Accuracy 0.855 against always saying no 0.754 | precision for yes 0.77 | recall for yes 0.58
+Of every 100 real yes rows, the model catches about 58 and misses about 42.</pre></div></div><div class="box warn"><p class="boxlbl">Watch out</p><ul><li>Accuracy alone can flatter a model. Always saying no already scores 0.738 on the gym data and 0.754 on the card data. Read recall for yes before you trust the accuracy.</li><li>Skip the scaler and keep <code>LogisticRegression</code> at its default of 100 iterations, and it stops early with a <code>ConvergenceWarning</code>. In our check, both datasets raised it, and the accuracy was 0.914 on the gym data and 0.859 on the card data, instead of 0.951 and 0.855. Scale first, and give it more iterations.</li></ul></div></div></details></article>
+<article class="card" id="B5"><h3><label><input type="checkbox" class="tick" id="tick-B5" data-id="B5" data-sec="B"><span class="tag">B5</span>The other dataset: change only the setup lines</label></h3><p class="meta">about 10 minutes</p><div class="box go"><p class="boxlbl">Do</p><ol><li>The other dataset is the one you did not pick at the top of the page. Open a new Colab notebook and paste its setup cell (below). Only the highlighted config lines differ from the setup cell you used in A1, plus the one drop line for the card data.<div class="ds-gym"><p class="dstag"><span class="tag-one">Showing: Gym members</span><span class="tag-both">Showing both datasets: pick one at the top (this block: Gym members)</span></p><p class="sub">You chose the gym data, so the other dataset is the credit card data.</p><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code"><span class="cb">import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error, r2_score
+
+plt.rcParams[&quot;figure.figsize&quot;] = (10, 5)
+
+# ---- THE LINES YOU CHANGE FOR A NEW DATASET ----
+<span class="hl">data_url   = &quot;https://raw.githubusercontent.com/c-marq/cap4767-data-mining/refs/heads/main/data/BankChurners.csv&quot;</span>
+<span class="hl">target     = &quot;Total_Trans_Amt&quot;                        # the column you predict</span>
+<span class="hl">unit       = &quot;dollars&quot;                                # used in the printouts</span>
+<span class="hl">numbers    = [&quot;Total_Trans_Ct&quot;, &quot;Total_Relationship_Count&quot;, &quot;Credit_Limit&quot;, &quot;Customer_Age&quot;]   # number columns for the multiple model</span>
+<span class="hl">categories = [&quot;Card_Category&quot;]                        # text columns, turned into 0/1 columns</span>
+# ------------------------------------------------
+
+df = pd.read_csv(data_url)
+# an ID column and two columns the source says to ignore, dropped here
+df = df.drop(columns=[&quot;CLIENTNUM&quot;] + [c for c in df.columns if c.startswith(&quot;Naive_Bayes&quot;)])
+print(f&quot;Loaded {df.shape[0]:,} rows x {df.shape[1]} columns&quot;)</span></pre></div></div><div class="ds-bank"><p class="dstag"><span class="tag-one">Showing: Credit card customers</span><span class="tag-both">Showing both datasets: pick one at the top (this block: Credit card customers)</span></p><p class="sub">You chose the credit card data, so the other dataset is the gym data.</p><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code"><span class="cb">import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error, r2_score
+
+plt.rcParams[&quot;figure.figsize&quot;] = (10, 5)
+
+# ---- THE LINES YOU CHANGE FOR A NEW DATASET ----
+<span class="hl">data_url   = &quot;https://raw.githubusercontent.com/c-marq/cap4767-data-mining/refs/heads/main/data/gym_members_exercise_tracking.csv&quot;</span>
+<span class="hl">target     = &quot;Calories_Burned&quot;                        # the column you predict</span>
+<span class="hl">unit       = &quot;calories&quot;                               # used in the printouts</span>
+<span class="hl">numbers    = [&quot;Session_Duration (hours)&quot;, &quot;Avg_BPM&quot;, &quot;Age&quot;, &quot;Fat_Percentage&quot;]   # number columns for the multiple model</span>
+<span class="hl">categories = [&quot;Gender&quot;, &quot;Workout_Type&quot;]               # text columns, turned into 0/1 columns</span>
+# ------------------------------------------------
+
+df = pd.read_csv(data_url)
+print(f&quot;Loaded {df.shape[0]:,} rows x {df.shape[1]} columns&quot;)</span></pre></div></div></li><li>Paste the same cells you wrote in A1 to A6 and in B1 (with your own gap lines) and run them in order, without changing anything else. They only use the config variables, so they run as they are.</li><li>Fill in the write-down lines below for the other dataset.</li></ol></div><div class="box why"><p class="boxlbl">Look for</p><ul><li>The cells run with no edits. If one fails, check the config lines for a typo before anything else.</li><li><b>Guess-the-average RMSE, simple R², multiple R², multiple RMSE</b> for the other dataset, each with its unit.</li><li><b>The residual plot</b> for the other dataset: cloud, tilt or separate group?</li><li><b>Which dataset gained more</b> when you went from the simple model to the multiple model?</li></ul></div><h4>Write down</h4><div class="ds-gym"><p class="dstag"><span class="tag-one">Showing: Gym members</span><span class="tag-both">Showing both datasets: pick one at the top (this block: Gym members)</span></p><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">Other dataset: ___ | Guess-the-average RMSE ___ (dollars) | Simple R² ___ | Multiple R² ___ | Multiple RMSE ___ (dollars)
+Residual plot for the other dataset (B1): ___ (cloud / curve / funnel / tilt / separate group)
+The dataset where adding columns helped more: ___
+One reason why: ___</pre></div></div><div class="ds-bank"><p class="dstag"><span class="tag-one">Showing: Credit card customers</span><span class="tag-both">Showing both datasets: pick one at the top (this block: Credit card customers)</span></p><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">Other dataset: ___ | Guess-the-average RMSE ___ (calories) | Simple R² ___ | Multiple R² ___ | Multiple RMSE ___ (calories)
+Residual plot for the other dataset (B1): ___ (cloud / curve / funnel / tilt / separate group)
+The dataset where adding columns helped more: ___
+One reason why: ___</pre></div></div><details class="hint"><summary>Hint</summary><div><p>Compare the two R² jumps from the simple model to the multiple model. Then look at the B1 residual plots for both datasets: does either one show something the columns cannot explain?</p></div></details><details class="sol"><summary>Show solution (open this last)</summary><div><div class="lbl">Both datasets, from the same cells</div><div class="tablewrap"><table><thead><tr><th>Dataset</th><th>Guess-the-average RMSE</th><th>Simple R²</th><th>Multiple R²</th><th>Multiple RMSE</th><th>Miss removed</th></tr></thead><tbody><tr><td><b>Gym members</b></td><td class="n">284.2 calories</td><td class="n">0.8313</td><td class="n">0.9816</td><td class="n">38.6 calories</td><td class="n">86%</td></tr><tr><td><b>Credit card customers</b></td><td class="n">3,322.3 dollars</td><td class="n">0.6437</td><td class="n">0.6780</td><td class="n">1,884.2 dollars</td><td class="n">43%</td></tr></tbody></table></div><div class="lbl">Write down, filled in</div><div class="ds-gym"><p class="dstag"><span class="tag-one">Showing: Gym members</span><span class="tag-both">Showing both datasets: pick one at the top (this block: Gym members)</span></p><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">Other dataset: credit card customers | Guess-the-average RMSE 3,322.3 (dollars) | Simple R² 0.6437 | Multiple R² 0.6780 | Multiple RMSE 1,884.2 (dollars)
+Residual plot for the other dataset (B1): a main cloud that tilts downward, plus a separate group of dots far above the red line on the right
+The dataset where adding columns helped more: the gym data (R² from 0.8313 to 0.9816, against 0.6437 to 0.6780 for the card data)
+One reason why: in the gym data each extra column brings something new (heart rate, age, gender). In the card data the extra columns add very little to transaction count, and what is missing is something a straight line cannot capture (the B1 plot shows a separate group of big spenders).</pre></div></div><div class="ds-bank"><p class="dstag"><span class="tag-one">Showing: Credit card customers</span><span class="tag-both">Showing both datasets: pick one at the top (this block: Credit card customers)</span></p><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">Other dataset: gym members | Guess-the-average RMSE 284.2 (calories) | Simple R² 0.8313 | Multiple R² 0.9816 | Multiple RMSE 38.6 (calories)
+Residual plot for the other dataset (B1): a cloud around the red line, a little wider at both ends
+The dataset where adding columns helped more: the gym data (R² from 0.8313 to 0.9816, against 0.6437 to 0.6780 for the card data)
+One reason why: in the gym data each extra column brings something new (heart rate, age, gender). In the card data the extra columns add very little to transaction count, and what is missing is something a straight line cannot capture (the B1 plot shows a separate group of big spenders).</pre></div></div><div class="box warn"><p class="boxlbl">Watch out</p><p>The two RMSEs are in different units (calories and dollars), so compare the datasets by R² or by the share of the guess-the-average miss removed, not by RMSE.</p></div></div></details></article>
+<article class="card" id="B6"><h3><label><input type="checkbox" class="tick" id="tick-B6" data-id="B6" data-sec="B"><span class="tag">B6</span>Your recommendation to the decision maker</label></h3><p class="meta">about 8 minutes</p><div class="box go"><p class="boxlbl">Do</p><ol><li>Rewrite your four sentences from A6 for the decision maker, now using what you learned in B1 to B5. Use the frames from <b>Write down</b>.</li><li>Sentence 1 is the recommendation, with the evidence behind it. Sentences 2 to 4 say how far to trust it: B1 for where the model misses, B3 for how steady the R² is, and the rest for what the data cannot tell you.</li><li>Read it out loud to someone who has not seen your notebook. Could they act on it?</li></ol></div><div class="box why"><p class="boxlbl">Look for</p><ul><li>Sentence 1 says what to do, in the decision maker's words, and gives one number with its unit.</li><li>Sentence 2 uses B1: it says where the misses are larger, not only the typical miss.</li><li>Sentence 3 uses B3: it quotes R² as a range or rounds it to the digits that held steady.</li><li>Sentence 4 names something the columns do not measure.</li></ul></div><h4>Write down</h4><div class="ds-gym"><p class="dstag"><span class="tag-one">Showing: Gym members</span><span class="tag-both">Showing both datasets: pick one at the top (this block: Gym members)</span></p><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">For the fitness club chain:
+1. We recommend that the club ___ because ___ (the evidence, with its number and unit).
+2. Expect the estimate to be off by about ___ calories in a typical case, and by more for ___ (from B1).
+3. R² ranged from ___ to ___ across ten splits (B3), so ___.
+4. Before relying on it, ___ (what is not in the data, or what to test next).</pre></div></div><div class="ds-bank"><p class="dstag"><span class="tag-one">Showing: Credit card customers</span><span class="tag-both">Showing both datasets: pick one at the top (this block: Credit card customers)</span></p><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">For the bank&#x27;s credit card business:
+1. We recommend that the card business ___ because ___ (the evidence, with its number and unit).
+2. Expect the estimate to be off by about ___ dollars in a typical case, and by more for ___ (from B1).
+3. R² ranged from ___ to ___ across ten splits (B3), so ___.
+4. Before relying on it, ___ (what is not in the data, or what to test next).</pre></div></div><details class="hint"><summary>Hint</summary><div><p>If you ran B4, you can add the yes/no result to sentence 2: how many of every 100 real top-quarter rows the model catches.</p><p>For sentence 4, use what you wrote in B1 on what a straight line cannot capture or the columns do not measure.</p></div></details><details class="sol"><summary>Show solution (open this last)</summary><div><div class="ds-gym"><p class="dstag"><span class="tag-one">Showing: Gym members</span><span class="tag-both">Showing both datasets: pick one at the top (this block: Gym members)</span></p><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">For the fitness club chain:
+1. We recommend that the club show members a calorie estimate built from session length, average heart rate, age and gender, because those four columns alone explain about 98% of the variation in calories burned (R² 0.9816, the same as all eight columns), and workout type and fat percentage add almost nothing.
+2. Expect the estimate to be off by about 39 calories in a typical workout, and by more at the ends: the typical miss is 44.5 calories in the lowest fifth of estimates and 57.9 in the highest, against about 25 in the middle. If the app also flags top-quarter workouts, it catches about 92 of every 100.
+3. R² ranged from 0.9774 to 0.9803 across ten splits, so the fit does not depend on one lucky split.
+4. Before relying on it, test it on real sessions: this file is generated, and a real club&#x27;s numbers will be noisier.</pre></div></div><div class="ds-bank"><p class="dstag"><span class="tag-one">Showing: Credit card customers</span><span class="tag-both">Showing both datasets: pick one at the top (this block: Credit card customers)</span></p><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">For the bank&#x27;s credit card business:
+1. We recommend that the card business pilot rewards for using the card more often, because transaction count alone gives an R² of 0.64 and the other columns in the model lift it only to 0.68; the data shows who spends more, not what makes them spend more, so start small.
+2. Expect the estimate to be off by about 1,884 dollars for a typical customer and by far more for the biggest spenders: the typical miss is 3,368 dollars in the top fifth of estimates against 872 to 1,580 in the other four, and all 169 test customers who spent over $10,000 were missed too low, by 4,754 dollars on average.
+3. R² ranged from 0.6664 to 0.6901 across ten splits, so quote it as about 0.68, not to the third decimal.
+4. Before relying on it, find out what sets the 757 customers above $10,000 apart (they average $134.5 per transaction against $56.8 for everyone else, and a straight line on the other columns explains only about 17% of dollars per transaction), and use the model for groups of customers, not single accounts, because it predicts negative spending for 115 of 2,532 test customers.</pre></div></div></div></details></article>
+<div class="box go"><p class="boxlbl">What you now have</p><p>A workflow you can repeat on any table with a number to predict: explore, split, guess the average, fit a simple model, fit a multiple model, read the coefficients, and say what it means in the data's own units. Next time, change the config lines (and add a line to drop any columns you do not need) and run the cells in order.</p></div>
+<p><button class="reset" id="reset" type="button">Reset my progress</button></p>
+<p class="sub">Progress is stored only in this browser on this device. A different browser, a private window or clearing your browsing data starts fresh.</p>
+<p class="sub">Every sample output on this page comes from a real run (Python 3.14.8, pandas 3.0.6, numpy 2.5.4, scikit-learn 1.9.1, matplotlib 3.11.2). Colab may use other versions, so close is fine.</p></main><script>
+(function(){
+const KEY="cap4767-m03-practice-v1";
+const OPTIONS=['gym','bank'];
+const COUNTED='A';
+const ticks=[...document.querySelectorAll('.tick')];
+const picks=[...document.querySelectorAll('.pick input')];
+const saveEl=document.getElementById('save');
+let state={done:{},ds:''}, canSave=false;
+function setStatus(s,m){saveEl.dataset.s=s;saveEl.textContent=m;}
+function render(){
+  ticks.forEach(t=>{t.checked=!!state.done[t.dataset.id];t.closest('.card').classList.toggle('is-done',t.checked);});
+  picks.forEach(r=>{r.checked=state.ds===r.value;});
+  if(state.ds){document.body.dataset.ds=state.ds;}else{delete document.body.dataset.ds;}
+  const core=ticks.filter(t=>t.dataset.sec===COUNTED);const n=core.filter(t=>t.checked).length;
+  document.getElementById('done').textContent=n;
+  document.getElementById('barfill').style.width=(100*n/core.length)+'%';
+  document.querySelectorAll('.jump a').forEach(a=>{const ts=ticks.filter(t=>t.dataset.sec===a.dataset.sec);a.classList.toggle('full',ts.length>0&&ts.every(t=>t.checked));});
+}
+function save(){
+  render();
+  if(!canSave) return;
+  try{localStorage.setItem(KEY,JSON.stringify(state));setStatus('saved','Saved in this browser');}
+  catch(e){canSave=false;setStatus('error','This browser stopped saving. Your checkmarks last until you close the page.');}
+}
+try{
+  const raw=localStorage.getItem(KEY);
+  if(raw){const d=JSON.parse(raw);state={done:Object.assign({},d.done||{}),ds:OPTIONS.includes(d.ds)?d.ds:''};}
+  localStorage.setItem(KEY+'-test','1');localStorage.removeItem(KEY+'-test');
+  canSave=true;setStatus('saved',raw?'Progress loaded from this browser':'Progress saves in this browser');
+}catch(e){setStatus('local','This browser is blocking saving (private window?). Your checkmarks last until you close the page.');}
+ticks.forEach(t=>t.addEventListener('change',()=>{if(t.checked) state.done[t.dataset.id]=true; else delete state.done[t.dataset.id]; save();}));
+picks.forEach(r=>r.addEventListener('change',()=>{state.ds=r.value;save();}));
+const btn=document.getElementById('reset');let armed=false;
+btn.addEventListener('click',()=>{
+  if(!armed){armed=true;btn.classList.add('armed');btn.textContent='Tap again to clear every checkmark and your dataset choice';setTimeout(()=>{armed=false;btn.classList.remove('armed');btn.textContent='Reset my progress';},4000);return;}
+  armed=false;btn.classList.remove('armed');btn.textContent='Reset my progress';state={done:{},ds:''};save();
+});
+document.querySelectorAll('.copy').forEach(b=>b.addEventListener('click',()=>{
+  const pre=b.parentElement.querySelector('pre');const t=pre.innerText;
+  const done=m=>{b.textContent=m;setTimeout(()=>b.textContent='Copy',1400);};
+  const sel=()=>{const r=document.createRange();r.selectNodeContents(pre);const s=getSelection();s.removeAllRanges();s.addRange(r);done('Selected: press Ctrl+C');};
+  try{navigator.clipboard.writeText(t).then(()=>done('Copied'),sel);}catch(e){sel();}
+}));
+render();
+})();
+</script></body></html>
