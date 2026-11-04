@@ -861,12 +861,9 @@ And that brings us to the next question. We've spent two chapters predicting whi
 
 **Objective:** Build a complete churn prediction pipeline — from raw data through EDA, feature analysis, logistic regression, and neural network — on a dataset you haven't seen before. Compare both models and recommend which one the business should deploy.
 
-**Dataset:** Choose one of these two. The starter notebook loads and preprocesses whichever you pick.
+**Dataset:** Credit Card Customer Attrition (`data/BankChurners.csv`, about 10,000 customers, target `Attrition_Flag`). The starter notebook loads and preprocesses it.
 
-1. **Bank Customer Churn** (`data/Churn_Modelling.csv`, about 10,000 customers, target `Exited`)
-2. **Credit Card Customer Attrition** (`data/BankChurners.csv`, about 10,000 customers, target `Attrition_Flag`)
-
-Don't use the Telco dataset from the chapter; the lab asks you to transfer the pipeline to new data.
+Don't use the Telco dataset from the chapter or the bank customer churn data (`data/Churn_Modelling.csv`) from Group Exercise 4. Using either one is a -5 point deduction; the lab asks you to transfer the pipeline to new data.
 
 - Starter notebook: [labs/lab03_churn_neural_networks.ipynb](https://github.com/c-marq/cap4767-data-mining/blob/main/labs/lab03_churn_neural_networks.ipynb)
 - Instructions and point breakdown: [labs/lab03-churn-neural-networks.md](https://github.com/c-marq/cap4767-data-mining/blob/main/labs/lab03-churn-neural-networks.md)

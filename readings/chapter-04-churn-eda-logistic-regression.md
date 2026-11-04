@@ -909,7 +909,7 @@ But this chapter also leaves an open question. The logistic regression baseline 
 
 > **Note:** This chapter shares a lab with Chapter 5. Complete both chapters before beginning the lab — you'll build both a logistic regression and a neural network on the same dataset and compare them side by side.
 >
-> The lab instructions appear at the end of Chapter 5 as **Lab 3: Full Churn Pipeline — Logistic Regression + ANN on a Dataset of Your Choice.**
+> The lab instructions appear at the end of Chapter 5 as **Lab 3: Full Churn Pipeline — Logistic Regression + ANN.**
 
 ---
 

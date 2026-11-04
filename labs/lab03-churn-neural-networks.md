@@ -1,26 +1,23 @@
-# Lab 3 — Churn Prediction: Full Pipeline
+# Lab 3: Churn Prediction, Full Pipeline
 **CAP4767 Data Mining with Python | Individual Assignment | 20 Points (+3 bonus)**
 
 ---
 
 ## Overview
-In this lab you run a full churn prediction pipeline on one of two datasets: statistical EDA, a logistic regression baseline, a Keras neural network, a model comparison, and a written business recommendation. The lab is completed individually. It rewards process over perfection: if your ANN performs worse than logistic regression, that is a valid result, and your written analysis should explain why.
+In this lab you run a full churn prediction pipeline on the Credit Card Customer Attrition dataset: statistical EDA, a logistic regression baseline, a Keras neural network, a model comparison, and a written business recommendation. The lab is completed individually. It rewards process over perfection: if your ANN performs worse than logistic regression, that is a valid result, and your written analysis should explain why.
 
 ---
 
 ## Your Dataset
-Choose **one** of the following. Option A is already switched on in the dataset cell; to use Option B, remove the `#` from each Option B line. Then run the cell; it handles all preprocessing and gives you clean train/test splits.
+This lab uses one dataset. Run the dataset cell; it handles all preprocessing and gives you clean train/test splits.
 
-| Option | Dataset | Target | Domain |
-|--------|---------|--------|--------|
-| A | Bank Customer Churn (about 10,000 rows) | `Exited` | Banking |
-| B | Credit Card Customer Attrition (about 10,000 rows) | `Attrition_Flag` | Credit Card Services |
+| Dataset | Target | Domain |
+|---------|--------|--------|
+| Credit Card Customer Attrition, BankChurners (about 10,000 rows) | `Attrition_Flag` | Credit Card Services |
 
-Load URLs:
-- Option A: `https://raw.githubusercontent.com/c-marq/cap4767-data-mining/refs/heads/main/data/Churn_Modelling.csv`
-- Option B: `https://raw.githubusercontent.com/c-marq/cap4767-data-mining/refs/heads/main/data/BankChurners.csv`
+Load URL: `https://raw.githubusercontent.com/c-marq/cap4767-data-mining/refs/heads/main/data/BankChurners.csv`
 
-**Do NOT use the Telco dataset from class.** You must use one of the two options above. Using the Telco dataset is a **-5 point deduction**.
+**Do NOT use the Telco dataset from class or the bank customer churn data (`Churn_Modelling.csv`) from Group Exercise 4.** Using either one is a **-5 point deduction**.
 
 Starter notebook: `https://github.com/c-marq/cap4767-data-mining/blob/main/labs/lab03_churn_neural_networks.ipynb`
 
