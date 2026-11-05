@@ -8,6 +8,8 @@ Your group works on bank churn data (not the Telco data from the demo). The step
 
 You work in a group, but each student submits their own copy of both notebooks in Canvas (see Submission below).
 
+**Companion page:** the Modules 4–5 practice worksheet walks through these same steps on the same bank data, with hints and solutions: `https://c-marq.github.io/cap4767-data-mining/practice/m04-05-churn/`
+
 ---
 
 ## Your Dataset

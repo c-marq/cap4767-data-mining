@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Modules 4 and 5 Practice · CAP4767</title><meta name="description" content="Companion page for CAP4767 Group Exercise 4: hints and solutions for each step on the bank churn data (Part A, two sessions), then go deeper on your own for Lab 3 (Part B)."><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=JetBrains+Mono:wght@400;600&family=Source+Sans+3:wght@400;600;700&display=swap"><style>
+/* Practice page base: one reading column; sticky progress strip; each step is a card: do, look for, write down, hint, solution */
+:root{
+ --bg:#F6F7F9; --surface:#FFFFFF; --fg:#1C2433; --muted:#5A6577; --line:#DCE1E8;
+ --brand:#1B2A41; --brand-fg:#FFFFFF; --accent:#F5B82E; --accent-ink:#1B2A41; --link:#2F5F98;
+ --code-bg:#22272E; --code-fg:#E6EDF3; --out-bg:#EEF1F5; --out-fg:#1D232B;
+ --go-bg:#DDF3E6; --go-fg:#17663A; --why-bg:#DCEAF7; --why-fg:#1A4C78;
+ --hint-bg:#FCF3D9; --hint-fg:#6E5606; --stop-bg:#F8DDDA; --stop-fg:#8E2A20;
+ --f-display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+ --f-body:"Source Sans 3", "Segoe UI", system-ui, sans-serif;
+ --f-mono:"JetBrains Mono", ui-monospace, "Courier New", monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+ --bg:#11161F; --surface:#18202C; --fg:#E4E9F0; --muted:#9AA6B8; --line:#2C3747;
+ --brand:#0B111A; --brand-fg:#F2F5F9; --accent:#F5B82E; --accent-ink:#141A24; --link:#8DB7EA;
+ --code-bg:#0B0F15; --code-fg:#E6EDF3; --out-bg:#202A38; --out-fg:#DDE4EE;
+ --go-bg:#173826; --go-fg:#9FE0B9; --why-bg:#16304A; --why-fg:#A9CDF2;
+ --hint-bg:#3A3112; --hint-fg:#F2D98A; --stop-bg:#45211D; --stop-fg:#F4B2AA; color-scheme:dark}}
+:root[data-theme="dark"]{
+ --bg:#11161F; --surface:#18202C; --fg:#E4E9F0; --muted:#9AA6B8; --line:#2C3747;
+ --brand:#0B111A; --brand-fg:#F2F5F9; --accent:#F5B82E; --accent-ink:#141A24; --link:#8DB7EA;
+ --code-bg:#0B0F15; --code-fg:#E6EDF3; --out-bg:#202A38; --out-fg:#DDE4EE;
+ --go-bg:#173826; --go-fg:#9FE0B9; --why-bg:#16304A; --why-fg:#A9CDF2;
+ --hint-bg:#3A3112; --hint-fg:#F2D98A; --stop-bg:#45211D; --stop-fg:#F4B2AA; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:17px;line-height:1.6}
+.wrap{max-width:860px;margin:0 auto;padding-inline:18px;padding-block:0 64px}
+h1,h2,h3,h4{font-family:var(--f-display);text-wrap:balance;line-height:1.2}
+h1{font-size:clamp(28px,5vw,40px);margin:26px 0 6px;font-weight:700}
+h2{font-size:24px;margin:38px 0 10px}
+h4{font-size:16px;margin:16px 0 6px;font-family:var(--f-body);font-weight:700;letter-spacing:.02em}
+a{color:var(--link)}
+p{margin:8px 0}
+code{font-family:var(--f-mono);font-size:.88em;background:var(--out-bg);color:var(--out-fg);padding:1px 6px;border-radius:4px}
+.sub{color:var(--muted);font-size:15px;max-width:65ch}
+.prog{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:2px solid var(--accent);padding-block:10px;display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center}
+.prog .count{font-weight:700;font-variant-numeric:tabular-nums}
+.bar{flex:1 1 140px;height:10px;background:var(--line);border-radius:6px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--go-fg);transition:width .3s}
+.jump{display:flex;gap:4px;flex-wrap:wrap}
+.jump a{font-size:13px;text-decoration:none;color:var(--fg);border:1px solid var(--line);border-radius:12px;padding:1px 9px;font-variant-numeric:tabular-nums}
+.jump a.full{background:var(--go-bg);color:var(--go-fg);border-color:transparent}
+.save{font-size:13px;color:var(--muted);flex-basis:100%}
+.save[data-s="saved"]{color:var(--go-fg)} .save[data-s="error"]{color:var(--stop-fg)}
+.map{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0}
+.map span{padding:5px 11px;border-radius:14px;font-size:14px;border:1px solid var(--line)}
+.map .done{background:var(--go-bg);color:var(--go-fg);border-color:transparent;font-weight:600}
+.map .now{background:var(--accent);color:var(--accent-ink);border-color:transparent;font-weight:700}
+.box{border-radius:8px;padding:12px 16px;margin:12px 0}
+.box .boxlbl{font-weight:700;margin:0 0 4px;letter-spacing:.03em;font-size:14px;text-transform:uppercase}
+.go{background:var(--go-bg);color:var(--fg)} .go .boxlbl{color:var(--go-fg)}
+.why{background:var(--why-bg);color:var(--fg)} .why .boxlbl{color:var(--why-fg)}
+.warn{background:var(--hint-bg);color:var(--fg)} .warn .boxlbl{color:var(--hint-fg)}
+.stop{background:var(--stop-bg);color:var(--fg)} .stop .boxlbl{color:var(--stop-fg)}
+.box ol,.box ul{margin:4px 0;padding-left:22px}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:15.5px;margin:10px 0}
+th,td{border-bottom:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+th{font-family:var(--f-body);font-size:13px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+td.n{font-variant-numeric:tabular-nums;color:var(--muted);width:2em}
+.codewrap{position:relative;margin:8px 0;min-width:0}
+pre{margin:0;overflow-x:auto;white-space:pre;font-family:var(--f-mono);font-size:14px;line-height:1.5;border-radius:8px;padding:12px 14px}
+pre.code{background:var(--code-bg);color:var(--code-fg);padding-right:72px}
+pre.out{background:var(--out-bg);color:var(--out-fg);margin-bottom:10px}
+.lbl{font-size:12.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-top:8px}
+.copy{position:absolute;top:8px;right:8px;background:var(--accent);color:var(--accent-ink);border:0;border-radius:5px;padding:4px 10px;font:600 13px var(--f-body);cursor:pointer}
+.copy:focus-visible,button:focus-visible,summary:focus-visible,input:focus-visible{outline:3px solid var(--link);outline-offset:2px}
+.sec{background:var(--brand);color:var(--brand-fg);border-radius:10px;padding:14px 18px;margin:40px 0 12px;scroll-margin-top:70px}
+.sec h2{margin:0;color:var(--accent);font-size:22px}
+.sec p{margin:4px 0 0;opacity:.85;font-size:15px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 18px;margin:16px 0;scroll-margin-top:70px}
+.card.is-done{border-color:var(--go-fg)}
+.card h3{margin:0 0 6px;display:flex;gap:10px;align-items:center;font-size:20px}
+.card h3 label{display:flex;gap:10px;align-items:center;cursor:pointer}
+.tick{width:20px;height:20px;accent-color:var(--go-fg);flex:none}
+.tag{font-family:var(--f-mono);font-size:13px;background:var(--brand);color:var(--brand-fg);border-radius:5px;padding:1px 7px}
+details{margin:6px 0}
+summary{cursor:pointer;font-weight:700;padding:8px 12px;border-radius:6px;list-style:none}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"▸ "} details[open]>summary::before{content:"▾ "}
+details.hint>summary{background:var(--hint-bg);color:var(--hint-fg)}
+details.sol>summary{background:var(--stop-bg);color:var(--stop-fg)}
+details>div{padding:4px 4px 4px 12px}
+.rate{display:flex;gap:6px;flex-wrap:wrap}
+.rate input{position:absolute;opacity:0;pointer-events:none}
+.rate label{border:1px solid var(--line);border-radius:6px;padding:4px 12px;cursor:pointer;font-variant-numeric:tabular-nums;background:var(--surface)}
+.rate input:checked+label{background:var(--accent);color:var(--accent-ink);border-color:transparent;font-weight:700}
+.rate input:focus-visible+label{outline:3px solid var(--link);outline-offset:2px}
+.reset{background:none;border:1px solid var(--line);color:var(--muted);border-radius:6px;padding:6px 12px;font:inherit;font-size:14px;cursor:pointer}
+.reset.armed{border-color:var(--stop-fg);color:var(--stop-fg)}
+@media (prefers-reduced-motion: reduce){.bar i{transition:none}}
+@media (max-width:480px){body{font-size:16px} pre{font-size:13px}}
+body{margin:0}
+.ask{background:var(--surface);border:2px solid var(--accent);border-left-width:10px;border-radius:10px;padding:14px 20px;margin:18px 0}
+.ask .boxlbl{margin:0 0 4px;font-weight:700;letter-spacing:.06em;font-size:13px;text-transform:uppercase;color:var(--muted)}
+.ask .big{font-family:var(--f-display);font-size:clamp(19px,3.4vw,23px);line-height:1.35;font-weight:600;margin:2px 0 6px}
+.ask .small{color:var(--muted);font-size:15px;margin:4px 0 0}
+.meta{color:var(--muted);font-size:14.5px;margin:0 0 8px}
+.card h3{align-items:flex-start}
+.card .tag{margin-top:2px}
+.dsexp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:12px;margin:10px 0}
+.dsexp{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 16px 12px;min-width:0}
+.dsexp .dsname{margin:8px 0 4px;font-size:17px;font-family:var(--f-body)}
+.dsexp .dsname span{font-weight:400;color:var(--muted);font-size:14px}
+.dsexp dl{margin:0}
+.dsexp dt{font-size:12.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin:8px 0 0}
+.dsexp dd{margin:1px 0 0}
+.dsexp .dsnote{background:var(--hint-bg);color:var(--fg);border-radius:6px;padding:6px 10px;margin:10px 0 0;font-size:15px}
+.tablewrap table td:first-child,.tablewrap table th:first-child{white-space:nowrap}
+.sol .lbl{margin-top:12px}
+/* highlighted lines (M3 explainer style: subtle amber tint plus a left bar); the Copy button still copies plain code */
+pre .cb{display:block;width:max-content;min-width:100%}
+pre .hl{display:inline-block;vertical-align:top;box-sizing:border-box;width:calc(100% + 28px);margin:0 -14px;padding:0 14px;background:rgba(245,176,65,.17);box-shadow:inset 4px 0 0 #F5B041}
+pre,.hl{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+
+/* M4-5 additions: Part B count in the progress strip, session blocks, small tables, links */
+.prog .count2{font-weight:600;color:var(--muted);font-size:15px;font-variant-numeric:tabular-nums}
+.blk{border-left:8px solid var(--accent);background:var(--surface);border-radius:8px;padding:10px 16px;margin:30px 0 8px;scroll-margin-top:70px}
+.blk h3{margin:0;font-size:21px}
+.blk p{margin:4px 0 0;color:var(--muted);font-size:15px}
+.tablewrap table.fit td:first-child,.tablewrap table.fit th:first-child{white-space:normal}
+.sol .tablewrap{margin:6px 0}
+ul.tight{margin:4px 0;padding-left:22px}
+.stepchips{margin:8px 0 0}
+.tablewrap td a{color:var(--link)}
+@media (max-width:480px){.blk h3{font-size:19px}.prog .count2{font-size:14px}.card,.blk,.sec{scroll-margin-top:112px}}
+</style></head><body><main class="wrap">
+<div class="prog" role="region" aria-label="Progress"><span class="count">Part A: <span id="done">0</span> / 10 steps done <span class="count2">· Part B: <span id="doneB">0</span> / 6</span></span><div class="bar" aria-hidden="true"><i id="barfill"></i></div><nav class="jump" aria-label="Jump to part"><a href="#blk1" data-blk="1">A1-5</a><a href="#blk2" data-blk="2">A6-10</a><a href="#secB" data-blk="B">B</a></nav><span class="save" id="save" data-s="wait">Checking whether this browser can save your progress…</span></div>
+<h1>Modules 4 and 5 Practice: Predict Churn and Compare Models</h1>
+<p class="sub">CAP4767 Data Mining with Python · Miami Dade College · This page is the companion to Group Exercise 4. It uses the same bank churn file, the same columns and the same split. Use it when your group is stuck on a task: read the hint first, the solution last. The exercise notebooks are what you submit. Part A has two blocks, one for each session of the exercise. Part B is for after Session 2, as help with Lab 3. Your checkmarks save in this browser.</p>
+<div class="ask"><p class="boxlbl">The ask</p><p class="big">By the end, your group tells the bank's retention team three things: who is most likely to leave and what a miss costs, how many leavers each of two models finds, and which model to use to choose who gets an offer.</p><p class="small">Every step below builds one piece of that answer. Part A is the group exercise; Part B practices the parts of Lab 3 that the exercise does not cover.</p></div>
+<h2>Where each part fits</h2>
+<div class="tablewrap"><table class="fit"><thead><tr><th>Part of this page</th><th>Steps</th><th>Use it in</th><th>Helps with</th><th>Time</th></tr></thead><tbody><tr><td><b>Part A, block 1</b></td><td>A1 to A5</td><td><b>Session 1</b></td><td>Exercise 4 Part 1 (Tasks 1 to 5)</td><td>about 44 minutes</td></tr><tr><td><b>Part A, block 2</b></td><td>A6 to A10</td><td><b>Session 2</b></td><td>Exercise 4 Part 2 (Tasks 1 to 8)</td><td>about 38 minutes</td></tr><tr><td><b>Part B</b></td><td>B1 to B6</td><td><b>On your own, after Session 2</b></td><td>Lab 3</td><td>about 45 minutes</td></tr></tbody></table></div>
+<p>The exercise runs over two class sessions, one notebook for each. Block 1 and block 2 of Part A each start with a short box of what to do first. Part B comes after both sessions and is not part of the exercise.</p>
+<h2>How each step works</h2>
+<div class="box go"><p class="boxlbl">Every step has the same five parts</p><ol><li><b>Do</b>: what to run, and the few lines to write yourselves.</li><li><b>Look for</b>: what the output should show.</li><li><b>Write down</b>: fill in the blanks and keep them. They become your answers. Paste each Write down block into a text cell in your notebook under that step, and fill it in there.</li><li><b>Hint</b>: closed. Open it if you are stuck.</li><li><b>Solution</b>: closed. Open it last, with sample output from a real run. Then tick the box beside the step title.</li></ol></div>
+<p>Do the steps in order. Each one uses what you wrote down in the step before.</p>
+<h3>The sixteen steps at a glance</h3>
+<div class="tablewrap"><table class="fit"><thead><tr><th>Step</th><th>Helps with</th><th>You do</th><th>You write down</th></tr></thead><tbody><tr><td><a href="#A1"><b>A1</b></a></td><td>Part 1 Task 1</td><td>load the data and rank the categories by how strongly they go with leaving</td><td>the top 2 categories and whether your guesses matched</td></tr><tr><td><a href="#A2"><b>A2</b></a></td><td>Part 1 Task 2</td><td>compare leavers and stayers on the number columns</td><td>the largest effect and what its sign means</td></tr><tr><td><a href="#A3"><b>A3</b></a></td><td>Part 1 Task 3</td><td>price churn with two stated assumptions</td><td>revenue at risk, replacement cost and which assumption is shakiest</td></tr><tr><td><a href="#A4"><b>A4</b></a></td><td>Part 1 Task 4; Part 2 Tasks 1 and 2</td><td>prepare and split, set the "everyone stays" baseline, build the first model</td><td>precision and recall for the Churned class</td></tr><tr><td><a href="#A5"><b>A5</b></a></td><td>Part 1 Task 5 and the share-out</td><td>read the model: coefficients, confusion matrix, dollars</td><td>top 3 drivers and a 4-sentence paragraph for an executive</td></tr><tr><td><a href="#A6"><b>A6</b></a></td><td>Part 2 Tasks 3 and 4</td><td>build the network and train it with early stopping</td><td>parameters, stop epoch and the last-layer check</td></tr><tr><td><a href="#A7"><b>A7</b></a></td><td>Part 2 Task 5</td><td>plot the training curves</td><td>one sentence on overfitting, with the evidence</td></tr><tr><td><a href="#A8"><b>A8</b></a></td><td>Part 2 Task 6</td><td>evaluate the network against the baselines</td><td>recall as a count of customers, against logistic regression</td></tr><tr><td><a href="#A9"><b>A9</b></a></td><td>Part 2 Task 7</td><td>draw both ROC curves</td><td>the two AUCs and the gap</td></tr><tr><td><a href="#A10"><b>A10</b></a></td><td>Part 2 Task 8 and the share-out</td><td>answer the five Task 8 questions</td><td>five sentences for the share-out</td></tr><tr><td><a href="#B1"><b>B1</b></a></td><td>Lab 3 Tasks 4 and 11</td><td>the $500 offer for 200 customers: thresholds and a top-200 list</td><td>which customers get the offer and what a miss costs</td></tr><tr><td><a href="#B2"><b>B2</b></a></td><td>Lab 3 Task 10</td><td>the five-row comparison table and the extra catches</td><td>where the network and logistic regression disagree</td></tr><tr><td><a href="#B3"><b>B3</b></a></td><td>Lab 3 Tasks 7 to 9</td><td>retrain the network five times</td><td>how far one run can be trusted</td></tr><tr><td><a href="#B4"><b>B4</b></a></td><td>Lab 3 Task 7 and its troubleshooting table</td><td>break the network on purpose, three ways</td><td>which alarm fires for which mistake</td></tr><tr><td><a href="#B5"><b>B5</b></a></td><td>Lab 3 setup and Tasks 1, 2, 3, 5 and 6</td><td>no code: predict what changes on a new file</td><td>five predictions to check against the lab</td></tr><tr><td><a href="#B6"><b>B6</b></a></td><td>Lab 3 Task 11</td><td>no code: the memo to leadership</td><td>a five-point memo on the bank data</td></tr></tbody></table></div>
+<h2>Reading any output the same way</h2>
+<p>A number with no unit, no baseline and no direction tells a head of retention nothing. The product of your analysis is not 0.3639. It is one sentence they can act on: "We catch 143 of the 393 customers who leave, and we flag 207 customers to do it." Reading every output in the same order is how you stop yourself from misreading it, and how you catch a broken network before the retention team does. The Look for box in A5 and A8 to A10 uses these five labels.</p>
+<div class="tablewrap"><table class="fit"><thead><tr><th>Label</th><th>Ask yourself</th></tr></thead><tbody><tr><td><b>Units</b></td><td>What is the number measured in? A share of a group (recall 0.3639 is 36.4 of every 100 churners), a count of customers (207 flagged) or dollars. Say which group: of the 393 who left, of the 2,000 in the test rows.</td></tr><tr><td><b>Baseline</b></td><td>Compared with what? Saying "Stayed" for everyone is 80.35% accurate and catches nobody. A coin flip has an AUC of 0.50. For a neural network, the bar is the logistic regression.</td></tr><tr><td><b>Direction</b></td><td>Which way does it lean? A lower threshold flags more customers: recall goes up and precision goes down. Which mistake is the costly one?</td></tr><tr><td><b>Size in dollars</b></td><td>Turn counts into dollars with a price you can name. Is the gap big enough to change the decision?</td></tr><tr><td><b>Sentence</b></td><td>Who is it for, how many customers, how many dollars, and what should they do?</td></tr></tbody></table></div>
+<div class="box why"><p class="boxlbl">The numbers in one line each</p><ul><li><b>Accuracy:</b> the share of all customers the model got right. It hides the leavers, because most customers stay.</li><li><b>Precision (Churned):</b> of the customers the model flags, the share that really leave. How trustworthy the call list is.</li><li><b>Recall (Churned):</b> of the customers who really leave, the share the model flags. How many leavers we catch.</li><li><b>Threshold:</b> the cut-off on the churn probability (0.5 unless you change it). Lower means more customers flagged.</li><li><b>AUC:</b> how well the model ranks customers from safest to riskiest, from 0.5 (a coin flip) to 1.</li></ul></div>
+<h2>Your dataset</h2>
+<p>Every step uses the one file the exercise uses, so the time you spend with it now is not wasted.</p>
+<div class="dsexp-grid"><div class="dsexp"><h4 class="dsname">Bank Customer Churn <span>(the retail banking industry)</span></h4><dl><dt>What it is</dt><dd>One row for each of 10,000 customers of a retail bank in France, Germany and Spain, with credit score, country, gender, age, years as a customer, balance, number of products, whether they hold a credit card, whether they are an active member, estimated salary, and whether they closed their account. Source: Kaggle, Churn Modelling (shrutimechlearn); the license is not stated. The file also has a row number, an ID and a surname, which the setup cell drops.</dd><dt>Decision maker</dt><dd>The retention team of the bank, deciding which customers to call or make an offer to before they leave.</dd><dt>Rows and the column you predict</dt><dd>10,000 rows (11 columns after the drop). You predict <code>Exited</code>: 1 if the customer closed the account, 0 if they stayed. 2,037 customers left, which is 20.4%.</dd><dt>The split</dt><dd><code>train_test_split(X, y, test_size=0.2, random_state=42)</code>: 8,000 training rows and 2,000 test rows, with 393 churners among the test rows. The same split is used in both parts.</dd><dt>Why it is interesting</dt><dd>Only about one customer in five leaves, so a model that says "Stayed" for everyone is already 80% accurate. Accuracy alone says very little here.</dd></dl><p class="dsnote"><b>Heads up, for Lab 3:</b> the lab uses a different file (BankChurners, credit card customers). Practicing on this bank file is fine on this page. In the lab, using Churn_Modelling or the Telco data is a -5 point deduction.</p></div></div>
+<h2>Before you start</h2>
+<div class="box warn"><p class="boxlbl">Four things about the template cells</p><ol><li>In class, work in your group's starter notebook: <a href="https://colab.research.google.com/github/c-marq/cap4767-data-mining/blob/main/exercises/m04-05_group_exercise_part1.ipynb" target="_blank" rel="noopener">Part 1 in Colab</a> for Session 1 and <a href="https://colab.research.google.com/github/c-marq/cap4767-data-mining/blob/main/exercises/m04-05_group_exercise_part2.ipynb" target="_blank" rel="noopener">Part 2 in Colab</a> for Session 2. The template cells on this page use the same variable names, so a line from a solution can be pasted straight into the starter. After class, open a new Colab notebook (colab.new), paste each cell from this page into its own cell and run them in order, because each one uses the variables the one before made. In class, "a new cell" on this page means the starter's own cell for that task (or add one where the starter has none, for example A4's baseline and A10's numbers cell).</li><li>Each template cell has gaps marked <code># YOUR CODE HERE</code>, with a number when a cell has more than one. Replace each gap with your own lines. The Hint and the Solution show them.</li><li>Colab shows only the value of the <b>last line</b> of a cell. To see something from the middle of a cell, wrap it in <code>print( )</code> or <code>display( )</code>.</li><li>The setup cell loads the dataset from the course repository. If it fails to load, check your internet connection and run the cell again.</li></ol></div>
+<p><b>Close is fine.</b> Colab may use other library versions than the sample outputs, so a layout can differ a little. Logistic regression gives the same numbers every time, so yours should match. A neural network is different: training is random, so every network number on this page is one run, with the range from many runs beside it. <b>Roles</b> (from the group exercises): the Lead Coder types, the Data Interpreter reads each output aloud, the QA Reviewer checks it against <b>Look for</b>, and the Presenter reads the answers at the share-out.</p>
+<section class="sec" id="secA"><h2>A · Help for the group exercise</h2><p>Ten steps in two blocks · each step lines up with a task of Group Exercise 4 · one bank file throughout</p></section>
+
+<div class="blk" id="blk1"><h3>Session 1 · Exercise 4 Part 1: steps A1 to A5</h3><p>About 44 minutes if you do every step. Part 1 is statistical EDA, the cost of churn and a logistic regression.</p><nav class="jump stepchips" aria-label="Jump to a step"><a href="#A1" data-step="A1">A1</a><a href="#A2" data-step="A2">A2</a><a href="#A3" data-step="A3">A3</a><a href="#A4" data-step="A4">A4</a><a href="#A5" data-step="A5">A5</a></nav></div>
+<div class="box go"><p class="boxlbl">Before you start Session 1</p><ul><li>Open <a href="https://colab.research.google.com/github/c-marq/cap4767-data-mining/blob/main/exercises/m04-05_group_exercise_part1.ipynb" target="_blank" rel="noopener">the Part 1 notebook in Colab</a>. Its setup cell and its preprocessing cell are already filled in; this page shows them so you can read them. In class, "a new cell" on this page means the starter's own cell for that task (or add one where the starter has none, for example A4's baseline and A10's numbers cell).</li><li>Before anyone codes, answer the three discussion questions as a group (3 minutes): (1) what do you think predicts that a customer closes their account? List your top 3 guesses. (2) How would you measure the cost of losing a customer, and what numbers would you need? (3) Why would a business prefer a model that explains churn drivers over one that only predicts who will leave? A1 asks for your guesses, A3 uses your answer to (2) and A5 uses (3).</li></ul></div>
+<div class="box go"><p class="boxlbl">How the steps line up with Part 1</p><ul><li><b>A1:</b> Task 1. Cramér's V for the five category columns and a sorted bar chart.</li><li><b>A2:</b> Task 2. Mann-Whitney U and Cohen's d for the five number columns. Checkpoint 1 sits after Task 2: A1 and A2 give its numbers.</li><li><b>A3:</b> Task 3. The business cost of churn, from two stated assumptions.</li><li><b>A4:</b> Task 4. Prepare and split, set the baseline, build the logistic regression. Checkpoint 2 sits after it. This is the same model Part 2 builds in its Tasks 1 and 2, so A4 also helps with those.</li><li><b>A5:</b> Task 5 and the Part 1 share-out. Coefficients, confusion matrix, the dollar cost of misses, and the paragraph for an executive.</li></ul></div>
+<article class="card" id="A1"><h3><label><input type="checkbox" class="tick" id="tick-A1" data-id="A1" data-sec="A" data-blk="1"><span class="tag">A1</span>Which categories go with leaving? Load the data and rank them</label></h3><p class="meta">Session 1 · Helps with Part 1 Task 1 · about 8 minutes</p><div class="box go"><p class="boxlbl">Do</p><ol><li>Before you code, guess as a group: which 3 features do you think predict that a customer closes their account? Write them on the first line of <b>Write down</b>.</li><li>In the first cell of your notebook, run the setup cell. (In the Part 1 notebook it is already there and ready to run.) It loads the file, drops <code>RowNumber</code>, <code>CustomerId</code> and <code>Surname</code>, and makes the two feature lists. <code>NumOfProducts</code> is in the category list on purpose: Look for explains why.<div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code"># ============================================================
+# Setup. Run this cell. Do not modify.
+# ============================================================
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+import warnings
+warnings.filterwarnings(&quot;ignore&quot;)
+
+from scipy.stats import chi2_contingency, mannwhitneyu, pointbiserialr
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import (classification_report, confusion_matrix,
+                             accuracy_score, roc_auc_score)
+
+np.random.seed(42)
+plt.rcParams[&quot;figure.figsize&quot;] = (10, 5)
+plt.rcParams[&quot;figure.dpi&quot;] = 100
+sns.set_style(&quot;whitegrid&quot;)
+
+# Helper functions
+def cramers_v(x, y):
+    &quot;&quot;&quot;Cramér&#x27;s V: association between two categorical variables (0–1).&quot;&quot;&quot;
+    ct = pd.crosstab(x, y)
+    chi2 = chi2_contingency(ct)[0]
+    n = ct.sum().sum()
+    r, k = ct.shape
+    return np.sqrt(chi2 / (n * (min(r, k) - 1)))
+
+def cohens_d(group1, group2):
+    &quot;&quot;&quot;Cohen&#x27;s d: effect size between two groups.&quot;&quot;&quot;
+    n1, n2 = len(group1), len(group2)
+    pooled = np.sqrt(((n1-1)*group1.std()**2 + (n2-1)*group2.std()**2) / (n1+n2-2))
+    return (group1.mean() - group2.mean()) / pooled if pooled &gt; 0 else 0
+
+# Load and clean
+url = &quot;https://raw.githubusercontent.com/c-marq/cap4767-data-mining/refs/heads/main/data/Churn_Modelling.csv&quot;
+df = pd.read_csv(url)
+df = df.drop(columns=[&quot;RowNumber&quot;, &quot;CustomerId&quot;, &quot;Surname&quot;])  # row number, ID and name are not predictors
+
+# Feature lists for your EDA
+# NumOfProducts only takes the values 1 to 4, so it counts as a category here
+cat_features = [&quot;Geography&quot;, &quot;Gender&quot;, &quot;HasCrCard&quot;, &quot;IsActiveMember&quot;, &quot;NumOfProducts&quot;]
+num_features = [&quot;CreditScore&quot;, &quot;Age&quot;, &quot;Tenure&quot;, &quot;Balance&quot;, &quot;EstimatedSalary&quot;]
+
+print(f&quot;✅ Dataset loaded: {df.shape[0]:,} rows × {df.shape[1]} columns&quot;)
+print(f&quot;   Churn rate (Exited = 1): {df[&#x27;Exited&#x27;].mean():.1%}&quot;)
+print(f&quot;   Categorical features ({len(cat_features)}): {cat_features}&quot;)
+print(f&quot;   Numerical features ({len(num_features)}): {num_features}&quot;)
+print(f&quot;   Helper functions ready: cramers_v(), cohens_d()&quot;)</pre></div></li><li>In a second cell, paste the explore cell. Replace each <code># YOUR CODE HERE</code> with your own lines (the number says which gap; an instruction may continue on the next lines, which also start with a <code>#</code>), then run the cell:<div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">plt.figure(figsize=(10, 6))
+# YOUR CODE HERE 1: make cv_results, a table (DataFrame) with one row for each
+#   feature in cat_features and two columns, &quot;Feature&quot; and &quot;Cramér&#x27;s V&quot; (use
+#   cramers_v with the feature column and df[&quot;Exited&quot;]). Sort it from the
+#   largest V to the smallest
+
+# YOUR CODE HERE 2: draw cv_results as a horizontal bar chart (plt.barh) with a
+#   title and an x-axis label
+
+plt.tight_layout()
+plt.show()
+print(cv_results.to_string(index=False))
+
+print()
+print(&quot;Churn rate (%) for each number of products:&quot;)
+print((df.groupby(&quot;NumOfProducts&quot;)[&quot;Exited&quot;].mean() * 100).round(1))</pre></div></li></ol></div><div class="box why"><p class="boxlbl">Look for</p><ul><li><b>Setup cell:</b> 10,000 rows × 11 columns and a churn rate of 20.4%.</li><li><b>The bars:</b> Cramér's V runs from 0 (no link with leaving) to 1 (a perfect link). NumOfProducts should come first (about 0.39), then Geography (about 0.17), IsActiveMember (about 0.16) and Gender (about 0.11), and HasCrCard should be close to 0 (about 0.01). That is Checkpoint 1's first line. If HasCrCard shows up as a strong driver, double-check your code.</li><li><b>Churn rate for each number of products:</b> 27.7%, 7.6%, 82.7% and 100%. It is not a straight line (2 products is the safest, 3 and 4 are the riskiest), which is why <code>NumOfProducts</code> counts as a category here and not as a plain number.</li><li>Cramér's V says how strong a link is, not which way it goes. The churn rates tell you the direction.</li></ul></div><h4>Write down</h4><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">Our 3 guesses before we ran anything: ___, ___, ___
+Rows ___ x columns ___ | churn rate ___%
+Strongest two categories: ___ (V = ___) and ___ (V = ___)
+Were they in our guesses? ___
+Churn rate with 1, 2, 3 and 4 products: ___%, ___%, ___%, ___%</pre></div><details class="hint"><summary>Hint</summary><div><p>Gap 1: <code>pd.DataFrame({...})</code> with two entries: the list of feature names, and a list comprehension <code>[cramers_v(df[col], df["Exited"]) for col in cat_features]</code>. Then <code>.sort_values("Cramér's V", ascending=False)</code>.</p><p>Gap 2: <code>plt.barh(names, values, color="steelblue")</code>, then <code>plt.xlabel(...)</code> and <code>plt.title(...)</code>. <code>barh</code> draws the first row at the bottom; <code>plt.gca().invert_yaxis()</code> flips it so the largest bar is on top.</p><p>If <code>cramers_v()</code> gives an error, pass two Series, not strings: <code>cramers_v(df["Geography"], df["Exited"])</code>.</p></div></details><details class="sol"><summary>Show solution (open this last)</summary><div><div class="lbl">Sample output: setup cell</div><pre class="out">✅ Dataset loaded: 10,000 rows × 11 columns
+   Churn rate (Exited = 1): 20.4%
+   Categorical features (5): [&#x27;Geography&#x27;, &#x27;Gender&#x27;, &#x27;HasCrCard&#x27;, &#x27;IsActiveMember&#x27;, &#x27;NumOfProducts&#x27;]
+   Numerical features (5): [&#x27;CreditScore&#x27;, &#x27;Age&#x27;, &#x27;Tenure&#x27;, &#x27;Balance&#x27;, &#x27;EstimatedSalary&#x27;]
+   Helper functions ready: cramers_v(), cohens_d()</pre><div class="lbl">Sample output: explore cell (the chart has no text, so the table comes first, then the churn rates)</div><pre class="out">       Feature  Cramér&#x27;s V
+ NumOfProducts    0.387767
+     Geography    0.173567
+IsActiveMember    0.155880
+        Gender    0.106263
+     HasCrCard    0.006865
+
+Churn rate (%) for each number of products:
+NumOfProducts
+1     27.7
+2      7.6
+3     82.7
+4    100.0
+Name: Exited, dtype: float64</pre><div class="lbl">Your two gaps, filled in</div><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code"># gap 1
+cv_results = pd.DataFrame({
+    &quot;Feature&quot;: cat_features,
+    &quot;Cramér&#x27;s V&quot;: [cramers_v(df[col], df[&quot;Exited&quot;]) for col in cat_features]
+}).sort_values(&quot;Cramér&#x27;s V&quot;, ascending=False)
+
+# gap 2
+plt.barh(cv_results[&quot;Feature&quot;], cv_results[&quot;Cramér&#x27;s V&quot;], color=&quot;steelblue&quot;)
+plt.xlabel(&quot;Cramér&#x27;s V (0 = no association, 1 = perfect)&quot;)
+plt.title(&quot;Categorical Features vs Churn: Cramér&#x27;s V&quot;)
+plt.gca().invert_yaxis()   # barh draws the first row at the bottom; this puts the largest bar on top</pre></div><p class="sub">Your chart should show five bars, longest on top: NumOfProducts, then Geography, IsActiveMember, Gender and a bar for HasCrCard that is hardly visible.</p><div class="lbl">Write down, filled in</div><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">Our 3 guesses before we ran anything: (your group&#x27;s three guesses)
+Rows 10,000 x columns 11 | churn rate 20.4%
+Strongest two categories: NumOfProducts (V = 0.388) and Geography (V = 0.174)
+Were they in our guesses? (your group&#x27;s answer: say which of your 3 guesses are on the list)
+Churn rate with 1, 2, 3 and 4 products: 27.7%, 7.6%, 82.7%, 100.0%</pre></div><div class="box warn"><p class="boxlbl">Watch out</p><ul><li>Only 3.3% of customers hold 3 or 4 products, so those two groups are small. A rate of 100% for 4 products comes from a handful of customers: read it as "almost all of them leave", not as a law.</li><li>A high Cramér's V says two columns go together. It does not say one causes the other.</li></ul></div></div></details></article>
+
+<article class="card" id="A2"><h3><label><input type="checkbox" class="tick" id="tick-A2" data-id="A2" data-sec="A" data-blk="1"><span class="tag">A2</span>Which numbers separate leavers from stayers?</label></h3><p class="meta">Session 1 · Helps with Part 1 Task 2 · about 8 minutes</p><div class="box go"><p class="boxlbl">Do</p><ol><li>In a new cell, paste the cell below. Gaps 1 and 2 sit inside the loop: keep their four-space indent. Replace the three gaps, then run the cell. (<code>Exited</code> holds the numbers 1 and 0, so the two groups are <code>df["Exited"] == 1</code> and <code>== 0</code>, not the words "Yes" and "No".)<div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">churn_yes = df[df[&quot;Exited&quot;] == 1]
+churn_no = df[df[&quot;Exited&quot;] == 0]
+
+rows = []
+for col in num_features:
+    # YOUR CODE HERE 1: run mannwhitneyu on churn_yes[col] and churn_no[col]
+    #   (alternative=&quot;two-sided&quot;) and keep its two results as u_stat and p_val
+
+    # YOUR CODE HERE 2: set d to cohens_d of churn_yes[col] and churn_no[col]
+
+    rows.append({&quot;Feature&quot;: col, &quot;Cohen&#x27;s d&quot;: round(d, 3), &quot;p-value&quot;: f&quot;{p_val:.2e}&quot;,
+                 &quot;Mean, churned&quot;: round(churn_yes[col].mean(), 1),
+                 &quot;Mean, stayed&quot;: round(churn_no[col].mean(), 1)})
+
+# YOUR CODE HERE 3: make mw_df from rows and sort it by the size of Cohen&#x27;s d,
+#   ignoring the sign, largest first
+print(mw_df.to_string(index=False))</pre></div></li></ol></div><div class="box why"><p class="boxlbl">Look for</p><ul><li><b>Cohen's d</b> is the gap between the two group averages (churners minus stayers), measured in standard deviations. 0 means no gap; about 0.2 is small, 0.5 medium and 0.8 large. The <b>sign</b> says which group is higher: positive means the churners are higher.</li><li><b>Age should be first:</b> a medium positive effect, about +0.74 (churners average 44.8 years, stayers 37.4). Balance is small, about +0.30. CreditScore, Tenure and EstimatedSalary should all be close to 0 (under 0.07 in size). That is the rest of Checkpoint 1. If EstimatedSalary shows up as a strong driver, double-check.</li><li><b>The p-value</b> says whether a gap could be luck. Age and Balance have tiny p-values. Tenure (about 0.16) and EstimatedSalary (about 0.23) are above 0.05: no real difference. CreditScore sits at about 0.02 with a d of only -0.07: detectable, but tiny.</li></ul></div><h4>Write down</h4><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">Largest effect: ___ (d = ___). Churners average ___ against ___ for stayers
+The sign of d means: ___
+Balance: d = ___, p = ___. A tiny p-value does not mean ___
+Two columns with p above 0.05: ___ and ___</pre></div><details class="hint"><summary>Hint</summary><div><p>Gap 1: <code>u_stat, p_val = mannwhitneyu(a, b, alternative="two-sided")</code> with the two Series as <code>a</code> and <code>b</code>.</p><p>Gap 2: <code>d = cohens_d(a, b)</code>, the helper from the setup cell.</p><p>Gap 3: <code>pd.DataFrame(rows)</code>, then <code>.sort_values("Cohen's d", key=abs, ascending=False)</code>. <code>key=abs</code> sorts by size and ignores the sign.</p><p>If Cohen's d is 0 for every feature, check the group split: it is <code>df["Exited"]==1</code> (the integer 1), not the string "Yes".</p></div></details><details class="sol"><summary>Show solution (open this last)</summary><div><div class="lbl">Sample output</div><pre class="out">        Feature  Cohen&#x27;s d   p-value  Mean, churned  Mean, stayed
+            Age      0.739 3.21e-230           44.8          37.4
+        Balance      0.296  1.12e-28        91108.5       72745.3
+    CreditScore     -0.067  1.99e-02          645.4         651.9
+         Tenure     -0.035  1.62e-01            4.9           5.0
+EstimatedSalary      0.030  2.27e-01       101465.7       99738.4</pre><div class="lbl">Your three gaps, filled in (gaps 1 and 2 are shown indented, as they sit inside the loop)</div><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">    # gap 1
+    u_stat, p_val = mannwhitneyu(churn_yes[col], churn_no[col], alternative=&quot;two-sided&quot;)
+
+    # gap 2
+    d = cohens_d(churn_yes[col], churn_no[col])
+
+# gap 3
+mw_df = pd.DataFrame(rows).sort_values(&quot;Cohen&#x27;s d&quot;, key=abs, ascending=False)</pre></div><div class="lbl">Write down, filled in</div><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">Largest effect: Age (d = +0.739). Churners average 44.8 years against 37.4 for stayers
+The sign of d means: the churner group has the higher average, so older customers are the ones leaving
+Balance: d = +0.296, p = 1.12e-28. A tiny p-value does not mean a big effect: the difference in balance is real but small
+Two columns with p above 0.05: Tenure (0.162) and EstimatedSalary (0.227)</pre></div><div class="box warn"><p class="boxlbl">Watch out</p><ul><li>A tiny p-value is not a big effect. With 10,000 rows even a small gap gets a tiny p-value. Balance has p = 1.12e-28 and d = +0.30, a small effect; Age has d = +0.74. Read d for the size and p for whether it could be luck.</li><li>Churners hold larger balances (an average of $91,109 against $72,745), which matters for A3: each loss costs more.</li></ul></div></div></details></article>
+
+<article class="card" id="A3"><h3><label><input type="checkbox" class="tick" id="tick-A3" data-id="A3" data-sec="A" data-blk="1"><span class="tag">A3</span>What does churn cost this bank?</label></h3><p class="meta">Session 1 · Helps with Part 1 Task 3 · about 6 minutes</p><div class="box go"><p class="boxlbl">Do</p><ol><li>Before you code, as a group: how would you measure the cost of losing a customer? What numbers would you need? The exercise gives you two assumptions: the bank earns <b>2% a year</b> on every dollar of balance a customer keeps, and replacing a lost customer costs <b>$300</b>.</li><li>In a new cell, paste the cell below. Replace the two gaps, then run the cell:<div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code"># Assumption 1: the bank earns 2% a year on the balance a customer keeps
+# Assumption 2: replacing a lost customer costs $300 (marketing, onboarding, welcome offer)
+margin = 0.02
+acquisition_cost = 300
+
+# YOUR CODE HERE 1: churned = the rows of df where Exited is 1. Then set
+#   churned_count to how many rows that is, and churned_balance to the sum of
+#   their Balance column
+
+# YOUR CODE HERE 2: set annual_revenue_at_risk (balance x margin), then
+#   replacement_cost (count x acquisition_cost), then total_impact (the two added)
+
+print(f&quot;Churned customers:      {churned_count:,}&quot;)
+print(f&quot;Balance they held:      ${churned_balance:,.0f}&quot;)
+print(f&quot;Annual revenue at risk: ${annual_revenue_at_risk:,.0f}&quot;)
+print(f&quot;Replacement cost:       ${replacement_cost:,.0f}&quot;)
+print(f&quot;Total annual impact:    ${total_impact:,.0f}&quot;)</pre></div></li></ol></div><div class="box why"><p class="boxlbl">Look for</p><ul><li><b>The numbers:</b> 2,037 churners held $185,588,095 of balance. Revenue at risk is that balance × 0.02 = $3,711,762. Replacement is 2,037 × $300 = $611,100. The total is $4,322,862 a year.</li><li><b>Check by hand:</b> the balance times 0.02, and the churner count times 300. If your total is far off, check that you summed <code>Balance</code> over the churners only.</li><li><b>Dollars follow the assumptions.</b> Change 0.02 to 0.01 and the revenue at risk halves. The $3.7 million is a fact about the bank plus two assumptions, not a fact about the bank alone.</li></ul></div><h4>Write down</h4><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">Churned customers ___ | balance they held $___
+Annual revenue at risk $___ | replacement cost $___ | total $___ a year
+The assumption we trust least: ___, because ___
+Who chose it, and what would change it: ___</pre></div><details class="hint"><summary>Hint</summary><div><p>Gap 1: <code>df[df["Exited"] == 1]</code> keeps the churners. <code>len(...)</code> counts them and <code>.sum()</code> on the <code>Balance</code> column adds up their balance.</p><p>Gap 2: three lines. The first two multiply, the third adds the two results.</p></div></details><details class="sol"><summary>Show solution (open this last)</summary><div><div class="lbl">Sample output</div><pre class="out">Churned customers:      2,037
+Balance they held:      $185,588,095
+Annual revenue at risk: $3,711,762
+Replacement cost:       $611,100
+Total annual impact:    $4,322,862</pre><div class="lbl">Your two gaps, filled in</div><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code"># gap 1
+churned = df[df[&quot;Exited&quot;] == 1]
+churned_count = len(churned)
+churned_balance = churned[&quot;Balance&quot;].sum()
+
+# gap 2
+annual_revenue_at_risk = churned_balance * margin
+replacement_cost = churned_count * acquisition_cost
+total_impact = annual_revenue_at_risk + replacement_cost</pre></div><div class="lbl">Write down, filled in</div><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">Churned customers 2,037 | balance they held $185,588,095
+Annual revenue at risk $3,711,762 | replacement cost $611,100 | total $4,322,862 a year
+The assumption we trust least: the 2% a year on balance, because the file has no revenue column, so the rate is a guess about how the bank earns money
+Who chose it, and what would change it: the exercise gave it to us; a bank that earns 1% would have half the revenue at risk, and one that also earns fees would have more</pre></div><div class="box warn"><p class="boxlbl">Watch out</p><ul><li>Say which price you used and who chose it. "$300 to replace a customer" and "2% a year" are stated assumptions, not measured costs. A boss who asks where the number came from deserves that answer.</li><li>The revenue only counts the customers who left. It is not the revenue of the whole bank.</li></ul></div></div></details></article>
+
+<article class="card" id="A4"><h3><label><input type="checkbox" class="tick" id="tick-A4" data-id="A4" data-sec="A" data-blk="1"><span class="tag">A4</span>Prepare, split, set the "everyone stays" baseline, build the first model</label></h3><p class="meta">Session 1 · Helps with Part 1 Task 4 and Part 2 Tasks 1 and 2 · about 10 minutes</p><div class="box go"><p class="boxlbl">Do</p><ol><li>Run the prepare cell. In the Part 1 notebook it is already filled in, just above Task 4: run it as it is. It is shown here so you can read what it does: <code>Male</code> becomes 1 and <code>Female</code> 0; <code>Geography</code> and <code>NumOfProducts</code> become 0/1 columns with the first group dropped (France, and 1 product), so each new column is compared with the dropped group; the rows are split 80/20 with <code>random_state=42</code>; and the five number columns are scaled using the training rows only.<div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code"># Pre-filled preprocessing. Run this cell. Do not modify.
+df_model = df.copy()
+
+df_model[&quot;Gender&quot;] = df_model[&quot;Gender&quot;].map({&quot;Male&quot;: 1, &quot;Female&quot;: 0})
+# Geography and NumOfProducts become 0/1 dummy columns. NumOfProducts is a category on purpose:
+# 2 products churn least and 3 or 4 churn most, which one straight-line coefficient cannot show.
+df_model = pd.get_dummies(df_model, columns=[&quot;Geography&quot;, &quot;NumOfProducts&quot;],
+                           drop_first=True, dtype=int)
+
+X = df_model.drop(columns=[&quot;Exited&quot;])
+y = df_model[&quot;Exited&quot;]
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+scaler = StandardScaler()
+continuous = [&quot;CreditScore&quot;, &quot;Age&quot;, &quot;Tenure&quot;, &quot;Balance&quot;, &quot;EstimatedSalary&quot;]
+X_train[continuous] = scaler.fit_transform(X_train[continuous])
+X_test[continuous] = scaler.transform(X_test[continuous])
+
+feature_names = X_train.columns.tolist()
+print(f&quot;✅ Preprocessing complete: {len(feature_names)} features, {X_train.shape[0]:,} train / {X_test.shape[0]:,} test&quot;)</pre></div></li><li>In a new cell, set the baseline: the accuracy you would get by saying "Stayed" for every customer. Replace the gap, then run the cell:<div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code"># YOUR CODE HERE 1: set baseline_accuracy to the accuracy you would get by saying
+#   &quot;Stayed&quot; for every test customer (the share of y_test that is 0)
+
+print(f&quot;Test customers: {len(y_test):,} | churners among them: {int(y_test.sum())} ({y_test.mean():.2%})&quot;)
+print(f&quot;Always-&#x27;Stayed&#x27; accuracy: {baseline_accuracy:.4f}, and it catches 0 churners&quot;)</pre></div></li><li>In a new cell, build the logistic regression. Replace the two gaps, then run the cell. Part 1 and Part 2 build the same model, so this cell stores the Part 1 names (<code>predictions</code>, <code>probabilities</code>) and the Part 2 names (<code>lr_predictions</code>, <code>lr_probabilities</code>). The same lines work in both notebooks:<div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code"># YOUR CODE HERE 1: build lr_model = LogisticRegression(max_iter=1000,
+#   random_state=42) and fit it on X_train and y_train
+
+# YOUR CODE HERE 2: predictions = the 0/1 predictions for X_test, and
+#   probabilities = the churn probability for each row of X_test (the second
+#   column of predict_proba)
+
+lr_predictions, lr_probabilities = predictions, probabilities   # Part 2 uses these two names
+
+print(&quot;Logistic Regression, Classification Report:&quot;)
+print(classification_report(y_test, predictions, target_names=[&quot;Stayed&quot;, &quot;Churned&quot;]))
+print(f&quot;Accuracy: {accuracy_score(y_test, predictions):.4f}&quot;)
+print(f&quot;AUC:      {roc_auc_score(y_test, probabilities):.4f}&quot;)
+print(f&quot;Better than always-&#x27;Stayed&#x27; ({1 - y_test.mean():.4f}) by {(accuracy_score(y_test, predictions) - (1 - y_test.mean())) * 100:.1f} points&quot;)</pre></div></li><li>Before you leave this step, as a group: for a retention team, which matters more, precision or recall, and why? Write it on the last line of <b>Write down</b>. (B1 comes back to this.)</li></ol></div><div class="box why"><p class="boxlbl">Look for</p><ul><li><b>Prepare cell:</b> 13 features, 8,000 train and 2,000 test rows.</li><li><b>Baseline:</b> the 2,000 test rows hold 393 churners (19.65%). Always saying "Stayed" is right 80.35% of the time and catches 0 churners.</li><li><b>Accuracy and AUC:</b> accuracy about 84% (anything from 82% to 86% is fine) and AUC about 0.84. That is only about 4 points above the baseline, so accuracy alone says little here. That is Part 1 Checkpoint 2, and Part 2 Checkpoint 1 says the same.</li><li><b>The Churned row:</b> precision about 0.69 and recall about 0.36. The model catches a little over a third of the real churners (recall between 30% and 45% is fine).</li><li>If recall comes out near 77%, check that you did not add <code>class_weight="balanced"</code>. If it is below 25% or above 55%, check the preprocessing cell. Logistic regression does not change from run to run, so yours should match.</li></ul></div><h4>Write down</h4><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">Features ___ | train rows ___ | test rows ___ (churners among them: ___)
+Always-&quot;Stayed&quot; accuracy ___% and it catches ___ churners
+Our model: accuracy ___%, AUC ___. It beats always-&quot;Stayed&quot; by only ___ points
+Churned precision ___%: of every 100 customers we flag, ___ really leave
+Churned recall ___%: of every 100 customers who really leave, we catch ___
+For a retention team ___ matters more (precision or recall), because ___</pre></div><details class="hint"><summary>Hint</summary><div><p>Baseline gap: the share of 0s in <code>y_test</code> is <code>1 - y_test.mean()</code>.</p><p>Model gap 1: <code>LogisticRegression(max_iter=1000, random_state=42)</code>, then <code>.fit(X_train, y_train)</code>.</p><p>Model gap 2: <code>.predict(X_test)</code> gives the 0/1 predictions. <code>.predict_proba(X_test)</code> gives two columns (stayed, churned); you want the second one, <code>[:, 1]</code>.</p><p>Precision answers "how trustworthy is the list of flagged customers?". Recall answers "how many of the real churners did we find?".</p><p>If a later step says <code>NameError: name 'predictions' is not defined</code>, rename your variables to the names above, or run this cell again. <code>NameError: name 'y_test' is not defined</code> means the prepare cell has not run yet. If the report shows all zeros for one class, check that <code>y_train</code> holds both 0 and 1 and that you fit on <code>X_train</code>.</p></div></details><details class="sol"><summary>Show solution (open this last)</summary><div><div class="lbl">Sample output: prepare cell</div><pre class="out">✅ Preprocessing complete: 13 features, 8,000 train / 2,000 test</pre><div class="lbl">Sample output: baseline cell</div><pre class="out">Test customers: 2,000 | churners among them: 393 (19.65%)
+Always-&#x27;Stayed&#x27; accuracy: 0.8035, and it catches 0 churners</pre><div class="lbl">Sample output: model cell (logistic regression gives the same numbers on every run)</div><pre class="out">Logistic Regression, Classification Report:
+              precision    recall  f1-score   support
+
+      Stayed       0.86      0.96      0.91      1607
+     Churned       0.69      0.36      0.48       393
+
+    accuracy                           0.84      2000
+   macro avg       0.78      0.66      0.69      2000
+weighted avg       0.83      0.84      0.82      2000
+
+Accuracy: 0.8430
+AUC:      0.8371
+Better than always-&#x27;Stayed&#x27; (0.8035) by 3.9 points</pre><div class="lbl">Your gaps, filled in: baseline cell</div><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code"># gap 1
+baseline_accuracy = 1 - y_test.mean()</pre></div><div class="lbl">Your two gaps, filled in: model cell</div><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code"># gap 1
+lr_model = LogisticRegression(max_iter=1000, random_state=42)
+lr_model.fit(X_train, y_train)
+
+# gap 2
+predictions = lr_model.predict(X_test)
+probabilities = lr_model.predict_proba(X_test)[:, 1]</pre></div><div class="lbl">Write down, filled in</div><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">Features 13 | train rows 8,000 | test rows 2,000 (churners among them: 393)
+Always-&quot;Stayed&quot; accuracy 80.35% and it catches 0 churners
+Our model: accuracy 84.3%, AUC 0.8371. It beats always-&quot;Stayed&quot; by only 3.9 points
+Churned precision 69%: of every 100 customers we flag, 69 really leave
+Churned recall 36%: of every 100 customers who really leave, we catch 36
+For a retention team recall matters more, because a missed churner costs the bank that customer&#x27;s yearly revenue and the cost of replacing them, while a false alarm only costs one offer</pre></div><div class="box warn"><p class="boxlbl">Watch out</p><ul><li>"84% accurate, so the model is great." Saying "Stayed" for everyone gets 80.35% and catches nobody. Compare 84.3% with that, not with 100%, and read the 250 churners it misses (A5).</li><li>"Precision 69% means we catch 69% of the leavers." No. Precision is the share of the flagged customers who really leave (143 of 207). The share of leavers we catch is recall, 36% (143 of 393).</li></ul></div></div></details></article>
+
+<article class="card" id="A5"><h3><label><input type="checkbox" class="tick" id="tick-A5" data-id="A5" data-sec="A" data-blk="1"><span class="tag">A5</span>Read the model: coefficients, confusion matrix, dollars, one paragraph for an executive</label></h3><p class="meta">Session 1 · Helps with Part 1 Task 5 and the Part 1 share-out · about 12 minutes</p><div class="box go"><p class="boxlbl">Do</p><ol><li>In a new cell, paste cell 5a. Replace the three gaps, then run the cell. It prints every coefficient and plots the top 5 positive and top 5 negative ones:<div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code"># YOUR CODE HERE 1: make coef_df, a table with a &quot;Feature&quot; column (feature_names)
+#   and a &quot;Coefficient&quot; column (lr_model.coef_[0]), sorted from the largest
+#   coefficient to the smallest
+
+# YOUR CODE HERE 2: make shown, the 5 largest rows and the 5 smallest rows of
+#   coef_df put together (pd.concat)
+
+print(coef_df.round(3).to_string(index=False))
+
+colors = [&quot;salmon&quot; if c &gt; 0 else &quot;steelblue&quot; for c in shown[&quot;Coefficient&quot;]]
+plt.figure(figsize=(10, 7))
+# YOUR CODE HERE 3: horizontal bar chart of shown[&quot;Coefficient&quot;] by shown[&quot;Feature&quot;]
+#   using colors, with a vertical line at 0, a title and an x-axis label
+
+plt.tight_layout()
+plt.show()</pre></div></li><li>In another new cell, paste cell 5b. Replace the three gaps, then run the cell. It draws the confusion matrix and prices the misses with the same 2% as A3:<div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code"># YOUR CODE HERE 1: cm = the confusion matrix of y_test and predictions, then
+#   unpack its four counts into tn, fp, fn, tp (cm.ravel())
+
+# YOUR CODE HERE 2: draw cm as a heatmap (sns.heatmap with annot=True and
+#   fmt=&quot;d&quot;), with Stayed and Churned as tick labels, axis labels and a title
+
+plt.tight_layout()
+plt.show()
+print(f&quot;Stayed, predicted Stayed (TN):    {tn:,}&quot;)
+print(f&quot;Stayed, predicted Churned (FP):   {fp:,}&quot;)
+print(f&quot;Churned, predicted Stayed (FN):   {fn:,}   &lt;- the costly miss&quot;)
+print(f&quot;Churned, predicted Churned (TP):  {tp:,}&quot;)
+
+# YOUR CODE HERE 3: cost_per_missed = the average Balance of the churners (the
+#   rows of df where Exited is 1) times 0.02, the same 2% as A3
+
+print()
+print(f&quot;Cost per missed churner: ${cost_per_missed:,.0f} a year&quot;)
+print(f&quot;{fn} missed churners cost ${fn * cost_per_missed:,.0f} a year&quot;)
+
+zero_share = (df.loc[df[&quot;Exited&quot;] == 1, &quot;Balance&quot;] == 0).mean()
+print(f&quot;Churners who hold a zero balance: {zero_share:.1%}&quot;)</pre></div></li><li>Write the paragraph for an executive with the frame in <b>Write down</b>. Before you do, as a group: why would the bank prefer a model that explains churn drivers over one that only predicts who will leave?</li></ol></div><div class="box why"><p class="boxlbl">Look for</p><ul><li><b>Units.</b> A coefficient is a push on the odds of leaving: positive pushes toward leaving, negative toward staying. The five number columns are scaled, so their coefficients are per one standard deviation; a 0/1 column is per step from 0 to 1. The matrix holds counts of customers, and the cost is dollars a year.</li><li><b>Baseline.</b> Each dummy column is compared with the dropped group: France for Geography, 1 product for NumOfProducts. So NumOfProducts_2 at -1.55 means 2 products is far safer than 1 product, and NumOfProducts_4 at +3.34 means 4 products is far riskier.</li><li><b>Direction.</b> Toward leaving: NumOfProducts_4 (+3.34), NumOfProducts_3 (+2.65), Geography_Germany (+0.95) and Age (+0.73). Toward staying: NumOfProducts_2 (-1.55), IsActiveMember (-1.09) and Gender (-0.52; male is 1, so men are a little less likely to leave).</li><li><b>Size in dollars.</b> TN 1,543, FP 64, FN 250, TP 143: the model misses 250 of the 393 real churners. A missed churner costs $1,822 a year (the average churner balance times 2%), so 250 misses cost $455,543 a year. That $1,822 is an average: 24.5% of the churners hold a zero balance, so under the 2%-of-balance rule they carry $0, and the others carry more.</li><li><b>Sentence.</b> Each driver gets a plain-words group, a number and one business action. The last sentence says how many churners the model catches and what the misses cost.</li></ul></div><h4>Write down</h4><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">Top 3 drivers (from the bars and the churn rates in A1): 1. ___  2. ___  3. ___
+Matrix: TN ___ | FP ___ | FN ___ | TP ___
+Missed churners: ___ x $___ = $___ a year (an average: ___% of churners hold a zero balance)
+Paragraph for an executive, 4 sentences:
+1. The biggest driver is ___: ___. We recommend ___.
+2. Second, ___: ___. We recommend ___.
+3. Third, ___: ___. We recommend ___.
+4. The model catches ___ of ___ churners and misses ___, which costs about $___ a year.</pre></div><details class="hint"><summary>Hint</summary><div><p>Cell 5a, gap 1: <code>pd.DataFrame({"Feature": feature_names, "Coefficient": lr_model.coef_[0]})</code>, then <code>.sort_values("Coefficient", ascending=False)</code>.</p><p>Gap 2: <code>coef_df.head(5)</code> is the 5 largest, <code>coef_df.tail(5)</code> the 5 smallest. <code>pd.concat([a, b])</code> puts them together.</p><p>Gap 3: <code>plt.barh(shown["Feature"], shown["Coefficient"], color=colors)</code> and <code>plt.axvline(x=0, color="black", linewidth=0.5)</code> for the zero line.</p><p>Cell 5b, gap 1: <code>confusion_matrix(y_test, predictions)</code> returns a 2 x 2 table; <code>.ravel()</code> unpacks it in the order tn, fp, fn, tp. Gap 2: <code>sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", xticklabels=[...], yticklabels=[...])</code>. Gap 3: the average of <code>df.loc[df["Exited"] == 1, "Balance"]</code> times 0.02.</p><p>For the paragraph, give each driver three things: the group in plain words ("customers with one product"), the churn rate from A1 ("28% leave") and one action the bank could take.</p><p>If a <code>NameError</code> says <code>predictions</code> or <code>lr_model</code> is not defined, run A4's model cell again, with those names.</p></div></details><details class="sol"><summary>Show solution (open this last)</summary><div><div class="lbl">Sample output: cell 5a (the chart plots the top 5 and bottom 5 rows of this table)</div><pre class="out">          Feature  Coefficient
+  NumOfProducts_4        3.336
+  NumOfProducts_3        2.647
+Geography_Germany        0.951
+              Age        0.732
+  Geography_Spain        0.099
+  EstimatedSalary        0.008
+        HasCrCard       -0.034
+          Balance       -0.050
+           Tenure       -0.054
+      CreditScore       -0.070
+           Gender       -0.524
+   IsActiveMember       -1.087
+  NumOfProducts_2       -1.546</pre><div class="lbl">Sample output: cell 5b (the heatmap has no text; its four counts are printed after it)</div><pre class="out">Stayed, predicted Stayed (TN):    1,543
+Stayed, predicted Churned (FP):   64
+Churned, predicted Stayed (FN):   250   &lt;- the costly miss
+Churned, predicted Churned (TP):  143
+
+Cost per missed churner: $1,822 a year
+250 missed churners cost $455,543 a year
+Churners who hold a zero balance: 24.5%</pre><div class="lbl">Your three gaps, filled in: cell 5a</div><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code"># gap 1
+coef_df = pd.DataFrame({
+    &quot;Feature&quot;: feature_names,
+    &quot;Coefficient&quot;: lr_model.coef_[0]
+}).sort_values(&quot;Coefficient&quot;, ascending=False)
+
+# gap 2
+shown = pd.concat([coef_df.head(5), coef_df.tail(5)])
+
+# gap 3
+plt.barh(shown[&quot;Feature&quot;], shown[&quot;Coefficient&quot;], color=colors)
+plt.axvline(x=0, color=&quot;black&quot;, linewidth=0.5)
+plt.xlabel(&quot;Coefficient (positive = increases churn)&quot;)
+plt.title(&quot;Top 5 Positive &amp; Negative Churn Drivers&quot;)
+plt.gca().invert_yaxis()   # largest at the top</pre></div><div class="lbl">Your three gaps, filled in: cell 5b</div><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code"># gap 1
+cm = confusion_matrix(y_test, predictions)
+tn, fp, fn, tp = cm.ravel()
+
+# gap 2
+sns.heatmap(cm, annot=True, fmt=&quot;d&quot;, cmap=&quot;Blues&quot;,
+            xticklabels=[&quot;Stayed&quot;, &quot;Churned&quot;], yticklabels=[&quot;Stayed&quot;, &quot;Churned&quot;])
+plt.xlabel(&quot;Predicted&quot;)
+plt.ylabel(&quot;Actual&quot;)
+plt.title(&quot;Confusion Matrix: Logistic Regression&quot;)
+
+# gap 3
+cost_per_missed = df.loc[df[&quot;Exited&quot;] == 1, &quot;Balance&quot;].mean() * 0.02</pre></div><p class="sub">Cell 5a should show salmon bars to the right of the zero line (NumOfProducts_4 longest) and blue bars to the left (NumOfProducts_2 longest). Cell 5b should show 1,543 in the top-left square and 250 in the bottom-left: the misses.</p><div class="lbl">Write down, filled in</div><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">Top 3 drivers: 1. number of products  2. inactive membership  3. Germany
+Matrix: TN 1,543 | FP 64 | FN 250 | TP 143
+Missed churners: 250 x $1,822 = $455,543 a year (an average: 24.5% of churners hold a zero balance)
+Paragraph for an executive:
+1. The biggest driver is the number of products a customer holds: customers with 2 products leave at only 7.6%, customers with 1 product at 27.7%, and the few customers with 3 or 4 products (3.3% of the base) at 83% to 100%. We recommend an offer that moves 1-product customers to a second product, and interviews with the 3-and-4-product customers to find out why nearly all of them leave.
+2. Second, inactive members leave at 26.9% against 14.3% for active members. We recommend an outreach trigger (an app reminder, a fee waiver, a call from the branch) when a customer has no activity for a set period.
+3. Third, German customers leave at 32.4%, about double France (16.2%) and Spain (16.7%), and they hold the largest balances ($119,730 on average against about $62,000), so each loss costs more. We recommend testing a retention offer in Germany, and looking at local competitors and service quality, before a wider roll-out.
+4. The model catches 143 of the 393 churners and misses 250, which costs about $455,543 a year at 2% of the average churner balance.</pre></div><div class="box go"><p class="boxlbl">Say it in one breath</p><p>"We catch 143 of the 393 customers who leave and miss 250. Each miss costs about $1,822 a year, so the misses cost about $456,000 a year."</p></div><div class="box warn"><p class="boxlbl">Watch out</p><ul><li>Do not read a coefficient as a probability. +0.95 for Germany does not mean "95%". It means the odds of leaving are higher than France's, all else equal.</li><li>The model says who goes with leaving, not what makes them leave. Recommend a test (an offer to a small group first), not a guarantee.</li><li>$1,822 is an average over all 2,037 churners. 24.5% of them hold a zero balance and carry no revenue under the 2% rule, so a missed churner with a large balance costs much more.</li></ul></div></div></details></article>
+
+<div class="blk" id="blk2"><h3>Session 2 · Exercise 4 Part 2: steps A6 to A10</h3><p>About 38 minutes if you do every step. Part 2 builds a neural network and compares it with the logistic regression.</p><nav class="jump stepchips" aria-label="Jump to a step"><a href="#A6" data-step="A6">A6</a><a href="#A7" data-step="A7">A7</a><a href="#A8" data-step="A8">A8</a><a href="#A9" data-step="A9">A9</a><a href="#A10" data-step="A10">A10</a></nav></div>
+<div class="box go"><p class="boxlbl">Before you start Session 2</p><ol><li>Open <a href="https://colab.research.google.com/github/c-marq/cap4767-data-mining/blob/main/exercises/m04-05_group_exercise_part2.ipynb" target="_blank" rel="noopener">the Part 2 notebook in Colab</a> and run its setup cell (the first code cell, headed "Setup. Run this cell. Do not modify."). It loads the data, prepares the same 13 features, makes the same split and loads TensorFlow. A new notebook starts empty, so your Session 1 variables are gone: the setup cell makes what Part 2 needs. Working after class in one notebook instead? Use the catch-up recipe in the next box. In class, "a new cell" on this page means the starter's own cell for that task (or add one where the starter has none, for example A4's baseline and A10's numbers cell).</li><li>Part 2 Tasks 1 and 2 (the logistic regression and its report) are the model you built in A4. Paste A4's model cell into Task 1 if you need it: it needs only <code>X_train</code>, <code>X_test</code>, <code>y_train</code> and <code>y_test</code>. A8 and A9 compare the network with <code>lr_predictions</code> and <code>lr_probabilities</code>, so they must exist.</li><li>Before anyone codes, answer the Part 2 discussion questions as a group (3 minutes). The bank has a retention offer worth $500 per customer, can afford it for only 200 customers this quarter, and the churn model flags 350. (1) What happens if they target the wrong 200? (2) Would you rather have a model with high precision (fewer false alarms) or high recall (catches more churners)? (3) Is there a scenario where the "worse" model on paper is the better business choice? A10 uses (3), and B1 works the whole scenario with numbers.</li></ol></div>
+<div class="box warn"><p class="boxlbl">Working after class in one notebook instead?</p><p>Run, in order: the A1 setup cell, the A4 prepare cell and the A4 model cell. Then run this catch-up cell, which loads the TensorFlow pieces Part 2 needs and sets <code>n_features</code>:</p><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">import os
+os.environ[&#x27;TF_CPP_MIN_LOG_LEVEL&#x27;] = &#x27;2&#x27;
+import tensorflow as tf
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, Dropout
+from tensorflow.keras.callbacks import EarlyStopping
+from sklearn.metrics import roc_curve, precision_score, recall_score, f1_score
+
+np.random.seed(42)
+tf.random.set_seed(42)
+n_features = X_train.shape[1]
+print(f&quot;Ready: {n_features} features, TensorFlow {tf.__version__}&quot;)</pre></div></div>
+<div class="box go"><p class="boxlbl">How the steps line up with Part 2</p><ul><li><b>A4</b> (in block 1): Tasks 1 and 2, the logistic regression and its report, with Checkpoint 1.</li><li><b>A6:</b> Tasks 3 and 4. Build the network, train it with early stopping. Checkpoint 2 (the stop epoch) sits after Task 5, so A6 and A7 give its numbers.</li><li><b>A7:</b> Task 5. The training curves, and the overfitting question.</li><li><b>A8:</b> Task 6. Evaluate the network.</li><li><b>A9:</b> Task 7. The ROC curves. Checkpoint 3 sits after it; A8 and A9 give its numbers.</li><li><b>A10:</b> Task 8 and the Part 2 share-out. Five questions, five sentences.</li></ul></div>
+<article class="card" id="A6"><h3><label><input type="checkbox" class="tick" id="tick-A6" data-id="A6" data-sec="A" data-blk="2"><span class="tag">A6</span>Build the network and train it with early stopping</label></h3><p class="meta">Session 2 · Helps with Part 2 Tasks 3 and 4 · about 10 minutes</p><div class="box go"><p class="boxlbl">Do</p><ol><li>In a new cell, paste the build cell. Replace the two gaps, then run the cell. <code>n_features</code> comes from the setup cell (it is 13):<div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code"># YOUR CODE HERE 1: model = Sequential([...]) with five layers, in this order:
+#   Dense with n_features neurons, relu, input_shape=(n_features,)
+#   Dropout 0.3
+#   Dense with 15 neurons, relu
+#   Dropout 0.2
+#   Dense with 1 neuron, sigmoid
+
+# YOUR CODE HERE 2: compile model with optimizer &quot;adam&quot;, loss &quot;binary_crossentropy&quot;
+#   and metrics [&quot;accuracy&quot;] (Task 5 plots accuracy)
+
+model.summary()</pre></div></li><li>In another new cell, paste the train cell. Replace the two gaps, then run the cell. It trains for up to 200 epochs, so it takes a few seconds to a minute. The last line is the one-line check for the last layer, and it must say <code>sigmoid</code>:<div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code"># YOUR CODE HERE 1: early_stop = EarlyStopping(monitor=&quot;val_loss&quot;, patience=10,
+#   restore_best_weights=True, verbose=1)
+
+# YOUR CODE HERE 2: history = model.fit(X_train, y_train, epochs=200,
+#   batch_size=32, validation_split=0.2, callbacks=[early_stop], verbose=0)
+
+print(f&quot;Training stopped at epoch {len(history.history[&#x27;loss&#x27;])}&quot;)
+
+# the one-line last-layer check: it must say sigmoid
+print(model.layers[-1].get_config()[&#x27;activation&#x27;])</pre></div></li></ol></div><div class="box why"><p class="boxlbl">Look for</p><ul><li><b>The summary:</b> 408 parameters in all (182 + 210 + 16), and the output shapes (None, 13), (None, 13), (None, 15), (None, 15), (None, 1). <code>None</code> is the number of customers in a batch, which can change.</li><li><b>Training:</b> two lines from EarlyStopping ("Epoch N: early stopping" and the best epoch it went back to), then "Training stopped at epoch N". The exercise's Checkpoint 2 says the stop falls between about epoch 35 and 130, most often 45 to 85, and that it changes every run even with the seeds set. This page's run stopped at epoch 63. In 30 retrainings for this page the earliest stop was epoch 32 and the latest 114 (22 of 30 stopped between 45 and 85).</li><li><b>The last-layer check:</b> it must say <code>sigmoid</code>. If it does, the output layer is right. It is the quickest way to rule out the most common mistake.</li><li>If it ran all 200 epochs, check that <code>callbacks=[early_stop]</code> and <code>validation_split=0.2</code> are both in <code>fit</code>. EarlyStopping needs the validation loss to watch.</li><li>If you get a <code>ValueError</code> about <code>expected axis -1 of input shape</code>, <code>input_shape=(n_features,)</code> does not match your data: this dataset has 13 features.</li></ul></div><h4>Write down</h4><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">Parameters ___ | output shapes ___
+Training stopped at epoch ___ (the best epoch was ___)
+The last-layer check says: ___</pre></div><details class="hint"><summary>Hint</summary><div><p>Build gap 1: <code>Sequential([...])</code> takes the five layers in a list, in order. <code>Dense(n_features, activation="relu", input_shape=(n_features,))</code> is the first. <code>Dropout(0.3)</code> is the second. The last is <code>Dense(1, activation="sigmoid")</code>: one neuron, because the answer is one probability.</p><p>Build gap 2: <code>model.compile(optimizer="adam", loss="binary_crossentropy", metrics=["accuracy"])</code>.</p><p>Train gap 1: <code>EarlyStopping(monitor="val_loss", patience=10, restore_best_weights=True, verbose=1)</code>. Gap 2: <code>model.fit(X_train, y_train, ...)</code> with the settings from the template; keep its result in <code>history</code>.</p><p>If the last-layer check does not say <code>sigmoid</code>, go back to the last layer in the build cell and rebuild the model.</p></div></details><details class="sol"><summary>Show solution (open this last)</summary><div><div class="lbl">Sample output: build cell</div><pre class="out">Model: &quot;sequential&quot;
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━┓
+┃ Layer (type)                    ┃ Output Shape           ┃       Param # ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━┩
+│ dense (Dense)                   │ (None, 13)             │           182 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ dropout (Dropout)               │ (None, 13)             │             0 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ dense_1 (Dense)                 │ (None, 15)             │           210 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ dropout_1 (Dropout)             │ (None, 15)             │             0 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ dense_2 (Dense)                 │ (None, 1)              │            16 │
+└─────────────────────────────────┴────────────────────────┴───────────────┘
+ Total params: 408 (1.59 KB)
+ Trainable params: 408 (1.59 KB)
+ Non-trainable params: 0 (0.00 B)</pre><div class="lbl">Sample output: train cell (one run; yours will stop at a different epoch)</div><pre class="out">Epoch 63: early stopping
+Restoring model weights from the end of the best epoch: 53.
+Training stopped at epoch 63
+sigmoid</pre><div class="lbl">Your gaps, filled in: build cell</div><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code"># gap 1
+model = Sequential([
+    Dense(n_features, activation=&quot;relu&quot;, input_shape=(n_features,)),
+    Dropout(0.3),
+    Dense(15, activation=&quot;relu&quot;),
+    Dropout(0.2),
+    Dense(1, activation=&quot;sigmoid&quot;)
+])
+
+# gap 2
+model.compile(optimizer=&quot;adam&quot;, loss=&quot;binary_crossentropy&quot;, metrics=[&quot;accuracy&quot;])</pre></div><div class="lbl">Your gaps, filled in: train cell</div><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code"># gap 1
+early_stop = EarlyStopping(monitor=&quot;val_loss&quot;, patience=10, restore_best_weights=True, verbose=1)
+
+# gap 2
+history = model.fit(
+    X_train, y_train,
+    epochs=200, batch_size=32,
+    validation_split=0.2,
+    callbacks=[early_stop],
+    verbose=0
+)</pre></div><div class="lbl">Write down, filled in</div><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">Parameters 408 | output shapes (None, 13), (None, 13), (None, 15), (None, 15), (None, 1)
+Training stopped at epoch 63 (the best epoch was 53)
+The last-layer check says: sigmoid</pre></div><div class="box warn"><p class="boxlbl">Watch out</p><ul><li>Do not compare your stop epoch with 63. Training is random: the number changes every time you run the cell, even with the seeds set. Compare with the range, 35 to 130.</li><li>The best epoch is 53, ten before the stop, because <code>patience=10</code> waits ten more epochs for an improvement. <code>restore_best_weights=True</code> then puts back the weights from epoch 53, so the finished network is the best one, not the last one.</li><li>A <code>sigmoid</code> in the last line is the all-clear for the output layer, not for the whole network. A8 checks the numbers.</li></ul></div></div></details></article>
+
+<article class="card" id="A7"><h3><label><input type="checkbox" class="tick" id="tick-A7" data-id="A7" data-sec="A" data-blk="2"><span class="tag">A7</span>Training curves: is it overfitting?</label></h3><p class="meta">Session 2 · Helps with Part 2 Task 5 · about 6 minutes</p><div class="box go"><p class="boxlbl">Do</p><ol><li>In a new cell, paste the curve cell. Replace the two gaps, then run the cell:<div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">fig, axes = plt.subplots(1, 2, figsize=(14, 5))
+
+# YOUR CODE HERE 1: left plot (axes[0]): history.history[&quot;loss&quot;] and
+#   history.history[&quot;val_loss&quot;] as two labeled lines, with the title
+#   &quot;Loss Curves&quot;, axis labels, a legend and a grid
+
+# YOUR CODE HERE 2: right plot (axes[1]): history.history[&quot;accuracy&quot;] and
+#   history.history[&quot;val_accuracy&quot;] the same way, titled &quot;Accuracy Curves&quot;
+
+plt.tight_layout()
+plt.show()
+
+best_epoch = int(np.argmin(history.history[&quot;val_loss&quot;])) + 1
+print(f&quot;Lowest validation loss at epoch {best_epoch} of {len(history.history[&#x27;loss&#x27;])}&quot;)
+print(f&quot;Last epoch: training loss {history.history[&#x27;loss&#x27;][-1]:.3f}, validation loss {history.history[&#x27;val_loss&#x27;][-1]:.3f}&quot;)</pre></div></li><li>Answer the question in <b>Write down</b> as a group: is there evidence of overfitting, and how can you tell from the curves? This step is short on purpose.</li></ol></div><div class="box why"><p class="boxlbl">Look for</p><ul><li><b>Two plots side by side:</b> loss on the left (lower is better) and accuracy on the right. Each has a training line (the rows the network learns from) and a validation line (20% of the training rows held back).</li><li><b>What a healthy pair looks like here:</b> both loss lines fall and then flatten, the validation line sits close to the training line and a little below it, and both end near 0.35 (this run: 0.346 and 0.343). Validation loss ended below training loss in 30 of 30 retrainings. That is normal: dropout is only switched on while training.</li><li><b>What overfitting would look like:</b> the validation loss turning upward while the training loss keeps falling, so the two lines pull apart. If you do not see that, there is little overfitting.</li><li><b>The two printed lines:</b> the lowest validation loss was at epoch 53, and training stopped at 63, ten epochs later. That gap is the patience.</li></ul></div><h4>Write down</h4><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">Overfitting? ___ (yes, no or a little)
+Evidence from the curves: validation loss ___ while training loss ___; at the end both are near ___
+Early stopping stopped at epoch ___ because ___</pre></div><details class="hint"><summary>Hint</summary><div><p>Gap 1: <code>axes[0].plot(history.history["loss"], label="Training Loss")</code>, then the same with <code>"val_loss"</code>. Then <code>axes[0].set_title(...)</code>, <code>set_xlabel</code>, <code>set_ylabel</code>, <code>legend()</code> and <code>grid(True, alpha=0.3)</code>.</p><p>Gap 2: the same, on <code>axes[1]</code>, with <code>"accuracy"</code> and <code>"val_accuracy"</code>.</p><p>If <code>history</code> is not defined, run A6's train cell first. If you get a <code>KeyError: 'val_loss'</code>, <code>fit</code> was run without <code>validation_split=0.2</code>.</p></div></details><details class="sol"><summary>Show solution (open this last)</summary><div><div class="lbl">Sample output (the two plots have no text; the two lines are printed after them)</div><pre class="out">Lowest validation loss at epoch 53 of 63
+Last epoch: training loss 0.346, validation loss 0.343</pre><div class="lbl">Your two gaps, filled in</div><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code"># gap 1
+axes[0].plot(history.history[&quot;loss&quot;], label=&quot;Training Loss&quot;, color=&quot;steelblue&quot;)
+axes[0].plot(history.history[&quot;val_loss&quot;], label=&quot;Validation Loss&quot;, color=&quot;salmon&quot;)
+axes[0].set_title(&quot;Loss Curves&quot;)
+axes[0].set_xlabel(&quot;Epoch&quot;)
+axes[0].set_ylabel(&quot;Loss&quot;)
+axes[0].legend()
+axes[0].grid(True, alpha=0.3)
+
+# gap 2
+axes[1].plot(history.history[&quot;accuracy&quot;], label=&quot;Training Accuracy&quot;, color=&quot;steelblue&quot;)
+axes[1].plot(history.history[&quot;val_accuracy&quot;], label=&quot;Validation Accuracy&quot;, color=&quot;salmon&quot;)
+axes[1].set_title(&quot;Accuracy Curves&quot;)
+axes[1].set_xlabel(&quot;Epoch&quot;)
+axes[1].set_ylabel(&quot;Accuracy&quot;)
+axes[1].legend()
+axes[1].grid(True, alpha=0.3)</pre></div><p class="sub">Your plots should show loss lines that start high and fall fast for the first 10 epochs, then flatten, with the validation line a little below the training line. The accuracy lines climb to about 0.86 and level off.</p><div class="lbl">Write down, filled in</div><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">Overfitting? No, or very little
+Evidence from the curves: validation loss stays close to training loss (a little below it) while training loss flattens; at the end both are near 0.35 (0.346 and 0.343)
+Early stopping stopped at epoch 63 because the validation loss had not improved for 10 epochs in a row (the best was epoch 53)</pre></div><div class="box warn"><p class="boxlbl">Watch out</p><ul><li>A validation line below the training line is not a bug. Dropout makes the training numbers a little worse than the validation numbers.</li><li>A curve that is jumpy from one epoch to the next is normal: the network sees the rows in a different order each epoch. Read the overall direction, not every wiggle.</li></ul></div></div></details></article>
+
+<article class="card" id="A8"><h3><label><input type="checkbox" class="tick" id="tick-A8" data-id="A8" data-sec="A" data-blk="2"><span class="tag">A8</span>Evaluate the network against the baselines</label></h3><p class="meta">Session 2 · Helps with Part 2 Task 6 · about 7 minutes</p><div class="box go"><p class="boxlbl">Do</p><ol><li>In a new cell, paste the evaluation cell. Replace the two gaps, then run the cell. The last three lines count churners as customers, so you can compare the two models in people, not only in decimals:<div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code"># YOUR CODE HERE 1: ann_probabilities = the network&#x27;s probabilities for X_test
+#   as a flat array (model.predict(X_test, verbose=0), then .ravel())
+
+# YOUR CODE HERE 2: ann_predictions = 1 where the probability is above 0.5,
+#   otherwise 0 (as integers)
+
+print(f&quot;ANN Accuracy: {accuracy_score(y_test, ann_predictions):.4f}&quot;)
+print()
+print(classification_report(y_test, ann_predictions, target_names=[&quot;Stayed&quot;, &quot;Churned&quot;]))
+
+print(f&quot;Churners in the test rows:      {int(y_test.sum())}&quot;)
+print(f&quot;Caught by logistic regression:  {int(((lr_predictions == 1) &amp; (y_test == 1)).sum())}&quot;)
+print(f&quot;Caught by the network:          {int(((ann_predictions == 1) &amp; (y_test == 1)).sum())}&quot;)</pre></div></li></ol></div><div class="box why"><p class="boxlbl">Look for</p><ul><li><b>Units.</b> Accuracy, precision and recall are shares from 0 to 1. "Caught by the network" is a count of customers out of the 393 churners in the test rows.</li><li><b>Baseline.</b> Saying "Stayed" for everyone scores 0.8035 and catches nobody. Logistic regression scores 0.8430 with Churned recall 0.364: 143 of 393. The network has to beat that, not zero.</li><li><b>Direction.</b> Accuracy about 0.86 (this run 0.8610; 30 retrainings gave 0.856 to 0.866). Churned recall roughly 0.40 to 0.50 (this run 0.430; retrainings 0.412 to 0.496), and precision about 0.70 to 0.76 (this run 0.76). The exercise's Checkpoint 3 gives a wider band, recall roughly 0.40 to 0.52 against logistic regression's 36%.</li><li><b>Size.</b> Recall × 393 is the number of churners caught: 0.430 × 393 = 169 for the network, against 143 for logistic regression, which is 26 more customers found.</li><li><b>Sentence.</b> "The network catches N of 393 churners, logistic regression 143."</li><li><b>The four alarms</b>, in the order to check them. B4 lets you trigger each one on purpose:<div class="tablewrap"><table class="fit"><thead><tr><th>What you see</th><th>Likely cause</th><th>The one-line check</th></tr></thead><tbody><tr><td>Recall under about 38% while accuracy is still about 0.85</td><td>last layer is <code>relu</code> or has no activation</td><td><code>print(model.layers[-1].get_config()['activation'])</code> must say <code>sigmoid</code></td></tr><tr><td>Accuracy about 0.20 and recall 1.00</td><td>last layer is <code>softmax</code> on one neuron: every customer is called a churner</td><td>the same check</td></tr><tr><td>Accuracy about 0.80 and it never changes</td><td>the network predicts "Stayed" for everyone</td><td>check the layers and <code>compile</code></td></tr><tr><td>"Training stopped" says 200</td><td>EarlyStopping is missing from <code>callbacks</code>, or <code>validation_split=0.2</code> is missing from <code>fit</code></td><td>look at the <code>fit</code> call</td></tr></tbody></table></div></li></ul></div><h4>Write down</h4><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">Network: accuracy ___ | Churned precision ___ | Churned recall ___
+Churners caught: network ___ of 393, logistic regression 143, so ___ more
+Is the network above the always-&quot;Stayed&quot; baseline? ___ Above logistic regression? ___
+Do any of the four alarms apply to our printout? ___</pre></div><details class="hint"><summary>Hint</summary><div><p>Gap 1: <code>model.predict(X_test, verbose=0)</code> returns one probability for each test customer, as a column. <code>.ravel()</code> flattens it into a plain array.</p><p>Gap 2: <code>(ann_probabilities > 0.5)</code> is True or False for each customer. <code>.astype(int)</code> turns that into 1 or 0.</p><p>If the report shows accuracy near 0.20 with recall 1.00, check the last layer (A6's one-line check).</p></div></details><details class="sol"><summary>Show solution (open this last)</summary><div><div class="lbl">Sample output (one run; yours will differ a little)</div><pre class="out">ANN Accuracy: 0.8610
+
+              precision    recall  f1-score   support
+
+      Stayed       0.87      0.97      0.92      1607
+     Churned       0.76      0.43      0.55       393
+
+    accuracy                           0.86      2000
+   macro avg       0.82      0.70      0.73      2000
+weighted avg       0.85      0.86      0.85      2000
+
+Churners in the test rows:      393
+Caught by logistic regression:  143
+Caught by the network:          169</pre><div class="lbl">Your two gaps, filled in</div><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code"># gap 1
+ann_probabilities = model.predict(X_test, verbose=0).ravel()
+
+# gap 2
+ann_predictions = (ann_probabilities &gt; 0.5).astype(int)</pre></div><div class="lbl">Write down, filled in</div><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">Network: accuracy 0.8610 | Churned precision 0.76 | Churned recall 0.43
+Churners caught: network 169 of 393, logistic regression 143, so 26 more
+Is the network above the always-&quot;Stayed&quot; baseline? Yes (0.86 against 0.80) Above logistic regression? Yes (0.86 against 0.84, and it finds more churners)
+Do any of the four alarms apply to our printout? No: the recall is above 38%, the accuracy is not near 0.20 or 0.80, and the training stopped before 200 epochs</pre></div><div class="box warn"><p class="boxlbl">Watch out</p><ul><li>"My numbers differ from the page, so I have a bug." Training is random. Compare with the range, not with one number: in 30 retrainings recall was 0.412 to 0.496, accuracy 0.856 to 0.866.</li><li>"Accuracy 0.86 means the network works." Always saying "Stayed" already gets 0.80. Look at recall and at the baseline.</li><li>A correct network rarely falls under 38% recall, but the margin is thin: the lowest correct run on this page was 0.397 (B3). Run the last-layer check first and use the recall alarm second.</li></ul></div></div></details></article>
+
+<article class="card" id="A9"><h3><label><input type="checkbox" class="tick" id="tick-A9" data-id="A9" data-sec="A" data-blk="2"><span class="tag">A9</span>ROC curves for both models</label></h3><p class="meta">Session 2 · Helps with Part 2 Task 7 · about 7 minutes</p><div class="box go"><p class="boxlbl">Do</p><ol><li>In a new cell, paste the ROC cell. Replace the two gaps, then run the cell:<div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code"># YOUR CODE HERE 1: lr_fpr, lr_tpr, _ = roc_curve(...) for the logistic regression
+#   probabilities, and ann_fpr, ann_tpr, _ the same for the network; then
+#   lr_auc and ann_auc with roc_auc_score
+
+plt.figure(figsize=(8, 6))
+# YOUR CODE HERE 2: plot both curves with linewidth 2. LR in navy &quot;#0f3460&quot;,
+#   labeled like &quot;Logistic Regression (AUC=0.837)&quot;; ANN in coral &quot;#e94560&quot;,
+#   labeled &quot;Neural Network (AUC=...)&quot;. Put the AUC numbers in the labels with
+#   f-strings
+
+plt.plot([0, 1], [0, 1], &quot;k--&quot;, alpha=0.5, label=&quot;Random Guess&quot;)
+plt.xlabel(&quot;False Positive Rate&quot;)
+plt.ylabel(&quot;True Positive Rate&quot;)
+plt.title(&quot;ROC Curve Comparison: LR vs ANN&quot;)
+plt.legend()
+plt.grid(True, alpha=0.3)
+plt.tight_layout()
+plt.show()
+
+print(f&quot;LR AUC {lr_auc:.4f} | network AUC {ann_auc:.4f} | gap {ann_auc - lr_auc:+.4f}&quot;)</pre></div></li></ol></div><div class="box why"><p class="boxlbl">Look for</p><ul><li><b>Units.</b> AUC runs from 0.5 (a coin flip, the dashed line) to 1 (a perfect ranking). It scores how well a model ranks customers from safest to riskiest, at every threshold at once.</li><li><b>Baseline.</b> Logistic regression's AUC is 0.837. The dashed diagonal is 0.50.</li><li><b>Direction.</b> The coral curve (network) should sit above the navy one (logistic regression) over most of the range. Checkpoint 3 says AUC about 0.85 to 0.87 for the network against about 0.84. This run: 0.8582 against 0.8371, a gap of +0.0211.</li><li><b>Size.</b> The gap is small, about 0.02, but it is larger than the run-to-run noise: in 30 retrainings the network's AUC ranged from 0.851 to 0.862 and was above logistic regression's in 30 of 30. Logistic regression's own number never changes. If your network comes out slightly behind, that is still a fine result to write up.</li><li><b>Sentence.</b> "The network's AUC is X against Y, a gap of Z: small, but larger than the run-to-run noise." Say how big the gap is, and whether it is bigger than the noise.</li><li><b>If the curve is a bent line with an AUC of about 0.66 to 0.71</b>, you gave <code>roc_curve</code> the 0/1 predictions instead of the probabilities.</li></ul></div><h4>Write down</h4><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">LR AUC ___ | network AUC ___ | gap ___
+Which curve sits higher, and where? ___
+The gap in one sentence (small or large? bigger than run-to-run noise?): ___</pre></div><details class="hint"><summary>Hint</summary><div><p>Gap 1: <code>roc_curve(y_test, probabilities)</code> returns three things (false positive rates, true positive rates and thresholds). Keep the first two; call the third <code>_</code>. <code>roc_auc_score(y_test, probabilities)</code> gives the AUC. Use the probabilities, not the 0/1 predictions.</p><p>Gap 2: <code>plt.plot(fpr, tpr, color="#0f3460", linewidth=2, label=f"Logistic Regression (AUC={lr_auc:.3f})")</code>, then the same for the network in coral.</p></div></details><details class="sol"><summary>Show solution (open this last)</summary><div><div class="lbl">Sample output (the plot has no text; the line is printed after it)</div><pre class="out">LR AUC 0.8371 | network AUC 0.8582 | gap +0.0211</pre><div class="lbl">Your two gaps, filled in</div><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code"># gap 1
+lr_fpr, lr_tpr, _ = roc_curve(y_test, lr_probabilities)
+ann_fpr, ann_tpr, _ = roc_curve(y_test, ann_probabilities)
+lr_auc = roc_auc_score(y_test, lr_probabilities)
+ann_auc = roc_auc_score(y_test, ann_probabilities)
+
+# gap 2
+plt.plot(lr_fpr, lr_tpr, color=&quot;#0f3460&quot;, linewidth=2, label=f&quot;Logistic Regression (AUC={lr_auc:.3f})&quot;)
+plt.plot(ann_fpr, ann_tpr, color=&quot;#e94560&quot;, linewidth=2, label=f&quot;Neural Network (AUC={ann_auc:.3f})&quot;)</pre></div><p class="sub">Your plot should show two curves bowed up and to the left, the coral one slightly above the navy one, and the dashed diagonal below both.</p><div class="lbl">Write down, filled in</div><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">LR AUC 0.8371 | network AUC 0.8582 | gap +0.0211
+Which curve sits higher, and where? The network&#x27;s coral curve sits at or above the navy one over about 95% of the range, and clearly at the low false-alarm end: at a 10% false-alarm rate the network finds 65% of the churners against 55% for logistic regression
+The gap in one sentence: small (about 0.02), but bigger than the run-to-run noise, so the network ranks customers a little better than logistic regression</pre></div><div class="box warn"><p class="boxlbl">Watch out</p><ul><li>"A higher AUC means the network is much better." A gap of 0.02 is small. It is enough to change which customers sit in a top-200 list (B1), but not enough to say the network is right for new customers: one fixed split does not show that.</li><li>AUC says how well a model ranks. It does not say how many churners you catch at 0.5. That is recall (A8).</li></ul></div></div></details></article>
+
+<article class="card" id="A10"><h3><label><input type="checkbox" class="tick" id="tick-A10" data-id="A10" data-sec="A" data-blk="2"><span class="tag">A10</span>The recommendation: five answers and the share-out</label></h3><p class="meta">Session 2 · Helps with Part 2 Task 8 and the Part 2 share-out · about 8 minutes</p><div class="box go"><p class="boxlbl">Do</p><ol><li>In a new cell, run the numbers cell. It puts the figures for the five answers in one place:<div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">caught_lr = int(((lr_predictions == 1) &amp; (y_test == 1)).sum())
+caught_ann = int(((ann_predictions == 1) &amp; (y_test == 1)).sum())
+print(f&quot;Recall on churners: LR {recall_score(y_test, lr_predictions):.3f} | network {recall_score(y_test, ann_predictions):.3f}&quot;)
+print(f&quot;Churners caught:    LR {caught_lr} | network {caught_ann} (of {int(y_test.sum())})&quot;)
+print(f&quot;AUC:                LR {roc_auc_score(y_test, lr_probabilities):.4f} | network {roc_auc_score(y_test, ann_probabilities):.4f}&quot;)</pre></div></li><li>Answer the five Task 8 questions using the frames in <b>Write down</b>. Use only numbers from your own printout: this page's numbers are one run.</li><li>The Presenter reads the five sentences at the share-out. For question 5, use the scenario from the start of Session 2: a $500 offer, money for 200 customers, 350 customers flagged.</li></ol></div><div class="box why"><p class="boxlbl">Look for</p><ul><li><b>Units.</b> Say recall as customers, not only as a decimal: "169 of 393" next to "0.430".</li><li><b>Baseline.</b> The bar is logistic regression, not zero. A network has to earn its place.</li><li><b>Direction.</b> Which model is ahead on each row? Say it before the numbers.</li><li><b>Size.</b> A missed churner costs about $1,822 a year (A5). Is the gap big enough to change the decision, and what does it cost to choose the model that cannot explain a flag?</li><li><b>Sentence.</b> Each answer starts with the answer ("The neural network") and then gives the evidence. The Task 8 answer is at least 4 sentences; you have five frames.</li></ul></div><h4>Write down</h4><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">1. Better recall on churners: ___ (___ against ___, which is ___ of 393 customers against ___)
+2. Better AUC: ___ (___ against ___)
+3. The model that can explain why a customer is flagged: ___, because ___
+4. If the bank can only pick one: ___, because ___ (use recall, AUC and what the retention team needs to say to a customer)
+5. Deploying both makes sense when ___ (for example: the bank can pay for ___ offers, the network ___ and logistic regression ___)</pre></div><details class="hint"><summary>Hint 1</summary><div><p>Questions 1 and 2 come straight from your numbers cell. Say which model first, then the two numbers. Recall as customers is the recall times 393.</p></div></details><details class="hint"><summary>Hint 2</summary><div><p>Question 3: only one of the two models has coefficients you can read (A5). Question 4: decide what matters most for choosing who gets the offer, and what matters for knowing what to say to them.</p></div></details><details class="hint"><summary>Hint 3</summary><div><p>Question 5 is the scenario: $500 offers, money for 200 customers. One model ranks all customers so you can pick the 200; the other tells you why each segment is at risk, so you know what to say. Name the one limit of your choice in question 4: the gap is small, and it comes from one split.</p></div></details><details class="sol"><summary>Show solution (open this last)</summary><div><div class="lbl">Sample output (one run)</div><pre class="out">Recall on churners: LR 0.364 | network 0.430
+Churners caught:    LR 143 | network 169 (of 393)
+AUC:                LR 0.8371 | network 0.8582</pre><div class="lbl">Write down, filled in</div><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">1. Better recall on churners: the neural network (0.430 against 0.364, which is 169 of 393 customers against 143)
+2. Better AUC: the neural network (0.8582 against 0.8371)
+3. The model that can explain why a customer is flagged: logistic regression, because its coefficients say that holding 3 or 4 products (2 is the safest), inactive membership, living in Germany and being older push the odds of leaving up. The network gives a probability and no reason
+4. If the bank can only pick one: the neural network to choose who gets the offer, because it found 26 more churners with higher precision (0.76 against 0.69); precision was higher in all 30 retrainings, and each missed churner costs about $1,822 a year. The price is that the retention team cannot see the reason behind a flag, and the gap is small (about 0.02 AUC) and comes from one split, so we would check it on new customers
+5. Deploying both makes sense when the offer list has to be short and the message has to be specific: with $500 offers for 200 customers, the network ranks the customers and picks the 200, and logistic regression&#x27;s coefficients decide what to say to each segment</pre></div><div class="box go"><p class="boxlbl">Say it in one breath</p><p>"The network catches 169 of the 393 customers who leave and logistic regression 143, with higher precision (0.76 against 0.69). The network ranks customers better; logistic regression tells us why."</p></div><div class="box warn"><p class="boxlbl">Watch out</p><ul><li>"The network has more layers, so it must be better." Not by itself. On the Telco data in the demo the two models came out about even. Here the network is a little ahead. The only way to know is to compare it with the plain model every time, as you will in Lab 3.</li><li>"My numbers differ from the page." Training is random. Your recall can be anywhere from about 0.412 to 0.496, and your AUC from about 0.851 to 0.862. Use your own printout in your answer.</li><li>"It was ahead in every run, so it will be ahead on new customers." Retraining on one split measures training noise, not new customers. In 30 retrainings the network's AUC was above logistic regression's in 30 of 30, by +0.014 to +0.025, on this one split.</li></ul></div></div></details></article>
+
+<section class="sec" id="secB"><h2>B · On your own, after Session 2, toward Lab 3</h2><p>Six steps · about 45 minutes · bank data you already know, so the lab is the first time you touch its own file</p></section>
+<div class="box go"><p class="boxlbl">About Lab 3</p><p>Lab 3 is already assigned. It is individual, and it uses a different file from this page: <b>BankChurners</b> (credit card customers). Using the Telco data or Churn_Modelling in the lab is a -5 point deduction. Part B practices the parts of the lab that the group exercise did not, on the bank file the group already knows. Nothing on this page loads the lab's file or works out a lab answer. The only lab result on the page is one checkpoint line in B5, shown after you write your own guess. Submit what Canvas asks for.</p></div>
+<div class="box go"><p class="boxlbl">How Part B works</p><ol><li>Keep working in the same Colab notebook as Part A block 2 (the Part 2 notebook), so the variables are still there. If you open a new notebook, run the Part 2 notebook's setup cell (or the catch-up recipe in the Session 2 box), then A4's model cell, A6 and A8 again.</li><li>B1 to B4 go deeper on the bank data and each one practices a piece of the lab. B5 and B6 have no code: B5 is predictions to check against the lab, B6 is the memo.</li><li>Each step has the same five parts as Part A, with Hint and Solution closed.</li></ol></div>
+<nav class="jump stepchips" aria-label="Jump to a step"><a href="#B1" data-step="B1">B1</a><a href="#B2" data-step="B2">B2</a><a href="#B3" data-step="B3">B3</a><a href="#B4" data-step="B4">B4</a><a href="#B5" data-step="B5">B5</a><a href="#B6" data-step="B6">B6</a></nav>
+<div class="tablewrap"><table class="fit"><thead><tr><th>Step</th><th>Helps with Lab 3</th><th>What it practices on the bank data</th></tr></thead><tbody><tr><td><b>B1</b></td><td>Tasks 4 and 11</td><td>choosing your own prices, counting high-risk customers, what a miss costs</td></tr><tr><td><b>B2</b></td><td>Task 10</td><td>the comparison table and the customers only the network flags</td></tr><tr><td><b>B3</b></td><td>Tasks 7 to 9</td><td>reading your own run against a range</td></tr><tr><td><b>B4</b></td><td>Task 7 and the troubleshooting table</td><td>which alarm fires for which mistake</td></tr><tr><td><b>B5</b></td><td>setup, Tasks 1, 2, 3, 5 and 6</td><td>what changes on a new file (no code)</td></tr><tr><td><b>B6</b></td><td>Task 11</td><td>the five-point memo (no code)</td></tr></tbody></table></div>
+<article class="card" id="B1"><h3><label><input type="checkbox" class="tick" id="tick-B1" data-id="B1" data-sec="B" data-blk="B"><span class="tag">B1</span>The $500 offer for 200 customers: who gets it?</label></h3><p class="meta">After Session 2 · Helps with Lab 3 Tasks 4 and 11 · extends Part 2 Task 2 · about 8 minutes</p><div class="box go"><p class="boxlbl">Do</p><ol><li>The scenario, from the Part 2 discussion: the bank can pay for a $500 offer for only 200 customers, and the model flags more than that. Which customers get the offer?</li><li>In a new cell, paste the threshold cell. The two prices at the top are <b>assumptions</b>: a missed churner costs $1,822 a year (A5's average) and a wasted offer costs $500 (the exercise's offer). Change them to prices you can defend and say why; Lab 3 Task 4 asks for your own. Gaps 1 and 2 sit inside the loop: keep the four-space indent. Replace the two gaps, then run the cell:<div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">miss_cost = 1822     # assumption: a missed churner costs this much a year (A5&#x27;s average)
+offer_cost = 500     # assumption: one wasted offer costs this much (the exercise&#x27;s $500 offer)
+actual = y_test.to_numpy()
+
+rows = []
+for t in [0.5, 0.4, 0.3, 0.2]:
+    # YOUR CODE HERE 1: flag = True for the customers whose lr_probabilities
+    #   are at least t
+
+    # YOUR CODE HERE 2: tp = flagged customers who really churned, fp = flagged
+    #   customers who stayed, fn = customers who churned but were not flagged
+    #   (use flag and actual; make each one a whole number with int)
+
+    rows.append({&quot;threshold&quot;: t, &quot;flagged&quot;: int(flag.sum()),
+                 &quot;recall&quot;: round(tp / actual.sum(), 3), &quot;precision&quot;: round(tp / flag.sum(), 3),
+                 &quot;FN&quot;: fn, &quot;FP&quot;: fp,
+                 &quot;misses $&quot;: fn * miss_cost, &quot;wasted offers $&quot;: fp * offer_cost})
+
+results = pd.DataFrame(rows)
+results[&quot;total $&quot;] = results[&quot;misses $&quot;] + results[&quot;wasted offers $&quot;]
+print(results.to_string(index=False))</pre></div></li><li>In another new cell, paste the top-200 cell. Replace the two gaps, then run the cell:<div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code"># YOUR CODE HERE 1: lr_top = the positions of the 200 customers with the highest
+#   lr_probabilities (np.argsort sorts from low to high, so take the last 200)
+
+# YOUR CODE HERE 2: ann_top = the same for ann_probabilities
+
+print(f&quot;Churners in the test rows: {actual.sum()} of {len(actual):,}&quot;)
+print(f&quot;Logistic regression: the top 200 reach {actual[lr_top].sum()} real churners ({actual[lr_top].mean():.1%}); at 0.5 it flags {int((lr_probabilities &gt;= 0.5).sum())}&quot;)
+print(f&quot;Neural network:      the top 200 reach {actual[ann_top].sum()} real churners ({actual[ann_top].mean():.1%}); at 0.5 it flags {int((ann_probabilities &gt;= 0.5).sum())}&quot;)</pre></div></li></ol></div><div class="box why"><p class="boxlbl">Look for</p><ul><li><b>The table:</b> as the threshold falls from 0.5 to 0.2, logistic regression flags more customers (207, 311, 466, 699), recall climbs (0.364, 0.491, 0.623, 0.776) and precision falls (0.691, 0.621, 0.526, 0.436). That is the direction rule from the top of the page.</li><li><b>The cost columns:</b> on these prices the total falls at every step, from $487,500 to $357,336, because a miss ($1,822) costs 3.6 times a wasted offer ($500). The cheapest row is 0.2, but it flags 699 customers, 3.5 times what 200 offers can cover. The 0.5 row shows $455,500 in misses here, a little under A5's $455,543, because this cell rounds the price to $1,822.</li><li><b>The top-200 list:</b> out of the 393 churners in the test rows, logistic regression's top 200 reach 140 real churners (70.0%) and the network's top 200 reach 155 (77.5%). A fixed budget turns "which threshold?" into "who is in the top 200?". In 30 retrainings the network's top 200 reached 151 to 158 churners; logistic regression's 140 never changes.</li><li><b>Prices are assumptions.</b> The answer to "which threshold" moves with them. Say what you chose and who would know better (finance, the retention team).</li></ul></div><h4>Write down</h4><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">At 0.5 logistic regression flags ___ customers and catches ___% of the churners; at 0.3 it flags ___ and catches ___%
+Cost of mistakes at 0.5: $___; at 0.3: $___ (our prices: a miss $___, a wasted offer $___)
+The cheapest threshold on paper is ___, but it flags ___ customers and we can pay for only 200 offers
+With 200 offers, the top-200 list reaches ___ real churners (___%) for logistic regression and ___ (___%) for the network
+Our prices are assumptions because ___; the shakiest one is ___</pre></div><details class="hint"><summary>Hint</summary><div><p>Gap 1: <code>lr_probabilities >= t</code> is True for each flagged customer.</p><p>Gap 2: <code>flag & (actual == 1)</code> is True for flagged customers who really churned. <code>.sum()</code> counts them; wrap it in <code>int(...)</code>. <code>~flag</code> means "not flagged". For false positives use <code>actual == 0</code>.</p><p>Top 200: <code>np.argsort(lr_probabilities)</code> gives the positions from lowest to highest probability, so <code>[-200:]</code> takes the highest 200. <code>actual[lr_top].sum()</code> counts the real churners among them.</p></div></details><details class="sol"><summary>Show solution (open this last)</summary><div><div class="lbl">Sample output: threshold cell</div><pre class="out"> threshold  flagged  recall  precision  FN  FP  misses $  wasted offers $  total $
+       0.5      207   0.364      0.691 250  64    455500            32000   487500
+       0.4      311   0.491      0.621 200 118    364400            59000   423400
+       0.3      466   0.623      0.526 148 221    269656           110500   380156
+       0.2      699   0.776      0.436  88 394    160336           197000   357336</pre><div class="lbl">Sample output: top-200 cell (the network line is one run; yours will differ a little)</div><pre class="out">Churners in the test rows: 393 of 2,000
+Logistic regression: the top 200 reach 140 real churners (70.0%); at 0.5 it flags 207
+Neural network:      the top 200 reach 155 real churners (77.5%); at 0.5 it flags 223</pre><div class="lbl">Your gaps, filled in: threshold cell (gaps 1 and 2 are shown indented, as they sit inside the loop)</div><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">    # gap 1
+    flag = lr_probabilities &gt;= t
+
+    # gap 2
+    tp = int((flag &amp; (actual == 1)).sum())
+    fp = int((flag &amp; (actual == 0)).sum())
+    fn = int((~flag &amp; (actual == 1)).sum())</pre></div><div class="lbl">Your two gaps, filled in: top-200 cell</div><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code"># gap 1
+lr_top = np.argsort(lr_probabilities)[-200:]
+
+# gap 2
+ann_top = np.argsort(ann_probabilities)[-200:]</pre></div><div class="lbl">Write down, filled in</div><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">At 0.5 logistic regression flags 207 customers and catches 36.4% of the churners; at 0.3 it flags 466 and catches 62.3%
+Cost of mistakes at 0.5: $487,500; at 0.3: $380,156 (our prices: a miss $1,822, a wasted offer $500)
+The cheapest threshold on paper is 0.2 ($357,336), but it flags 699 customers and we can pay for only 200 offers
+With 200 offers, the top-200 list reaches 140 real churners (70.0%) for logistic regression and 155 (77.5%) for the network
+Our prices are assumptions because the file has no price column and the bank chose the offer; the shakiest one is the $1,822 miss, which is an average that hides the churners with a zero balance</pre></div><div class="box warn"><p class="boxlbl">Watch out</p><ul><li>"The cheapest threshold is the right one." On paper 0.2 is cheapest, but it flags 699 customers and the bank can pay for 200 offers. The cost line counts only two kinds of mistakes, and it treats every offer to a real churner as a success. An offer does not keep every customer (B6 puts a number on that).</li><li>"$1,822 and $500 are facts." They are assumptions: $1,822 is 2% of the average churner's balance, and 24.5% of churners hold a zero balance. Whatever prices you use in the lab, say which ones and why.</li></ul></div></div></details></article>
+
+<article class="card" id="B2"><h3><label><input type="checkbox" class="tick" id="tick-B2" data-id="B2" data-sec="B" data-blk="B"><span class="tag">B2</span>The comparison table and the extra catches</label></h3><p class="meta">After Session 2 · Helps with Lab 3 Task 10 · extends Part 2 Task 7 · about 8 minutes</p><div class="box go"><p class="boxlbl">Do</p><ol><li>In a new cell, paste the cell below. Replace the three gaps, then run the cell. It builds the five-row table and counts the customers each model flags that the other misses:<div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">actual = y_test.to_numpy()
+
+# YOUR CODE HERE 1: make comp, a table (DataFrame) with five rows (Accuracy,
+#   Precision (Churned), Recall (Churned), F1 (Churned), AUC) and two columns
+#   (Logistic Regression, Neural Network). Use accuracy_score, precision_score,
+#   recall_score and f1_score on the predictions, roc_auc_score on the
+#   probabilities, and round everything to 4 decimals
+print(comp.to_string())
+
+# YOUR CODE HERE 2: ann_only = True for the customers the network flags
+#   (ann_predictions is 1) and logistic regression does not (lr_predictions is 0)
+
+# YOUR CODE HERE 3: ann_only_real = how many of the ann_only customers really
+#   churned (use actual)
+
+print()
+print(f&quot;Flagged by the network but missed by logistic regression: {int(ann_only.sum())}&quot;)
+print(f&quot;  of those, really churned: {ann_only_real} ({ann_only_real / ann_only.sum():.0%})&quot;)
+
+lr_only = (lr_predictions == 1) &amp; (ann_predictions == 0)
+print(f&quot;Flagged by logistic regression but missed by the network: {int(lr_only.sum())}&quot;)
+print(f&quot;  of those, really churned: {int((lr_only &amp; (actual == 1)).sum())}&quot;)</pre></div></li></ol></div><div class="box why"><p class="boxlbl">Look for</p><ul><li><b>The table:</b> logistic regression is the same every time: accuracy 0.8430, precision 0.6908, recall 0.3639, F1 0.4767, AUC 0.8371. The network is ahead on all five rows in this run (accuracy 0.8610, precision 0.7578, recall 0.4300, AUC 0.8582). In all 30 retrainings its AUC and its recall were above logistic regression's.</li><li><b>The extra catches:</b> the network flags 56 customers that logistic regression misses, and 36 of them really churned (64%). In 30 retrainings the network flagged 54 to 104 such customers and 32 to 62 of them were real, about 6 to 7 in 10.</li><li><b>The other direction:</b> logistic regression flags 40 customers the network misses, and 10 of them really churned. The two models do not flag the same customers.</li><li><b>For Lab 3 Task 10</b> you build this same table and count the same "flagged by the network but missed by logistic regression" customers.</li></ul></div><h4>Write down</h4><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">The network is ahead on: ___ | logistic regression is ahead on: ___
+Flagged by the network but missed by logistic regression: ___, of which ___ really churned (___%)
+Flagged by logistic regression but missed by the network: ___, of which ___ really churned
+What this means for the retention team: ___</pre></div><details class="hint"><summary>Hint</summary><div><p>Gap 1: a dictionary with one list for each model, five scores in the order of the index. <code>accuracy_score(y_test, preds)</code>, <code>precision_score</code>, <code>recall_score</code> and <code>f1_score</code> take the predictions; <code>roc_auc_score</code> takes the probabilities. <code>index=[...]</code> names the rows and <code>.round(4)</code> rounds the table.</p><p>Gap 2: <code>(ann_predictions == 1) & (lr_predictions == 0)</code>.</p><p>Gap 3: <code>(ann_only & (actual == 1)).sum()</code>, wrapped in <code>int(...)</code>.</p></div></details><details class="sol"><summary>Show solution (open this last)</summary><div><div class="lbl">Sample output (one run; the network column and the extra-catch counts change a little every run)</div><pre class="out">                     Logistic Regression  Neural Network
+Accuracy                          0.8430          0.8610
+Precision (Churned)               0.6908          0.7578
+Recall (Churned)                  0.3639          0.4300
+F1 (Churned)                      0.4767          0.5487
+AUC                               0.8371          0.8582
+
+Flagged by the network but missed by logistic regression: 56
+  of those, really churned: 36 (64%)
+Flagged by logistic regression but missed by the network: 40
+  of those, really churned: 10</pre><div class="lbl">Your three gaps, filled in</div><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code"># gap 1
+comp = pd.DataFrame({
+    &quot;Logistic Regression&quot;: [accuracy_score(y_test, lr_predictions),
+                            precision_score(y_test, lr_predictions),
+                            recall_score(y_test, lr_predictions),
+                            f1_score(y_test, lr_predictions),
+                            roc_auc_score(y_test, lr_probabilities)],
+    &quot;Neural Network&quot;: [accuracy_score(y_test, ann_predictions),
+                       precision_score(y_test, ann_predictions),
+                       recall_score(y_test, ann_predictions),
+                       f1_score(y_test, ann_predictions),
+                       roc_auc_score(y_test, ann_probabilities)],
+}, index=[&quot;Accuracy&quot;, &quot;Precision (Churned)&quot;, &quot;Recall (Churned)&quot;, &quot;F1 (Churned)&quot;, &quot;AUC&quot;]).round(4)
+
+# gap 2
+ann_only = (ann_predictions == 1) &amp; (lr_predictions == 0)
+
+# gap 3
+ann_only_real = int((ann_only &amp; (actual == 1)).sum())</pre></div><div class="lbl">Write down, filled in</div><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">The network is ahead on: accuracy, precision, recall, F1 and AUC (all five in this run) | logistic regression is ahead on: nothing in this run
+Flagged by the network but missed by logistic regression: 56, of which 36 really churned (64%)
+Flagged by logistic regression but missed by the network: 40, of which 10 really churned
+What this means for the retention team: the network finds churners the plain model misses, about 6 in 10 of its extra flags are real, but 20 of them are wasted offers, and the two lists differ, so a team that uses both sees more customers</pre></div><div class="box warn"><p class="boxlbl">Watch out</p><ul><li>"56 extra flags is a win." Count the wasted offers too: 20 of them are customers who would have stayed. The cost table in B1 is how you price that.</li><li>"My table is different from the page." The logistic regression column should match exactly. The network column moves from run to run; compare it with the ranges, not with one number.</li></ul></div></div></details></article>
+
+<article class="card" id="B3"><h3><label><input type="checkbox" class="tick" id="tick-B3" data-id="B3" data-sec="B" data-blk="B"><span class="tag">B3</span>Five trainings: how far can you trust one run?</label></h3><p class="meta">After Session 2 · Helps with Lab 3 Tasks 7 to 9 · about 7 minutes</p><div class="box go"><p class="boxlbl">Do</p><ol><li>In a new cell, paste the cell below. Gaps 1 and 2 sit inside the loop: keep the four-space indent. Replace the two gaps, then run the cell. It trains the same network five times from five different random starts and puts the results in one table. It uses new names (<code>net</code>, <code>hist</code>) so your A6 network and its results stay untouched. It takes about 23 seconds on the instructor's computer and one to three minutes on a Colab CPU; use <code>[1, 2, 3]</code> if time is short:<div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">rows = []
+for seed in [1, 2, 3, 4, 5]:                       # use [1, 2, 3] if time is short
+    tf.keras.utils.set_random_seed(seed)           # a different random start each time
+
+    # YOUR CODE HERE 1: build the same network as A6, call it net, and compile
+    #   it the same way
+
+    # YOUR CODE HERE 2: make a new EarlyStopping called stopper (same settings
+    #   as A6, but verbose=0), then train net like A6 with verbose=0 and keep
+    #   the result in hist
+
+    probs = net.predict(X_test, verbose=0).ravel()
+    preds = (probs &gt; 0.5).astype(int)
+    rows.append({&quot;seed&quot;: seed, &quot;stopped at epoch&quot;: len(hist.history[&quot;loss&quot;]),
+                 &quot;accuracy&quot;: accuracy_score(y_test, preds), &quot;recall&quot;: recall_score(y_test, preds),
+                 &quot;AUC&quot;: roc_auc_score(y_test, probs)})
+
+table = pd.DataFrame(rows)
+print(table.round(4).to_string(index=False))
+print()
+print(f&quot;Logistic regression (never changes): accuracy {accuracy_score(y_test, lr_predictions):.4f}, recall {recall_score(y_test, lr_predictions):.4f}, AUC {roc_auc_score(y_test, lr_probabilities):.4f}&quot;)
+print(f&quot;Network over these runs: recall {table[&#x27;recall&#x27;].min():.3f} to {table[&#x27;recall&#x27;].max():.3f}, AUC {table[&#x27;AUC&#x27;].min():.3f} to {table[&#x27;AUC&#x27;].max():.3f}, stopped at epoch {table[&#x27;stopped at epoch&#x27;].min()} to {table[&#x27;stopped at epoch&#x27;].max()}&quot;)</pre></div></li></ol></div><div class="box why"><p class="boxlbl">Look for</p><ul><li><b>The stop epoch changes</b> from run to run: here 43 to 69. In 30 separate retrainings it ranged from 32 to 114.</li><li><b>Recall and AUC move too:</b> here recall 0.397 to 0.466 and AUC 0.855 to 0.860. Logistic regression does not move at all (recall 0.3639, AUC 0.8371).</li><li><b>Against logistic regression:</b> the network's AUC is above it in 5 of 5 runs and its recall in 5 of 5. In 30 retrainings that held every time (30 of 30 for AUC, 30 of 30 for recall).</li><li><b>Seed 5 is the lowest recall</b>, a little under 0.40. The exercise's Checkpoint 3 says "roughly 0.40 to 0.52", so a run just outside it is not a bug. The alarm for a broken last layer is recall under about 38% (B4).</li><li><b>Why this matters for the lab:</b> the lab's checkpoint gives you numbers to compare with. Compare your run with a range, not with one number, and when you report one run, say it is one run.</li></ul></div><h4>Write down</h4><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">Stop epochs: ___ to ___ | recall: ___ to ___ | AUC: ___ to ___
+Logistic regression (never changes): recall ___, AUC ___
+The network is above logistic regression on AUC in ___ of 5 runs and on recall in ___ of 5
+So when I report one run, I should say ___</pre></div><details class="hint"><summary>Hint</summary><div><p>Gap 1: the same <code>Sequential([...])</code> and <code>compile</code> lines as A6, with the name <code>net</code>.</p><p>Gap 2: <code>stopper = EarlyStopping(monitor="val_loss", patience=10, restore_best_weights=True, verbose=0)</code>, then <code>hist = net.fit(X_train, y_train, epochs=200, batch_size=32, validation_split=0.2, callbacks=[stopper], verbose=0)</code>.</p><p>If the cell takes too long, change the list at the top to <code>[1, 2, 3]</code>.</p></div></details><details class="sol"><summary>Show solution (open this last)</summary><div><div class="lbl">Sample output (these five runs; yours will differ)</div><pre class="out"> seed  stopped at epoch  accuracy  recall    AUC
+    1                65    0.8570  0.4402 0.8553
+    2                65    0.8560  0.4402 0.8569
+    3                43    0.8640  0.4656 0.8578
+    4                55    0.8625  0.4529 0.8599
+    5                69    0.8595  0.3969 0.8579
+
+Logistic regression (never changes): accuracy 0.8430, recall 0.3639, AUC 0.8371
+Network over these runs: recall 0.397 to 0.466, AUC 0.855 to 0.860, stopped at epoch 43 to 69</pre><div class="lbl">Your two gaps, filled in (shown indented, as they sit inside the loop)</div><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">    # gap 1
+    net = Sequential([
+        Dense(n_features, activation=&quot;relu&quot;, input_shape=(n_features,)),
+        Dropout(0.3),
+        Dense(15, activation=&quot;relu&quot;),
+        Dropout(0.2),
+        Dense(1, activation=&quot;sigmoid&quot;)
+    ])
+    net.compile(optimizer=&quot;adam&quot;, loss=&quot;binary_crossentropy&quot;, metrics=[&quot;accuracy&quot;])
+
+    # gap 2
+    stopper = EarlyStopping(monitor=&quot;val_loss&quot;, patience=10, restore_best_weights=True, verbose=0)
+    hist = net.fit(X_train, y_train, epochs=200, batch_size=32,
+                   validation_split=0.2, callbacks=[stopper], verbose=0)</pre></div><div class="lbl">Write down, filled in</div><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">Stop epochs: 43 to 69 | recall: 0.397 to 0.466 | AUC: 0.855 to 0.860
+Logistic regression (never changes): recall 0.3639, AUC 0.8371
+The network is above logistic regression on AUC in 5 of 5 runs and on recall in 5 of 5
+So when I report one run, I should say that it is one run, give the range of my runs beside it, and not claim a difference smaller than the run-to-run spread</pre></div><div class="box warn"><p class="boxlbl">Watch out</p><ul><li>"One run is the result." It is one draw from a range. A gap of 0.003 in AUC between two models is smaller than the spread across trainings of the same network (0.851 to 0.862 in 30 runs).</li><li>"The network won in all five runs, so it is better for the bank." Retraining on one split measures training noise, not new customers. It is a fair result on this split, said that way.</li></ul></div></div></details></article>
+
+<article class="card" id="B4"><h3><label><input type="checkbox" class="tick" id="tick-B4" data-id="B4" data-sec="B" data-blk="B"><span class="tag">B4</span>Break it on purpose: three wrong networks</label></h3><p class="meta">After Session 2 · Helps with Lab 3 Task 7 and its troubleshooting table · about 8 minutes</p><div class="box go"><p class="boxlbl">Do</p><ol><li>In a new cell, paste the cell below. The function trains the A6 network with whatever last layer you give it and prints the numbers that give a wrong network away. Replace the gap with the four calls described there, then run the cell. It takes about 35 seconds on the instructor's computer (the run without early stopping goes all 200 epochs):<div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">def try_network(last_layer, stop_early=True):
+    &quot;&quot;&quot;Train the A6 network with a different last layer (or without early stopping) and print the alarms.&quot;&quot;&quot;
+    tf.keras.utils.set_random_seed(42)
+    net = Sequential([
+        Dense(n_features, activation=&quot;relu&quot;, input_shape=(n_features,)),
+        Dropout(0.3),
+        Dense(15, activation=&quot;relu&quot;),
+        Dropout(0.2),
+        last_layer,
+    ])
+    net.compile(optimizer=&quot;adam&quot;, loss=&quot;binary_crossentropy&quot;, metrics=[&quot;accuracy&quot;])
+    callbacks = [EarlyStopping(monitor=&quot;val_loss&quot;, patience=10, restore_best_weights=True)] if stop_early else []
+    hist = net.fit(X_train, y_train, epochs=200, batch_size=32, validation_split=0.2, callbacks=callbacks, verbose=0)
+    probs = net.predict(X_test, verbose=0).ravel()
+    preds = (probs &gt; 0.5).astype(int)
+    print(f&quot;epochs run {len(hist.history[&#x27;loss&#x27;]):&gt;3} | last layer says {net.layers[-1].get_config()[&#x27;activation&#x27;]:&lt;8} | &quot;
+          f&quot;accuracy {accuracy_score(y_test, preds):.4f} | recall {recall_score(y_test, preds):.4f} | AUC {roc_auc_score(y_test, probs):.4f}&quot;)
+
+# YOUR CODE HERE 1: print a short title, then call try_network, four times:
+#   0. the correct network (last layer Dense(1, activation=&quot;sigmoid&quot;))
+#   1. last layer Dense(1, activation=&quot;relu&quot;)
+#   2. last layer Dense(1, activation=&quot;softmax&quot;)
+#   3. the correct last layer, but stop_early=False (this one runs all 200 epochs)</pre></div></li><li>Say, for each of the three broken networks, which alarm fired and what the one-line check says.</li></ol></div><div class="box why"><p class="boxlbl">Look for</p><ul><li><b>Row 0, the correct network:</b> the last layer says sigmoid, accuracy 0.8600, recall 0.4478, AUC 0.8604. This is what to compare the other rows with.</li><li><b>Row 1, last layer relu:</b> the check says relu and the accuracy still looks fine (0.8565), but recall drops to 0.3537, under 38%. In 12 retrainings with a relu last layer recall ranged from 0.196 to 0.374 (12 of 12 under 0.38), against 0.412 to 0.496 for the correct network in 30 retrainings (the lowest correct run on this page, B3 seed 5, was 0.397). A last layer with no activation did the same in 12 runs.</li><li><b>Row 2, last layer softmax:</b> accuracy 0.1965, recall 1.0000, AUC 0.5000. A softmax on one neuron always gives 1, so every customer is called a churner. Accuracy is then the churn rate of the test rows (19.65%) and the AUC is a coin flip.</li><li><b>Row 3, no EarlyStopping:</b> it ran 200 epochs. The numbers look fine (accuracy 0.8600, recall 0.4377, AUC 0.8642), so the epoch count is the only alarm. Look for <code>callbacks=[...]</code> and <code>validation_split=0.2</code> in <code>fit</code>.</li><li><b>Order of checks:</b> the last-layer line first, then recall under about 38%, then accuracy near 0.20 or recall near 1.00, then the epoch count.</li></ul></div><h4>Write down</h4><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">Relu last layer: the check says ___; accuracy ___ looks fine, but recall is ___ (under about 38%?)
+Softmax last layer: accuracy ___, recall ___, AUC ___, so the model calls ___ customer a churner
+No EarlyStopping: epochs run ___, so the alarm is ___ (the other numbers look ___)
+My rule: before I trust a network I run ___ and I look at ___ and ___</pre></div><details class="hint"><summary>Hint</summary><div><p>The gap is just eight lines: a <code>print("...")</code> title, then <code>try_network(...)</code> with the last layer as its argument. The last layer is <code>Dense(1, activation="sigmoid")</code> for the correct network, <code>"relu"</code> and <code>"softmax"</code> for the broken ones. For the last call add <code>stop_early=False</code>.</p></div></details><details class="sol"><summary>Show solution (open this last)</summary><div><div class="lbl">Sample output (these runs are re-seeded to 42 so they are comparable; yours will differ a little, but the pattern should not)</div><pre class="out">0. the correct network:
+epochs run 103 | last layer says sigmoid  | accuracy 0.8600 | recall 0.4478 | AUC 0.8604
+1. last layer relu:
+epochs run  81 | last layer says relu     | accuracy 0.8565 | recall 0.3537 | AUC 0.8461
+2. last layer softmax:
+epochs run  50 | last layer says softmax  | accuracy 0.1965 | recall 1.0000 | AUC 0.5000
+3. sigmoid, but no EarlyStopping:
+epochs run 200 | last layer says sigmoid  | accuracy 0.8600 | recall 0.4377 | AUC 0.8642</pre><div class="lbl">Your gap, filled in</div><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code"># gap 1
+print(&quot;0. the correct network:&quot;)
+try_network(Dense(1, activation=&quot;sigmoid&quot;))
+print(&quot;1. last layer relu:&quot;)
+try_network(Dense(1, activation=&quot;relu&quot;))
+print(&quot;2. last layer softmax:&quot;)
+try_network(Dense(1, activation=&quot;softmax&quot;))
+print(&quot;3. sigmoid, but no EarlyStopping:&quot;)
+try_network(Dense(1, activation=&quot;sigmoid&quot;), stop_early=False)</pre></div><div class="lbl">Write down, filled in</div><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">Relu last layer: the check says relu; accuracy 0.8565 looks fine, but recall is 0.3537 (under about 38%: yes)
+Softmax last layer: accuracy 0.1965, recall 1.00, AUC 0.50, so the model calls every customer a churner
+No EarlyStopping: epochs run 200, so the alarm is the epoch count (the other numbers look fine)
+My rule: before I trust a network I run the last-layer check and I look at recall and the epoch count</pre></div><div class="box warn"><p class="boxlbl">Watch out</p><ul><li>"Accuracy 0.86 means the network works." Row 1 has it and still misses most of the churners it should catch. Look at recall, and at the baseline.</li><li>"A correct network never falls under 38% recall." It rarely does: the lowest correct run on this page was 0.397 (B3). The margin is thin, so run the last-layer check first and use the recall alarm second.</li><li>"My numbers are different from the page, so something is wrong." Single numbers move from run to run. The pattern does not: the relu recall stays low, the softmax accuracy is always 0.1965, and the unstopped run goes to 200.</li></ul></div></div></details></article>
+
+<article class="card" id="B5"><h3><label><input type="checkbox" class="tick" id="tick-B5" data-id="B5" data-sec="B" data-blk="B"><span class="tag">B5</span>Before you open the lab: what will change on a new file?</label></h3><p class="meta">After Session 2 · Helps with Lab 3 setup and Tasks 1, 2, 3, 5 and 6 · no code · about 6 minutes</p><div class="box go"><p class="boxlbl">Do</p><ol><li>Do not open the lab yet. In a text cell, answer the five questions in <b>Write down</b> with a guess. A wrong guess is fine: the point is to know what to look for.</li><li>The questions, in words:<ol><li>A new churn file stores the outcome as words, not as 0 and 1. Before any model can use it, what has to happen to that column?</li><li>The new file has more columns than the 13 you used here. Which line of the network changes, and what goes wrong if you typed the number 13 yourself?</li><li>Imagine two columns in a file that hold the output of someone else's churn model. Why is it dangerous to leave them in? What would you notice in the accuracy?</li><li>On the bank file the strongest category was NumOfProducts, with a Cramér's V of 0.39. On a new file, will the strongest category be as strong? Guess whether the V values will be higher or lower.</li><li>What accuracy and AUC do you expect from logistic regression on the new file? What do you compare the accuracy with?</li></ol></li><li>Read the map below. Each step you did in Exercise 4 feeds a task in the lab. If you get stuck on a lab task, open the step on its row:<div class="tablewrap"><table class="fit"><thead><tr><th>Lab 3 task</th><th>What it asks</th><th>Open this step if you are stuck</th></tr></thead><tbody><tr><td>Setup and Task 1</td><td>run the setup, look at the data</td><td>A1 (the setup cell), A4 (the prepare cell)</td></tr><tr><td>Task 2</td><td>Cramér's V for the category columns</td><td>A1</td></tr><tr><td>Task 3</td><td>Mann-Whitney U and Cohen's d</td><td>A2</td></tr><tr><td>Task 4</td><td>business cost, with your own assumptions</td><td>A3, B1</td></tr><tr><td>Tasks 5 and 6</td><td>logistic regression, its coefficients</td><td>A4, A5</td></tr><tr><td>Tasks 7 to 9</td><td>build, train and evaluate the network</td><td>A6, A7, A8, B3, B4</td></tr><tr><td>Task 10</td><td>ROC curves, the table, the extra catches</td><td>A9, B2</td></tr><tr><td>Task 11</td><td>the recommendation to leadership</td><td>A10, B1, B6</td></tr></tbody></table></div></li></ol></div><div class="box why"><p class="boxlbl">Look for</p><ul><li><b>No code and no data in this step.</b> You write predictions first and check them later, which is the whole point: a guess that is wrong teaches you where to look.</li><li>Questions 1 and 3 are about what the lab's own setup cell does for you. After you write your guesses, read the lab's "What the preprocessing did" box and see which of your answers it covers.</li><li>Question 2 is about your own network code. If the first layer is written with <code>n_features</code>, the number follows the data. If it holds a typed 13, it does not.</li><li>Question 4 is a reminder to look at all the Cramér's V values in the lab before you decide which columns to write about.</li><li>Question 5 asks for a baseline: for accuracy, it is the share of the biggest class (for the bank file, always saying "Stayed" gave 80.35%).</li></ul></div><h4>Write down</h4><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">1. Before a model can use the outcome column, I must ___
+2. The line of the network that changes is ___ because ___; if I typed 13 by hand, ___
+3. Columns that hold another model&#x27;s output are dangerous because ___; I would notice because ___
+4. I expect the strongest Cramér&#x27;s V on the new file to be ___ (higher or lower than 0.39) because ___
+5. I predict logistic regression will show accuracy ___ and AUC ___; the baseline for accuracy is ___</pre></div><details class="hint"><summary>Hint</summary><div><p>1: a model needs numbers. Which number should mean "left"?</p><p>2: look at the first <code>Dense</code> layer in A6 and what it uses for its size and <code>input_shape</code>.</p><p>3: ask where the column's values came from. If they were worked out from the answer, the model is being handed the answer.</p><p>4: NumOfProducts was unusual because the pattern was not a straight line. Most category columns are weaker. There is no right number to guess; guess a direction and a reason.</p><p>5: think of the always-"Stayed" baseline from A4.</p></div></details><details class="sol"><summary>Show solution (open this last)</summary><div><div class="lbl">Sample answers</div><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">1. Before a model can use the outcome column, I must turn the words into 1 and 0 (for example 1 = left, 0 = stayed), so the model, Cramér&#x27;s V and the cost count all see a number, and I must remember which word became 1 because the sign of every coefficient depends on it
+2. The line of the network that changes is the first Dense layer (and its input_shape) because its size is the number of features; if I typed 13 by hand, Keras would stop with a ValueError about &quot;expected axis -1 of input shape&quot;
+3. Columns that hold another model&#x27;s output are dangerous because they are worked out from the answer, so the model cheats; I would notice because the accuracy would be suspiciously high, and the model would not work on new customers whose answer is not known yet
+4. I expect the strongest Cramér&#x27;s V on the new file to be lower than 0.39, because NumOfProducts was unusual (a U-shaped pattern); I will look at all of them before choosing
+5. I predict logistic regression will show accuracy above the baseline and an AUC well above 0.5; the baseline for accuracy is the share of the biggest class</pre></div><div class="box go"><p class="boxlbl">Check yourself, after you wrote your own guess for question 5</p><p>Lab 3's own checkpoint, after its logistic regression task, says logistic regression should show about 90% accuracy and an AUC of 0.92. Compare it with your guess. If yours was far off, what did you assume about the file?</p></div><div class="box warn"><p class="boxlbl">Watch out</p><ul><li>Do not read this step's sample answers as the lab's answers. They are about what to expect from any new file. The lab's own file decides its numbers.</li><li>Fixing the leakage columns and encoding the outcome are done for you in the lab's setup cell. You still need to know what it did, because a model built on a leaky or mis-coded file looks fine until it meets real customers.</li></ul></div></div></details></article>
+
+<article class="card" id="B6"><h3><label><input type="checkbox" class="tick" id="tick-B6" data-id="B6" data-sec="B" data-blk="B"><span class="tag">B6</span>The memo to leadership, on the bank data</label></h3><p class="meta">After Session 2 · Helps with Lab 3 Task 11 · no code · about 8 minutes</p><div class="box go"><p class="boxlbl">Do</p><ol><li>In a new cell, run the numbers cell. It uses the two price lines from B1 (<code>miss_cost</code> and <code>offer_cost</code>), so run B1 first:<div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">actual = y_test.to_numpy()
+for name, flagged in [(&quot;Logistic regression&quot;, lr_predictions == 1), (&quot;Neural network&quot;, ann_predictions == 1)]:
+    reached = int((flagged &amp; (actual == 1)).sum())
+    offers = int(flagged.sum())
+    print(f&quot;{name}: flags {offers} customers, {reached} of them really churn&quot;)
+    print(f&quot;  if every one of those {reached} stayed after the offer: {reached} x ${miss_cost:,} = ${reached * miss_cost:,} a year kept&quot;)
+    print(f&quot;  the {offers} offers cost {offers} x ${offer_cost} = ${offers * offer_cost:,}&quot;)
+    print(f&quot;  the offers pay for themselves if they keep at least {offers * offer_cost / (reached * miss_cost):.0%} of the churners they reach&quot;)</pre></div></li><li>Write a memo to the head of retention at the bank with the five-point frame in <b>Write down</b>. Use A5, B1, B2 and the numbers cell for the numbers. The lab's memo (Task 11) has the same five points, on its own file and its own numbers, and you write that one later.</li><li>Read it out loud to someone who has not seen your notebook. Could they act on it?</li></ol></div><div class="box why"><p class="boxlbl">Look for</p><ul><li><b>Point 1</b> names a model, gives two numbers from B2 (recall as customers, AUC) and one limit.</li><li><b>Point 2</b> gives three drivers from A5, each with a number and one action.</li><li><b>Point 3</b> says how many customers are high-risk, how many of them really churn and what keeping them is worth, and it states the assumption behind the dollars (the price of a miss and of an offer).</li><li><b>Point 4</b> is the tradeoff: which model finds more churners, and which one can say why.</li><li><b>Point 5</b> is a situation where you would use both models.</li><li>Every number has its unit and its source. The numbers cell is one run of the network, so say so.</li></ul></div><h4>Write down</h4><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">For the head of retention at the bank:
+1. We recommend ___ because ___ (recall as customers, AUC, and one limit).
+2. The top 3 drivers are ___ (with a number each), and we would ___, ___ and ___.
+3. The model flags ___ customers and ___ of them really churn. Keeping them is worth up to $___ a year (at $___ a year for each churner), and the offers cost $___, so they pay for themselves if they keep ___% of the churners they reach.
+4. The tradeoff: ___ finds more churners, but ___ cannot say why a customer is flagged.
+5. We would use both when ___.</pre></div><details class="hint"><summary>Hint 1</summary><div><p>Point 1: name the model, then two numbers from B2 (say recall as a count of customers out of 393, and the AUC), then one limit: the gap is small and comes from one split.</p></div></details><details class="hint"><summary>Hint 2</summary><div><p>Point 3: use the numbers cell. It gives, for each model, the customers flagged, how many really churn, the dollars kept if every one of them stays, the cost of the offers and the share you would have to keep to break even. State the two prices as assumptions.</p></div></details><details class="hint"><summary>Hint 3</summary><div><p>Points 4 and 5: the tradeoff is finding more churners against being able to say why. Both models make sense when one builds the list (who gets the 200 offers) and the other explains each segment (what to say to them).</p></div></details><details class="sol"><summary>Show solution (open this last)</summary><div><div class="lbl">Sample output (one run of the network)</div><pre class="out">Logistic regression: flags 207 customers, 143 of them really churn
+  if every one of those 143 stayed after the offer: 143 x $1,822 = $260,546 a year kept
+  the 207 offers cost 207 x $500 = $103,500
+  the offers pay for themselves if they keep at least 40% of the churners they reach
+Neural network: flags 223 customers, 169 of them really churn
+  if every one of those 169 stayed after the offer: 169 x $1,822 = $307,918 a year kept
+  the 223 offers cost 223 x $500 = $111,500
+  the offers pay for themselves if they keep at least 36% of the churners they reach</pre><div class="lbl">Sample memo (about 260 words; Lab 3's memo asks for at least 300, so yours will be longer)</div><div class="codewrap"><button class="copy" type="button">Copy</button><pre class="code">For the head of retention at the bank:
+1. We recommend using the neural network to build the offer list, because in our run it found 169 of the 393 customers who left against 143 for logistic regression (recall 0.430 against 0.364) with higher precision (0.76 against 0.69), and its AUC was 0.8582 against 0.8371. It was ahead in all five of our retrainings (B3), but the lead is small, about 0.02 AUC, and it comes from one split, so we would check it on new customers.
+2. The top 3 drivers, from logistic regression, are the number of products (27.7% of 1-product customers leave and 83% to 100% of 3-or-4-product customers), inactive membership (26.9% against 14.3%) and living in Germany (32.4% against about 16% in France and Spain). We would offer 1-product customers a second product, trigger an outreach when a member goes quiet, and test a retention offer in Germany.
+3. The network flags 223 customers and 169 of them really churn. Keeping them is worth up to $307,918 a year (at $1,822 a year for each churner), and the 223 offers at $500 cost $111,500, so the offers pay for themselves if they keep at least 36% of the churners they reach.
+4. The tradeoff: the network finds more churners, but it cannot say why a customer is flagged. Logistic regression can, through its coefficients.
+5. We would use both: with money for 200 offers, the network ranks the customers and picks the 200, and logistic regression&#x27;s coefficients tell us what to say to each segment.</pre></div><div class="box warn"><p class="boxlbl">Watch out</p><ul><li>Point 3 needs an assumption the data cannot give you: how many flagged churners an offer actually keeps. That is why the memo says "up to" and gives the share the offers must keep to break even. Do not write the dollars as if every flagged customer stays.</li><li>The lab's memo is on the lab's own file. Use this step for the shape (five points, a number and a unit in each, assumptions stated), not for the numbers.</li></ul></div></div></details></article>
+
+<div class="box go"><p class="boxlbl">What you now have</p><p>A workflow you can repeat on any churn table: see which categories and numbers go with leaving (A1, A2), price the problem with stated assumptions (A3), build a plain model and read it (A4, A5), build a network and check it the same way (A6 to A9), and say what to do in the company's words (A10, B6). Next time, change the setup lines and run the cells in order.</p></div>
+<p><button class="reset" id="reset" type="button">Reset my progress</button></p>
+<p class="sub">Progress is stored only in this browser on this device. A different browser, a private window or clearing your browsing data starts fresh.</p>
+<p class="sub">Every sample output on this page comes from a real run (Python 3.12.15, pandas 3.0.6, numpy 2.5.4, scikit-learn 1.9.1, SciPy 1.18.1, matplotlib 3.11.2, TensorFlow 2.21.0, Keras 3.15.1). Logistic regression gives the same numbers every time. Every neural network number is one run, with the range from 30 retrainings beside it. Colab may use other versions, so close is fine.</p>
+</main><script>
+(function(){
+const KEY="cap4767-m04-05-practice-v2";
+const ticks=[...document.querySelectorAll('.tick')];
+const saveEl=document.getElementById('save');
+let state={done:{}}, canSave=false;
+function setStatus(s,m){saveEl.dataset.s=s;saveEl.textContent=m;}
+function render(){
+  ticks.forEach(t=>{t.checked=!!state.done[t.dataset.id];t.closest('.card').classList.toggle('is-done',t.checked);});
+  const a=ticks.filter(t=>t.dataset.sec==='A'), b=ticks.filter(t=>t.dataset.sec==='B');
+  const na=a.filter(t=>t.checked).length, nb=b.filter(t=>t.checked).length;
+  document.getElementById('done').textContent=na;
+  document.getElementById('doneB').textContent=nb;
+  document.getElementById('barfill').style.width=(100*na/a.length)+'%';
+  document.querySelectorAll('.jump a').forEach(l=>{if(l.dataset.step){l.classList.toggle('full',!!state.done[l.dataset.step]);return;}const ts=ticks.filter(t=>t.dataset.blk===l.dataset.blk);l.classList.toggle('full',ts.length>0&&ts.every(t=>t.checked));});
+}
+function save(){
+  render();
+  if(!canSave) return;
+  try{localStorage.setItem(KEY,JSON.stringify(state));setStatus('saved','Saved in this browser');}
+  catch(e){canSave=false;setStatus('error','This browser stopped saving. Your checkmarks last until you close the page.');}
+}
+try{
+  const raw=localStorage.getItem(KEY);
+  if(raw){const d=JSON.parse(raw);state={done:Object.assign({},d.done||{})};}
+  localStorage.setItem(KEY+'-test','1');localStorage.removeItem(KEY+'-test');
+  canSave=true;setStatus('saved',raw?'Progress loaded from this browser':'Progress saves in this browser');
+}catch(e){setStatus('local','This browser is blocking saving (private window?). Your checkmarks last until you close the page.');}
+ticks.forEach(t=>t.addEventListener('change',()=>{if(t.checked) state.done[t.dataset.id]=true; else delete state.done[t.dataset.id]; save();}));
+const btn=document.getElementById('reset');let armed=false;
+btn.addEventListener('click',()=>{
+  if(!armed){armed=true;btn.classList.add('armed');btn.textContent='Tap again to clear every checkmark';setTimeout(()=>{armed=false;btn.classList.remove('armed');btn.textContent='Reset my progress';},4000);return;}
+  armed=false;btn.classList.remove('armed');btn.textContent='Reset my progress';state={done:{}};save();
+});
+document.querySelectorAll('.copy').forEach(b=>b.addEventListener('click',()=>{
+  const pre=b.parentElement.querySelector('pre');const t=pre.innerText;
+  const done=m=>{b.textContent=m;setTimeout(()=>b.textContent='Copy',1400);};
+  const sel=()=>{const r=document.createRange();r.selectNodeContents(pre);const s=getSelection();s.removeAllRanges();s.addRange(r);done('Selected: press Ctrl+C');};
+  try{navigator.clipboard.writeText(t).then(()=>done('Copied'),sel);}catch(e){sel();}
+}));
+render();
+})();
+</script></body></html>
