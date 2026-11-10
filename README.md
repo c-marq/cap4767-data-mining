@@ -99,7 +99,7 @@ Module N uses Chapter N. Notebooks are named by module: `m01_demo.ipynb` is the 
 | 7 | K-Means Clustering | Customer segmentation, Elbow method, cluster profiles |
 | 8 | Market Basket Analysis | Apriori, support, confidence, lift, mlxtend |
 | 9 | RFM Across Domains | Universal framework, sequence analysis, anomaly detection |
-| — | **Midterm** — assigned with Modules 4–5, presented after Modules 6–7 | RFM + CLTV + K-Means pipeline |
+| — | **Midterm** — assigned with Modules 4–5, due after Modules 6–7 | RFM + CLTV + K-Means pipeline (notebook + memo) |
 | — | **Final** — assigned with Module 8, presented at the end of the course | Full data mining capstone |
 
 ---

@@ -134,7 +134,11 @@ All submissions go through **Canvas** — never through GitHub.
 - Submit via Canvas by the date shown there
 - Name your file: `LastName_FirstName_Lab##_Topic.ipynb`
 
-**For midterm and final:**
+**For the midterm:**
+- Submit two items via Canvas: notebook (.ipynb) and business memo (.pdf or .docx)
+- Individual work. There is no presentation for the midterm
+
+**For the final:**
 - Submit three items via Canvas: notebook (.ipynb), business memo (.pdf or .docx), and presentation slides (.pdf or .pptx)
 - Be prepared to present in class on presentation day
 

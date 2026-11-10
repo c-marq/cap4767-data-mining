@@ -39,5 +39,5 @@ The copies here are for non-commercial teaching. Each dataset keeps its original
 ## Notes
 
 - **Florida hotel occupancy:** source unknown; it appears to be simulated teaching data, and the exercise and lab say so. Its structure suggests generated data: `revpar_usd` equals occupancy × average daily rate in every row, and `domestic_visitors_k` repeats a ceiling value of 42,000.
-- **Online Retail vs. Online Retail II:** the chapters use the original UCI Online Retail dataset (2010–2011). The midterm prompt links Online Retail II on Kaggle, a larger version (2009–2011) with different column names (`Invoice`, `Price`, `Customer ID`).
+- **Online Retail vs. Online Retail II:** the chapters use the original UCI Online Retail dataset (2010–2011). The midterm uses Online Retail II from the [UCI repository](https://archive.ics.uci.edu/dataset/502/online+retail+ii) (CC BY 4.0), a larger version (2009–2011) with different column names (`Invoice`, `Price`, `Customer ID`). Students use only its sheet "Year 2009-2010"; the sheet "Year 2010-2011" is the class demo's data and is not used. Online Retail II is not stored here; students download it from UCI.
 - **FRED series** are revised over time, so a fresh download can differ slightly from the copies here.
