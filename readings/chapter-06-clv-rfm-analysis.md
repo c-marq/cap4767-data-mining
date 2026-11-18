@@ -372,16 +372,16 @@ Now we'll convert raw RFM values into quintile scores and assign segment labels.
 
 # Step 1: Create quintile scores (1-5) for each metric
 # Recency: LOWER is better, so labels are REVERSED (5=most recent, 1=least)
-rfm['R_Score'] = pd.qcut(rfm['Recency'], 5, labels=[5, 4, 3, 2, 1])
+rfm['R_Score'] = pd.qcut(rfm['Recency'], 5, labels=[5, 4, 3, 2, 1]).astype(int)
 
 # Frequency: HIGHER is better
 # Note: rank(method='first') handles duplicate values that break qcut
 rfm['F_Score'] = pd.qcut(
     rfm['Frequency'].rank(method='first'), 5, labels=[1, 2, 3, 4, 5]
-)
+).astype(int)
 
 # Monetary: HIGHER is better
-rfm['M_Score'] = pd.qcut(rfm['Monetary'], 5, labels=[1, 2, 3, 4, 5])
+rfm['M_Score'] = pd.qcut(rfm['Monetary'], 5, labels=[1, 2, 3, 4, 5]).astype(int)
 
 # Step 2: Create a composite RFM score (sum of the three)
 rfm['RFM_Segment'] = (
@@ -444,7 +444,7 @@ Look at that distribution. Champions (1,520) are the largest segment — that's 
 
 ⚠️ **Common Pitfall:** When you run `pd.qcut()` on the Frequency column, you might get an error like `ValueError: Bin edges must be unique`. This happens because many customers share the same Frequency value (lots of people bought exactly once), so pandas can't create five bins with equal edges. The fix is `.rank(method='first')`, which assigns a unique rank to every row before binning. That's why our Frequency line looks different from Recency and Monetary.
 
-📊 **By The Numbers:** In this dataset, 35% of customers (Champions + Loyal) are in the top two segments. That concentration is typical for retail — a relatively small core of repeat buyers surrounded by a long tail of infrequent purchasers.
+📊 **By The Numbers:** In this dataset, 59% of customers (1,520 Champions plus 1,043 Loyal Customers, out of 4,338) are in the top two segments. That concentration is typical for retail — a relatively small core of repeat buyers surrounded by a long tail of infrequent purchasers.
 
 **Try It Yourself:**
 - Modify `segment_customer` — what happens if you raise the Champions threshold from `>= 9` to `>= 12`? How many Champions remain?
@@ -736,17 +736,17 @@ Here's what this technique enables:
 
 **Connect segmentation to the data mining pipeline.** RFM is a powerful standalone technique, but it's also the foundation for what comes next. You just built segments by hand — choosing thresholds, writing rules, naming groups. But what if the data contains segments you'd never think to look for?
 
-That's the question Chapter 7 answers. We'll hand these same RFM scores to K-Means clustering and let the algorithm discover groupings that no human rule would produce. One of those groups will turn out to be 22 customers who generate 19% of total revenue. You won't see them coming — but the algorithm will.
+That's the question Chapter 7 answers. We'll hand these same RFM scores to K-Means clustering and let the algorithm discover groupings that no human rule would produce. One of those groups will turn out to be a pocket of drifting big spenders that no single rule describes. You won't see them coming, but the algorithm will.
 
 ---
 
 ## 6.7 Chapter Lab
 
-**Note:** This chapter does not have a standalone lab. The lab spans Chapters 6 and 7, combining RFM + CLTV (this chapter) with K-Means clustering (Chapter 7) into a single end-to-end deliverable.
+**Note:** This chapter does not have a standalone lab. You practice it in Group Exercise 5, and the Midterm Project asks you to run the whole RFM, CLTV and K-Means pipeline.
 
-**Complete Chapter 7 before beginning the lab.** The lab instructions, rubric, and starter notebook will be provided after Chapter 7.
+**Read Chapter 7 before you start Group Exercise 5.**
 
-**What the combined lab will ask you to do:**
+**The steps the whole pipeline follows:**
 1. Clean and prepare a transactional dataset of your choice
 2. Calculate RFM metrics and assign quintile scores
 3. Compute CLTV for every customer
@@ -756,7 +756,7 @@ That's the question Chapter 7 answers. We'll hand these same RFM scores to K-Mea
 7. Build a revenue-at-risk summary and Pareto visualization
 8. Write a 1-page retention strategy memo for a non-technical marketing director
 
-**Dataset options will include:** Brazilian E-Commerce (Kaggle), Restaurant Orders (Kaggle), or a dataset of your choice with instructor approval.
+**Dataset options:** Brazilian E-Commerce (Kaggle), Restaurant Orders (Kaggle), or a dataset of your choice with instructor approval.
 
 ---
 

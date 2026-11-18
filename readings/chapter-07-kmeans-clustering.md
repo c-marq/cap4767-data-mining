@@ -1,4 +1,4 @@
-*Part III — Supervised Learning: Predicting Outcomes from Labeled Data*
+*PART III — UNSUPERVISED LEARNING: DISCOVERING HIDDEN PATTERNS WITHOUT LABELS*
 
 # Chapter 7 — K-Means Clustering and Customer Segmentation Strategy
 
@@ -87,7 +87,7 @@ Imagine you're a shuttle dispatcher at MIA airport. You have 200 passengers head
 
 That's K-Means. The passengers are your customers, the map is your feature space (R, F, M), and the pins are the centroids.
 
-⚠️ **Common Pitfall:** K-Means is sensitive to initialization — different starting positions can produce different final clusters. scikit-learn handles this by running the algorithm multiple times (default `n_init=10`) and keeping the result with the lowest inertia. You don't need to worry about this in practice, but knowing it exists helps you understand why two identical runs can occasionally give slightly different cluster assignments.
+⚠️ **Common Pitfall:** K-Means is sensitive to initialization — different starting positions can produce different final clusters. scikit-learn handles this by running the algorithm several times and keeping the result with the lowest inertia. In scikit-learn 1.4 and later the default is `n_init='auto'`, which starts once with a smart (k-means++) placement; our code sets `n_init=10` to repeat that ten times. You don't need to worry about this in practice, but knowing it exists helps you understand why two identical runs can occasionally give slightly different cluster assignments.
 
 ### Feature Scaling: Why It Matters Before Clustering
 
@@ -249,11 +249,11 @@ rfm = df.groupby('CustomerID').agg({
 rfm.columns = ['CustomerID', 'Recency', 'Frequency', 'Monetary']
 
 # Assign quintile scores
-rfm['R_Score'] = pd.qcut(rfm['Recency'], 5, labels=[5, 4, 3, 2, 1])
+rfm['R_Score'] = pd.qcut(rfm['Recency'], 5, labels=[5, 4, 3, 2, 1]).astype(int)
 rfm['F_Score'] = pd.qcut(
     rfm['Frequency'].rank(method='first'), 5, labels=[1, 2, 3, 4, 5]
-)
-rfm['M_Score'] = pd.qcut(rfm['Monetary'], 5, labels=[1, 2, 3, 4, 5])
+).astype(int)
+rfm['M_Score'] = pd.qcut(rfm['Monetary'], 5, labels=[1, 2, 3, 4, 5]).astype(int)
 rfm['RFM_Segment'] = (
     rfm['R_Score'].astype(int) +
     rfm['F_Score'].astype(int) +
@@ -550,9 +550,9 @@ Now we can read each cluster like a character profile:
 - **Cluster 3** (1,121 customers): Low Recency but high Frequency and Monetary — formerly great customers who are going quiet. This is the "Can't Lose Them" territory.
 - **Cluster 4** (422 customers): Very recent (high R) but low F and M — new or one-time buyers who haven't built a pattern yet.
 
-That Cluster 3 is the one that should make a marketing director lean forward. Over a thousand customers with a proven purchasing history who are starting to drift. They're not gone yet.
+The cluster with low Recency but high Frequency and Monetary is the one that should make a marketing director lean forward. These are customers with a proven purchasing history who are starting to drift. They're not gone yet.
 
-📊 **By The Numbers:** Cluster 3 contains 1,121 customers — 25.8% of the base — with high historical Frequency and Monetary but declining Recency. In Chapter 6, the manual rules split these across "At Risk," "Can't Lose Them," and "Loyal Customers" depending on where their composite score fell. K-Means groups them by behavioral similarity instead, catching the full scope of the drift.
+📊 **By The Numbers:** Your run prints this cluster's number, its size and its share of the base. K-Means numbers its clusters arbitrarily, so the code below finds the drifting cluster by its profile (high historical Frequency and Monetary, declining Recency) instead of by its number. In Chapter 6, the manual rules split these customers across more than one segment depending on where their composite score fell. K-Means groups them by behavioral similarity instead, catching the full scope of the drift.
 
 **Try It Yourself:**
 - Run the Elbow Method from k=2 to k=15 — does the elbow location change?
@@ -629,13 +629,13 @@ ax = fig.add_subplot(111, projection='3d')
 
 # Plot each cluster with its own color and label
 colors = ['#FF7043', '#00BFA5', '#FFC107', '#42A5F5', '#AB47BC']
-cluster_names = {
-    0: 'High-Value Active',
-    1: 'Disengaged Low-Value',
-    2: 'Mid-Range Steady',
-    3: 'Drifting Big Spenders',
-    4: 'Recent Newcomers'
-}
+# K-Means numbers its clusters arbitrarily, so we find each one by its profile, never by its number
+profile = rfm.groupby('Cluster')[['R_Score', 'F_Score', 'M_Score']].mean()
+drift_id = profile[(profile['F_Score'] >= 3) & (profile['M_Score'] >= 3)]['R_Score'].idxmin()  # high F and M, lowest R
+cluster_names = {c: f'Cluster {c}' for c in profile.index}
+cluster_names[profile.sum(axis=1).idxmax()] = 'High-Value Active'
+cluster_names[profile.sum(axis=1).idxmin()] = 'Disengaged Low-Value'
+cluster_names[drift_id] = 'Drifting Big Spenders'
 
 for cluster_id in range(optimal_k):
     mask = rfm['Cluster'] == cluster_id
@@ -708,7 +708,7 @@ This table is the most important output in the chapter. Here's how to read it:
 
 **But look at At Risk.** The manual rules put 892 customers in "At Risk." K-Means scatters them: 384 in Cluster 3 (the high-value drifters), 287 in Cluster 2 (moderate middle), 198 in Cluster 1 (essentially lost). The algorithm is telling you that your "At Risk" segment contains at least *three* different kinds of customer. A single win-back campaign aimed at all 892 would treat the high-value drifter the same as the nearly-lost case — and we already know from Chapter 6's opening story how that plays out.
 
-**Cluster 3 is the discovery.** It contains 1,121 customers drawn from At Risk (384), Loyal Customers (289), Can't Lose Them (261), and Lost (57). These customers have high historical Frequency and Monetary but declining Recency. The manual rules split them across four different segments depending on where their composite score fell. K-Means sees them as *one coherent group* — because their behavioral pattern is mathematically similar regardless of which segment label they received.
+**The drifting cluster is the discovery.** Its customers come from more than one manual segment; the column for that cluster shows which. These customers have high historical Frequency and Monetary but declining Recency. The manual rules split them across different segments depending on where their composite score fell. K-Means sees them as *one coherent group* — because their behavioral pattern is mathematically similar regardless of which segment label they received.
 
 ```python
 # --- PART D: Revenue Analysis by Cluster ---
@@ -744,12 +744,13 @@ print(cluster_summary.to_string())
 
 # --- Highlight the key discovery ---
 print("\n" + "=" * 80)
-print("KEY DISCOVERY: Cluster 3 — 'Drifting Big Spenders'")
-c3 = cluster_summary.loc[3]
+print(f"KEY DISCOVERY: Cluster {drift_id} — 'Drifting Big Spenders'")
+c3 = cluster_summary.loc[drift_id]
+n_segments = int((crosstab.loc[crosstab.index != 'All', drift_id] > 0).sum())
 print(f"  Customers:    {c3['Customer_Count']:,.0f} ({c3['Pct_Customers']:.1f}% of base)")
 print(f"  Total Revenue: £{c3['Total_Revenue']:,.2f} ({c3['Pct_Revenue']:.1f}% of total)")
 print(f"  Avg CLTV:     £{c3['Avg_CLTV']:,.2f}")
-print(f"\n  These customers were SPLIT across 4 manual segments.")
+print(f"\n  These customers were SPLIT across {n_segments} manual segments.")
 print(f"  K-Means sees them as ONE group — high-value, drifting, rescuable.")
 print(f"  A targeted retention campaign here has the highest ROI potential.")
 print("=" * 80)
@@ -804,9 +805,9 @@ Let's walk through what the pipeline just revealed, focusing on the three output
 
 **The cluster profiles tell distinct behavioral stories.** Cluster 0 (High-Value Active) mirrors the Champions from Chapter 6 — recent, frequent, high-spending. Cluster 1 (Disengaged Low-Value) mirrors the Lost segment. Cluster 4 (Recent Newcomers) captures new or infrequent buyers. These confirmations matter because they validate that K-Means is finding real structure, not random noise. When an algorithm and a human independently arrive at the same grouping, that grouping is robust.
 
-**The discovery is in Cluster 3.** This group of 1,121 customers — over a quarter of the entire base — shares a specific behavioral signature: strong historical purchasing (high F and M) with declining engagement (low R). The manual rules in Chapter 6 scattered these customers across four different segments because each rule evaluated independent thresholds. K-Means saw what the rules couldn't: these customers are *one group* exhibiting *one pattern* — drift.
+**The discovery is the drifting cluster.** This group — a large share of the entire base — shares a specific behavioral signature: strong historical purchasing (high F and M) with declining engagement (low R). The manual rules in Chapter 6 scattered these customers across several segments because each rule evaluated independent thresholds. K-Means saw what the rules couldn't: these customers are *one group* exhibiting *one pattern* — drift.
 
-The revenue numbers make the discovery concrete. Cluster 3 represents approximately 26% of total revenue. If these customers lapse entirely, the business loses more than a quarter of its income. But because they have a demonstrated purchasing history — they've *already proven* they're willing to spend — a targeted retention campaign has a much higher expected ROI than a cold acquisition campaign.
+The revenue numbers make the discovery concrete: the revenue summary above shows how much of total revenue this cluster represents. If these customers lapse entirely, the business loses that income. But because they have a demonstrated purchasing history — they've *already proven* they're willing to spend — a targeted retention campaign has a much higher expected ROI than a cold acquisition campaign.
 
 Notice what's changed since Chapter 6. The segment summary table there showed revenue at risk across three segments (At Risk, Can't Lose Them, Lost). That was useful but blunt — it treated all at-risk customers as a single problem. The K-Means analysis sharpens the picture: some of those "At Risk" customers are actually drifting big spenders who need urgent personal outreach, while others are essentially already gone. The intervention strategy should be different for each sub-group, and K-Means tells you which is which.
 
@@ -820,7 +821,7 @@ Here's what that comparison enables:
 
 **Refine your segments where the approaches disagree.** When the crosstab shows that your "At Risk" manual segment contains three different K-Means clusters, you've learned that one label is covering multiple realities. Split it. Create "At Risk — High Value" and "At Risk — Low Value" sub-segments, and allocate budget proportionally to their revenue potential.
 
-**Discover high-value niches.** Cluster 3 in our analysis — the Drifting Big Spenders — was invisible to rule-based segmentation because no single threshold captured their behavioral pattern. K-Means found them by considering all three dimensions simultaneously. In a real business, this discovery alone could justify the entire analysis.
+**Discover high-value niches.** The drifting cluster in our analysis — the Drifting Big Spenders — was invisible to rule-based segmentation because no single threshold captured their behavioral pattern. K-Means found them by considering all three dimensions simultaneously. In a real business, this discovery alone could justify the entire analysis.
 
 **Build a decision framework for when to use each method.** Manual RFM segments are fast, interpretable, and easy to communicate to non-technical stakeholders. K-Means is slower, requires scaling and parameter tuning, but discovers structure you'd otherwise miss. The answer isn't one or the other — it's both, applied in sequence, with the crosstab as the bridge.
 
@@ -832,7 +833,9 @@ That's what Chapter 8 answers. We'll take the same Online Retail dataset and sto
 
 ## 7.7 Chapter Lab
 
-### Combined Lab: Chapters 6 + 7 — RFM + CLTV + K-Means Segmentation Pipeline
+### Pipeline Checklist: Chapters 6 + 7 — RFM + CLTV + K-Means Segmentation Pipeline
+
+*This is a checklist, not a separate assignment. Group Exercise 5 practices part of it; the Midterm Project asks for the whole pipeline plus the memo.*
 
 **Objective:** Build the complete customer segmentation pipeline from raw transaction data through RFM scoring, CLTV calculation, manual segmentation, K-Means clustering, and segment comparison — then translate your findings into a non-technical retention strategy memo.
 
@@ -894,7 +897,7 @@ That's what Chapter 8 answers. We'll take the same Online Retail dataset and sto
 | **Cluster Profiling** | The process of examining centroid values, distributions, and summary statistics within each cluster to understand what type of entity each group represents. |
 | **Silhouette Score** | A metric (-1 to 1) measuring how similar a data point is to its own cluster compared to other clusters. Higher scores indicate better-defined clusters. |
 | **Convergence** | The state where K-Means centroids stop moving between iterations, indicating the algorithm has found a stable solution. |
-| **n_init** | The number of times K-Means runs with different random initializations. The result with the lowest inertia is kept. Default is 10 in scikit-learn. |
+| **n_init** | The number of times K-Means runs with different random initializations. The result with the lowest inertia is kept. In scikit-learn 1.4 and later the default is `'auto'` (one run with k-means++); our code sets 10. |
 
 ---
 
@@ -942,7 +945,7 @@ That's what Chapter 8 answers. We'll take the same Online Retail dataset and sto
 - (c) The manual segments should be replaced by K-Means clusters
 - (d) The features were not properly scaled
 
-**7.** K-Means uses `n_init=10` by default because:
+**7.** K-Means is often run with `n_init=10` because:
 
 - (a) 10 clusters is the recommended maximum
 - (b) The algorithm needs 10 iterations to converge

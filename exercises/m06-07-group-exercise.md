@@ -6,10 +6,12 @@
 ## Overview
 Your group runs the complete RFM + K-Means pipeline on a different dataset from the demo, applying what you learned in both sessions: RFM scoring, manual segmentation, K-Means clustering, and segment comparison. Before coding, the group discusses what Recency, Frequency, and Monetary mean for the new dataset and whether you expect revenue concentration to be more or less extreme than in the Online Retail demo dataset. The deliverable is the completed notebook plus a 3-minute presentation. Groups self-assign four roles: Lead Coder, Data Interpreter, Presenter, and QA Reviewer.
 
+**Two sessions:** Session 1 is Tasks 1 and 2 (RFM metrics, scores and manual segments), after the Chapter 6 demo. Session 2 is Tasks 3 to 5 (scaling, elbow, K-Means and comparison), after the Chapter 7 demo, then the share-outs.
+
 ---
 
 ## Your Dataset
-Choose **one** of two options. Run the setup cell without modifying it (it provides the `segment_customer()` function from the demo), then uncomment ONE dataset option in the data loading cell and run it.
+Choose **one** of two options. Run the setup cell without modifying it (it provides the `segment_customer()` function from the demo), then choose ONE dataset in the data loading cell. It is set to Option B (the restaurant data); to use Option A (Olist), change the first line to `DATASET = "A"`. Run the cell.
 
 **Option A: Brazilian E-Commerce (Olist)**, about 100K orders. More challenging: it requires merging 3 tables (orders, customers, payments). Use `customer_unique_id` (not `customer_id`) because one person can have multiple customer IDs; revenue is `payment_value`. The notebook loads three files from this base URL:
 
@@ -19,7 +21,7 @@ Choose **one** of two options. Run the setup cell without modifying it (it provi
 - `{base}/olist_orders_dataset.csv`
 - `{base}/olist_order_payments_dataset.csv`
 
-**Option B: Restaurant Orders**, about 1K orders. Simpler and beginner-friendly. There is no true customer ID, so each order number is treated as a unique customer. This limits RFM interpretation (Frequency will always be 1), and you discuss that limitation in your share-out.
+**Option B: Restaurant Orders**, about 13,400 orders (74,818 order lines). Simpler and beginner-friendly. There is no true customer ID, so each order number is treated as a unique customer. This limits RFM interpretation (Frequency will always be 1), and you discuss that limitation in your share-out.
 
 - `https://raw.githubusercontent.com/c-marq/cap4767-data-mining/refs/heads/main/data/restaurant-1-orders.csv`
 
