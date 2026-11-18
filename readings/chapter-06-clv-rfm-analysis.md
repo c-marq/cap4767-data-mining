@@ -744,10 +744,10 @@ That's the question Chapter 7 answers. We'll hand these same RFM scores to K-Mea
 
 **Note:** This chapter does not have a standalone lab. You practice it in Group Exercise 5, and the Midterm Project asks you to run the whole RFM, CLTV and K-Means pipeline.
 
-**Read Chapter 7 before you start Group Exercise 5.**
+**Read Chapter 7 before you start Task 3 of Group Exercise 5.**
 
 **The steps the whole pipeline follows:**
-1. Clean and prepare a transactional dataset of your choice
+1. Clean and prepare a transactional dataset
 2. Calculate RFM metrics and assign quintile scores
 3. Compute CLTV for every customer
 4. Build manual RFM segments using the labeling function from this chapter
@@ -756,7 +756,7 @@ That's the question Chapter 7 answers. We'll hand these same RFM scores to K-Mea
 7. Build a revenue-at-risk summary and Pareto visualization
 8. Write a 1-page retention strategy memo for a non-technical marketing director
 
-**Dataset options:** Brazilian E-Commerce (Kaggle), Restaurant Orders (Kaggle), or a dataset of your choice with instructor approval.
+**Dataset options for Group Exercise 5:** your group chooses one of two, Brazilian E-Commerce (Kaggle, the harder one) or Restaurant Orders (Kaggle, the simpler one). The Midterm Project uses Online Retail II (sheet "Year 2009-2010"); see the midterm prompt.
 
 ---
 

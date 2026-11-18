@@ -839,7 +839,7 @@ That's what Chapter 8 answers. We'll take the same Online Retail dataset and sto
 
 **Objective:** Build the complete customer segmentation pipeline from raw transaction data through RFM scoring, CLTV calculation, manual segmentation, K-Means clustering, and segment comparison — then translate your findings into a non-technical retention strategy memo.
 
-**Dataset Options** (choose one):
+**Dataset Options for Group Exercise 5** (your group chooses one):
 
 1. **Brazilian E-Commerce (Kaggle)** — ~100K orders from a Brazilian marketplace. Clear transactional structure with customer ID, order dates, and payment values. Moderate complexity.
    - URL: `https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce`
@@ -847,7 +847,7 @@ That's what Chapter 8 answers. We'll take the same Online Retail dataset and sto
 2. **Restaurant Orders (Kaggle)** — Smaller-scale restaurant transaction data. Beginner-friendly with clean structure. Good for a focused analysis.
    - URL: `https://www.kaggle.com/datasets/henslersoftware/19560-indian-takeaway-orders`
 
-3. **Dataset of your choice** — with instructor approval. Must include: a customer identifier, a transaction date, and a revenue or payment column. The dataset should have at least 1,000 unique customers for meaningful clustering.
+**The Midterm Project** uses Online Retail II (sheet "Year 2009-2010"); see the midterm prompt.
 
 **Milestones:**
 
