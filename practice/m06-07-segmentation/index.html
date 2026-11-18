@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Modules 6 and 7 Practice · CAP4767</title><meta name="description" content="Companion page for CAP4767 Group Exercise 5: hints and solutions for each step of RFM scoring and K-Means customer segments on restaurant orders or Olist online retail (Part A, two sessions), then go deeper on your own toward the Midterm Project (Part B)."><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=JetBrains+Mono:wght@400;600&family=Source+Sans+3:wght@400;600;700&display=swap"><style>
+/* Practice page base: one reading column; sticky progress strip; each step is a card: do, look for, write down, hint, solution */
+:root{
+ --bg:#F6F7F9; --surface:#FFFFFF; --fg:#1C2433; --muted:#5A6577; --line:#DCE1E8;
+ --brand:#1B2A41; --brand-fg:#FFFFFF; --accent:#F5B82E; --accent-ink:#1B2A41; --link:#2F5F98;
+ --code-bg:#22272E; --code-fg:#E6EDF3; --out-bg:#EEF1F5; --out-fg:#1D232B;
+ --go-bg:#DDF3E6; --go-fg:#17663A; --why-bg:#DCEAF7; --why-fg:#1A4C78;
+ --hint-bg:#FCF3D9; --hint-fg:#6E5606; --stop-bg:#F8DDDA; --stop-fg:#8E2A20;
+ --f-display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+ --f-body:"Source Sans 3", "Segoe UI", system-ui, sans-serif;
+ --f-mono:"JetBrains Mono", ui-monospace, "Courier New", monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+ --bg:#11161F; --surface:#18202C; --fg:#E4E9F0; --muted:#9AA6B8; --line:#2C3747;
+ --brand:#0B111A; --brand-fg:#F2F5F9; --accent:#F5B82E; --accent-ink:#141A24; --link:#8DB7EA;
+ --code-bg:#0B0F15; --code-fg:#E6EDF3; --out-bg:#202A38; --out-fg:#DDE4EE;
+ --go-bg:#173826; --go-fg:#9FE0B9; --why-bg:#16304A; --why-fg:#A9CDF2;
+ --hint-bg:#3A3112; --hint-fg:#F2D98A; --stop-bg:#45211D; --stop-fg:#F4B2AA; color-scheme:dark}}
+:root[data-theme="dark"]{
+ --bg:#11161F; --surface:#18202C; --fg:#E4E9F0; --muted:#9AA6B8; --line:#2C3747;
+ --brand:#0B111A; --brand-fg:#F2F5F9; --accent:#F5B82E; --accent-ink:#141A24; --link:#8DB7EA;
+ --code-bg:#0B0F15; --code-fg:#E6EDF3; --out-bg:#202A38; --out-fg:#DDE4EE;
+ --go-bg:#173826; --go-fg:#9FE0B9; --why-bg:#16304A; --why-fg:#A9CDF2;
+ --hint-bg:#3A3112; --hint-fg:#F2D98A; --stop-bg:#45211D; --stop-fg:#F4B2AA; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:17px;line-height:1.6}
+.wrap{max-width:860px;margin:0 auto;padding-inline:18px;padding-block:0 64px}
+h1,h2,h3,h4{font-family:var(--f-display);text-wrap:balance;line-height:1.2}
+h1{font-size:clamp(28px,5vw,40px);margin:26px 0 6px;font-weight:700}
+h2{font-size:24px;margin:38px 0 10px}
+h4{font-size:16px;margin:16px 0 6px;font-family:var(--f-body);font-weight:700;letter-spacing:.02em}
+a{color:var(--link)}
+p{margin:8px 0}
+code{font-family:var(--f-mono);font-size:.88em;background:var(--out-bg);color:var(--out-fg);padding:1px 6px;border-radius:4px}
+.sub{color:var(--muted);font-size:15px;max-width:65ch}
+.prog{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:2px solid var(--accent);padding-block:10px;display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center}
+.prog .count{font-weight:700;font-variant-numeric:tabular-nums}
+.bar{flex:1 1 140px;height:10px;background:var(--line);border-radius:6px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--go-fg);transition:width .3s}
+.jump{display:flex;gap:4px;flex-wrap:wrap}
+.jump a{font-size:13px;text-decoration:none;color:var(--fg);border:1px solid var(--line);border-radius:12px;padding:1px 9px;font-variant-numeric:tabular-nums}
+.jump a.full{background:var(--go-bg);color:var(--go-fg);border-color:transparent}
+.save{font-size:13px;color:var(--muted);flex-basis:100%}
+.save[data-s="saved"]{color:var(--go-fg)} .save[data-s="error"]{color:var(--stop-fg)}
+.map{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0}
+.map span{padding:5px 11px;border-radius:14px;font-size:14px;border:1px solid var(--line)}
+.map .done{background:var(--go-bg);color:var(--go-fg);border-color:transparent;font-weight:600}
+.map .now{background:var(--accent);color:var(--accent-ink);border-color:transparent;font-weight:700}
+.box{border-radius:8px;padding:12px 16px;margin:12px 0}
+.box .boxlbl{font-weight:700;margin:0 0 4px;letter-spacing:.03em;font-size:14px;text-transform:uppercase}
+.go{background:var(--go-bg);color:var(--fg)} .go .boxlbl{color:var(--go-fg)}
+.why{background:var(--why-bg);color:var(--fg)} .why .boxlbl{color:var(--why-fg)}
+.warn{background:var(--hint-bg);color:var(--fg)} .warn .boxlbl{color:var(--hint-fg)}
+.stop{background:var(--stop-bg);color:var(--fg)} .stop .boxlbl{color:var(--stop-fg)}
+.box ol,.box ul{margin:4px 0;padding-left:22px}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:15.5px;margin:10px 0}
+th,td{border-bottom:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+th{font-family:var(--f-body);font-size:13px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+td.n{font-variant-numeric:tabular-nums;color:var(--muted);width:2em}
+.codewrap{position:relative;margin:8px 0;min-width:0}
+pre{margin:0;overflow-x:auto;white-space:pre;font-family:var(--f-mono);font-size:14px;line-height:1.5;border-radius:8px;padding:12px 14px}
+pre.code{background:var(--code-bg);color:var(--code-fg);padding-right:72px}
+pre.out{background:var(--out-bg);color:var(--out-fg);margin-bottom:10px}
+.lbl{font-size:12.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-top:8px}
+.copy{position:absolute;top:8px;right:8px;background:var(--accent);color:var(--accent-ink);border:0;border-radius:5px;padding:4px 10px;font:600 13px var(--f-body);cursor:pointer}
+.copy:focus-visible,button:focus-visible,summary:focus-visible,input:focus-visible{outline:3px solid var(--link);outline-offset:2px}
+.sec{background:var(--brand);color:var(--brand-fg);border-radius:10px;padding:14px 18px;margin:40px 0 12px;scroll-margin-top:70px}
+.sec h2{margin:0;color:var(--accent);font-size:22px}
+.sec p{margin:4px 0 0;opacity:.85;font-size:15px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 18px;margin:16px 0;scroll-margin-top:70px}
+.card.is-done{border-color:var(--go-fg)}
+.card h3{margin:0 0 6px;display:flex;gap:10px;align-items:center;font-size:20px}
+.card h3 label{display:flex;gap:10px;align-items:center;cursor:pointer}
+.tick{width:20px;height:20px;accent-color:var(--go-fg);flex:none}
+.tag{font-family:var(--f-mono);font-size:13px;background:var(--brand);color:var(--brand-fg);border-radius:5px;padding:1px 7px}
+details{margin:6px 0}
+summary{cursor:pointer;font-weight:700;padding:8px 12px;border-radius:6px;list-style:none}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"▸ "} details[open]>summary::before{content:"▾ "}
+details.hint>summary{background:var(--hint-bg);color:var(--hint-fg)}
+details.sol>summary{background:var(--stop-bg);color:var(--stop-fg)}
+details>div{padding:4px 4px 4px 12px}
+.rate{display:flex;gap:6px;flex-wrap:wrap}
+.rate input{position:absolute;opacity:0;pointer-events:none}
+.rate label{border:1px solid var(--line);border-radius:6px;padding:4px 12px;cursor:pointer;font-variant-numeric:tabular-nums;background:var(--surface)}
+.rate input:checked+label{background:var(--accent);color:var(--accent-ink);border-color:transparent;font-weight:700}
+.rate input:focus-visible+label{outline:3px solid var(--link);outline-offset:2px}
+.reset{background:none;border:1px solid var(--line);color:var(--muted);border-radius:6px;padding:6px 12px;font:inherit;font-size:14px;cursor:pointer}
+.reset.armed{border-color:var(--stop-fg);color:var(--stop-fg)}
+@media (prefers-reduced-motion: reduce){.bar i{transition:none}}
+@media (max-width:480px){body{font-size:16px} pre{font-size:13px}}
+body{margin:0}
+.ask{background:var(--surface);border:2px solid var(--accent);border-left-width:10px;border-radius:10px;padding:14px 20px;margin:18px 0}
+.ask .boxlbl{margin:0 0 4px;font-weight:700;letter-spacing:.06em;font-size:13px;text-transform:uppercase;color:var(--muted)}
+.ask .big{font-family:var(--f-display);font-size:clamp(19px,3.4vw,23px);line-height:1.35;font-weight:600;margin:2px 0 6px}
+.ask .small{color:var(--muted);font-size:15px;margin:4px 0 0}
+.meta{color:var(--muted);font-size:14.5px;margin:0 0 8px}
+.card h3{align-items:flex-start}
+.card .tag{margin-top:2px}
+.dsexp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:12px;margin:10px 0}
+.dsexp{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 16px 12px;min-width:0}
+.dsexp .dsname{margin:8px 0 4px;font-size:17px;font-family:var(--f-body)}
+.dsexp .dsname span{font-weight:400;color:var(--muted);font-size:14px}
+.dsexp dl{margin:0}
+.dsexp dt{font-size:12.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin:8px 0 0}
+.dsexp dd{margin:1px 0 0}
+.dsexp .dsnote{background:var(--hint-bg);color:var(--fg);border-radius:6px;padding:6px 10px;margin:10px 0 0;font-size:15px}
+.tablewrap table td:first-child,.tablewrap table th:first-child{white-space:nowrap}
+.sol .lbl{margin-top:12px}
+/* highlighted lines (M3 explainer style: subtle amber tint plus a left bar); the Copy button still copies plain code */
+pre .cb{display:block;width:max-content;min-width:100%}
+pre .hl{display:inline-block;vertical-align:top;box-sizing:border-box;width:calc(100% + 28px);margin:0 -14px;padding:0 14px;background:rgba(245,176,65,.17);box-shadow:inset 4px 0 0 #F5B041}
+pre,.hl{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+
+/* M4-5 additions: Part B count in the progress strip, session blocks, small tables, links */
+.prog .count2{font-weight:600;color:var(--muted);font-size:15px;font-variant-numeric:tabular-nums}
+.blk{border-left:8px solid var(--accent);background:var(--surface);border-radius:8px;padding:10px 16px;margin:30px 0 8px;scroll-margin-top:70px}
+.blk h3{margin:0;font-size:21px}
+.blk p{margin:4px 0 0;color:var(--muted);font-size:15px}
+.tablewrap table.fit td:first-child,.tablewrap table.fit th:first-child{white-space:normal}
+.sol .tablewrap{margin:6px 0}
+ul.tight{margin:4px 0;padding-left:22px}
+.stepchips{margin:8px 0 0}
+.tablewrap td a{color:var(--link)}
+@media (max-width:480px){.blk h3{font-size:19px}.prog .count2{font-size:14px}.card,.blk,.sec{scroll-margin-top:112px}}
+
+/* M6-7 additions: visible focus on the step tick boxes, code blocks that scroll are focusable, sample-output cards */
+.tick:focus-visible{outline:3px solid var(--link);outline-offset:2px}
+pre:focus-visible{outline:3px solid var(--link);outline-offset:2px}
+.dsexp-grid .dsexp h3{font-size:19px;margin:10px 0 4px}
+.sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.tablewrap:focus-visible{outline:3px solid var(--link);outline-offset:2px}
+@media (max-width:480px){.tablewrap table{font-size:13.5px}.tablewrap th,.tablewrap td{padding:6px 5px;overflow-wrap:anywhere}.tablewrap th{font-size:11.5px;letter-spacing:.02em}}
+</style></head><body><main class="wrap">
+<div class="prog" role="region" aria-label="Progress"><span class="count">Part A: <span id="done">0</span> / 9 steps done <span class="count2">· Part B: <span id="doneB">0</span> / 6</span></span><div class="bar" aria-hidden="true"><i id="barfill"></i></div><nav class="jump" aria-label="Jump to part"><a href="#blk1" data-blk="1">A1-5</a><a href="#blk2" data-blk="2">A6-9</a><a href="#secB" data-blk="B">B</a></nav><span class="save" id="save" data-s="wait" role="status">Checking whether this browser can save your progress…</span></div><div class="sr" id="copystatus" role="status" aria-live="polite"></div>
+<h1>Modules 6 and 7 Practice: Segment Customers with RFM and K-Means</h1>
+<p class="sub">CAP4767 Data Mining with Python · Miami Dade College · This page is the companion to Group Exercise 5. It uses the same two datasets, the same variable names and the same checkpoints. Use it when your group is stuck on a task: read the hint first, the solution last. The exercise notebook is what you submit. Part A has two blocks, one for each session of the exercise. Part B is for after Session 2, to get ready for the Midterm Project. Your checkmarks save in this browser.</p>
+<div class="ask"><p class="boxlbl">The ask</p><p class="big">By the end, your group tells a business three things: who its best customers are and how much of its money they bring, which group of customers is quietly drifting away, and one thing to do for each group.</p><p class="small">Every step below builds one piece of that answer. Part A is the group exercise; Part B practices the parts of the Midterm Project that the exercise does not cover, on the exercise data.</p></div>
+<h2>Where each part fits</h2>
+<div class="tablewrap" tabindex="0" role="region" aria-label="Table: Part of this page, Steps, Use it in"><table class="fit"><thead><tr><th scope="col">Part of this page</th><th scope="col">Steps</th><th scope="col">Use it in</th><th scope="col">Helps with</th><th scope="col">Time</th></tr></thead><tbody><tr><td><b>Part A, block 1</b></td><td>A1 to A5</td><td><b>Session 1</b></td><td>Exercise 5: the discussion, Tasks 1 and 2, success questions 1 to 3</td><td>about 40 minutes</td></tr><tr><td><b>Part A, block 2</b></td><td>A6 to A9</td><td><b>Session 2</b></td><td>Exercise 5: Tasks 3 to 5, success questions 4 to 6, the share-out</td><td>about 40 minutes</td></tr><tr><td><b>Part B</b></td><td>B1 to B6</td><td><b>On your own, after Session 2</b></td><td>The Midterm Project</td><td>about 60 minutes</td></tr></tbody></table></div>
+<p>The times are estimates for doing every step; nobody has timed students on this page. Block 1 and block 2 of Part A each start with a short box of what to do first. Part B comes after both sessions and is not part of the exercise.</p>
+<h2>How each step works</h2>
+<div class="box go"><p class="boxlbl">Every step has the same five parts</p><ol><li><b>Do</b>: restate the task in your own words, plan it as comments in the cell, write the code, run it, and check it against the checkpoint.</li><li><b>Look for</b>: what the output should show, for both datasets.</li><li><b>Write down</b>: fill in the blanks and keep them. They become your answers. Paste each Write down block into a text cell in your notebook under that step, and fill it in there.</li><li><b>Hint</b>: closed. Open it if you are stuck.</li><li><b>Solution</b>: closed. Open it last, with sample output from a real run on both datasets, the Option B output first and then Option A. Then tick the box beside the step title.</li></ol></div>
+<p>Do the steps in order. Each one uses what you made in the step before. Part A has one step for each part of the exercise; the code boxes show a plan to fill in, because the starter notebook has only a blank cell for each task.</p>
+<h3>The fifteen steps at a glance</h3>
+<div class="tablewrap" tabindex="0" role="region" aria-label="Table: Step, Helps with, You do"><table class="fit"><thead><tr><th scope="col">Step</th><th scope="col">Helps with</th><th scope="col">You do</th><th scope="col">You write down</th></tr></thead><tbody><tr><td><a href="#A1"><b>A1</b></a></td><td>The discussion cell</td><td>decide what Recency, Frequency and Monetary mean in your data</td><td>one sentence for each, and a guess about concentration</td></tr><tr><td><a href="#A2"><b>A2</b></a></td><td>The setup and data cells</td><td>choose the dataset, load it and check the load</td><td>the dataset, the row count and the last order</td></tr><tr><td><a href="#A3"><b>A3</b></a></td><td>Task 1, Checkpoint 1</td><td>build the rfm table</td><td>rows, the snapshot and the Recency, Frequency and Monetary summary</td></tr><tr><td><a href="#A4"><b>A4</b></a></td><td>Task 2, Checkpoint 2</td><td>make the three scores, the total and six segment labels</td><td>segment counts and the Champions' Recency against everyone's</td></tr><tr><td><a href="#A5"><b>A5</b></a></td><td>The interpretation cell, success questions 1 to 3</td><td>read your segments and check the Frequency score</td><td>three numbers and one honest sentence about Frequency</td></tr><tr><td><a href="#A6"><b>A6</b></a></td><td>Task 3, Checkpoint 3</td><td>scale the scores and run the elbow for k = 2 to 8</td><td>the scaler check, the inertia drops, your k and why</td></tr><tr><td><a href="#A7"><b>A7</b></a></td><td>Task 4</td><td>fit K-Means, profile the clusters and name them</td><td>cluster sizes, the profile and one name for each cluster</td></tr><tr><td><a href="#A8"><b>A8</b></a></td><td>Task 5</td><td>cross the manual segments with the clusters</td><td>where they agree, where they split, any new sub-group</td></tr><tr><td><a href="#A9"><b>A9</b></a></td><td>Success questions 4 to 6, the share-out</td><td>answer the last three questions and prepare the share-out</td><td>the highest-value cluster, what K-Means found, one recommendation</td></tr><tr><td><a href="#B1"><b>B1</b></a></td><td>Midterm: CLTV and concentration</td><td>spend to date per customer and the top 20% share</td><td>what CLTV is here and how concentrated the money is</td></tr><tr><td><a href="#B2"><b>B2</b></a></td><td>Midterm: the value of each segment</td><td>spend by manual segment and by cluster</td><td>which group is the biggest revenue risk</td></tr><tr><td><a href="#B3"><b>B3</b></a></td><td>Midterm: justify your k</td><td>silhouette for k = 2 to 8 and a second random_state</td><td>how far to trust your k and your clusters</td></tr><tr><td><a href="#B4"><b>B4</b></a></td><td>Midterm: notebook quality</td><td>break the pipeline on purpose, three ways</td><td>what each mistake looks like</td></tr><tr><td><a href="#B5"><b>B5</b></a></td><td>Midterm: load and clean</td><td>no code: a checklist for a file you have not seen yet</td><td>what you will check and what you will say about it</td></tr><tr><td><a href="#B6"><b>B6</b></a></td><td>Midterm: writing for a business reader</td><td>no new code: a short paragraph about your biggest-risk group</td><td>about 60 to 90 words in plain words</td></tr></tbody></table></div>
+<h2>Reading any output the same way</h2>
+<p>A table of numbers tells a business nothing until someone says what it means. The product of your analysis is not "a mean of 4.21". It is one sentence a business can act on. Read every output in the same three steps.</p>
+<div class="tablewrap" tabindex="0" role="region" aria-label="Table: Step, Ask yourself"><table class="fit"><thead><tr><th scope="col">Step</th><th scope="col">Ask yourself</th></tr></thead><tbody><tr><td><b>What it is</b></td><td>What is in each row and each column? One customer, one order, one segment, one cluster? A count, an average or a share of the total?</td></tr><tr><td><b>The number that matters</b></td><td>Which one or two numbers answer the question? Compare it with something: the median Recency of all customers, the share of customers against the share of spend, the cluster before it.</td></tr><tr><td><b>What it means for the business</b></td><td>Say it in a sentence with a group of customers in it: who they are, how many, how much money, and what the business could do.</td></tr></tbody></table></div>
+<div class="box why"><p class="boxlbl">The words in one line each</p><ul><li><b>Recency, Frequency, Monetary (R, F, M):</b> days since the last order, how many different orders, and total spend.</li><li><b>Score (1 to 5):</b> each of R, F and M cut into five equal groups with <code>pd.qcut</code>. 5 is best. For Recency, recent is best, so its labels run backwards.</li><li><b>RFM_Score and segment:</b> the three scores added up (3 to 15), and the label <code>segment_customer()</code> gives that total, from Champions (12 or more) down to Lost (3).</li><li><b>Scaling:</b> putting every column on the same footing (mean 0, standard deviation 1) so that no column takes over the distance.</li><li><b>Inertia and the elbow:</b> inertia is how spread out the clusters are (smaller is tighter). It always falls as k grows, so you look for where the fall slows.</li><li><b>Cluster:</b> a group K-Means found. Its number means nothing. Name it by its profile.</li><li><b>Spend to date (CLTV here):</b> what a customer has paid so far. It is a value so far, not a forecast.</li></ul></div>
+<h2>Your dataset</h2>
+<p>Your group chooses one dataset in the data cell and keeps it for the whole exercise. The solutions on this page show both, the Option B output first and then Option A. Amounts are plain numbers: the restaurant file names no currency, and Olist amounts are Brazilian reais.</p>
+<div class="dsexp-grid"><div class="dsexp"><h3 class="dsname">Option B: Restaurant Orders <span>(restaurants and food service, the default)</span></h3><dl><dt>What it is</dt><dd>74,818 order lines from one takeaway restaurant, grouped into 13,397 orders. Source: Kaggle, Indian takeaway orders; the license is not stated.</dd><dt>What a customer is</dt><dd>There is no customer ID. The exercise treats each order number as its own customer.</dd><dt>Check your load</dt><dd>13,397 rows, and the dates run to the last order of 2019-08-03.</dd><dt>The limit</dt><dd>Nobody orders twice, so Frequency is 1 for every row. Say so in your share-out.</dd><dt>Why choose it</dt><dd>One file and a quick load. Simpler.</dd></dl></div><div class="dsexp"><h3 class="dsname">Option A: Olist <span>(online retail, Brazil)</span></h3><dl><dt>What it is</dt><dd>Orders on a Brazilian online marketplace, in three tables (orders, customers, payments) that the data cell merges. Source: Kaggle, Brazilian E-Commerce by Olist; CC BY-NC-SA 4.0.</dd><dt>What a customer is</dt><dd><code>customer_unique_id</code>, not <code>customer_id</code>, because one person can have several customer IDs.</dd><dt>Check your load</dt><dd>96,093 unique customers, and the last order is on 2018-10-17.</dd><dt>The limit</dt><dd>About 97 customers in every 100 ordered once, so Frequency is almost always 1.</dd><dt>Why choose it</dt><dd>Real repeat customers, a merge, and more money to compare. Harder.</dd></dl></div></div>
+<h2>Before you start</h2>
+<div class="box warn"><p class="boxlbl">Five things about the starter notebook</p><ol><li>In class, work in your group's copy of the starter: <a href="https://colab.research.google.com/github/c-marq/cap4767-data-mining/blob/main/exercises/m06-07_group_exercise.ipynb" target="_blank" rel="noopener">open the exercise in Colab</a>, then File, Save a copy in Drive. The code on this page uses the same variable names, so a line from a solution can be pasted straight into the starter. In class, "a new cell" on this page means the starter's own cell for that task.</li><li>Each task has one blank cell that says <code># YOUR CODE HERE</code>. The code box in Do gives a plan as comments: copy it into the blank cell and fill it in. The Hint and the Solution show the lines.</li><li>Run the setup cell first and leave it alone. Then choose ONE dataset in the data cell and run it. After a task, never change the dataset without running every cell again from the data cell, because <code>rfm</code> keeps the old data.</li><li>Colab shows only the value of the <b>last line</b> of a cell. To see something from the middle of a cell, wrap it in <code>print( )</code>.</li><li>The data cell loads the files from the course repository. If it fails to load, check your internet connection and run the cell again.</li></ol></div>
+<p><b>Close is fine.</b> Colab may use other library versions than the sample outputs, so a layout can differ a little. K-Means numbers its clusters in any order, so your cluster 0 may be another group on this page: name clusters by their profile, never by their number. <b>Roles</b> (from the group exercises): the Lead Coder types, the Data Interpreter reads each output aloud, the QA Reviewer checks it against <b>Look for</b>, and the Presenter reads the answers at the share-out.</p>
+<section class="sec" id="secA"><h2>A · Help for the group exercise</h2><p>Nine steps in two blocks · each step lines up with a part of Group Exercise 5 · two datasets, one for your group</p></section>
+
+<div class="blk" id="blk1"><h3>Session 1 · Exercise 5, steps A1 to A5</h3><p>About 40 minutes if you do every step. Session 1 is the discussion, the data and Tasks 1 and 2: the RFM table, the scores and the manual segments.</p><nav class="jump stepchips" aria-label="Jump to a step"><a href="#A1" data-step="A1">A1</a><a href="#A2" data-step="A2">A2</a><a href="#A3" data-step="A3">A3</a><a href="#A4" data-step="A4">A4</a><a href="#A5" data-step="A5">A5</a></nav></div>
+<div class="box go"><p class="boxlbl">Before you start Session 1</p><ul><li>Open <a href="https://colab.research.google.com/github/c-marq/cap4767-data-mining/blob/main/exercises/m06-07_group_exercise.ipynb" target="_blank" rel="noopener">the exercise in Colab</a>, save a copy in Drive and work in your copy, so it is still there for Session 2.</li><li>Pick roles (four, or three with the Lead Coder also checking). Then answer the blue discussion box before any code (A1).</li><li>Choose your dataset once, in A2, and keep it. The minimum win for Session 1: an <code>rfm</code> table with one row per customer, three scores, six segment labels with counts, and Champions whose median Recency is below everyone's.</li></ul></div>
+<div class="box go"><p class="boxlbl">How the steps line up with Session 1</p><ul><li><b>A1:</b> the group discussion cell.</li><li><b>A2:</b> the setup cell and the data cell.</li><li><b>A3:</b> Task 1 and Checkpoint 1.</li><li><b>A4:</b> Task 2 and Checkpoint 2.</li><li><b>A5:</b> the interpretation cell and success questions 1 to 3. This is where you say, in words, what the segments are.</li></ul></div>
+<article class="card" id="A1"><h3><label><input type="checkbox" class="tick" id="tick-A1" data-id="A1" data-sec="A" data-blk="1"><span class="tag">A1</span>Map R, F and M to your data</label></h3><p class="meta">Session 1 · Helps with the discussion cell · about 3 minutes</p><div class="box go"><p class="boxlbl">Do</p><ol><li>Before any code, read the four questions in the blue box of the starter. Then read the card for your dataset in <b>Your dataset</b> above.</li><li>As a group, answer the four questions in two or three sentences each. Be exact about <b>which column</b> each answer comes from, or how you will build it.</li><li>Say out loud what one customer is in your data, and what one visit is. For Option B, say what that does to Frequency before you run anything.</li></ol></div><div class="box why"><p class="boxlbl">Look for</p><ul><li><b>Recency</b> is how long ago the customer last ordered, in days. <b>Frequency</b> is how many different orders they placed. <b>Monetary</b> is how much they spent in total.</li><li><b>Option B:</b> each order number is its own customer, so a customer can never come back. Say that now: Frequency will be 1 for everyone.</li><li><b>Option A:</b> a customer is a <code>customer_unique_id</code>. One person can have several <code>customer_id</code> values, so counting those would split one person into many.</li><li>The fourth question asks for a guess. A guess with a reason is the point; the data answers it later, in B1.</li></ul></div><h4>Write down</h4><div class="codewrap"><button class="copy" type="button" aria-label="Copy code block 1 in step A1">Copy</button><pre class="code" tabindex="0">Recency means ___, from the column ___
+Frequency means ___; in our data we expect ___
+Monetary means ___, from the column ___
+Concentration: more or less extreme than the demo (about 75% of the spend in the top 20% of customers)? ___, because ___</pre></div><details class="hint"><summary>Hint</summary><div><p>Picture one real customer of the business. When did they last order? How many different orders have they placed? How much have they paid in total? Those three answers are R, F and M.</p><p>For the fourth question, think about how different the orders are in size. If every order is about the same size, the money is spread out. If a few customers place very large orders, it piles up in a few hands.</p></div></details><details class="sol"><summary>Show solution (open this last)</summary><div><div class="lbl">Write down, filled in: Option B (restaurant)</div><div class="codewrap"><button class="copy" type="button" aria-label="Copy code block 2 in step A1">Copy</button><pre class="code" tabindex="0">Recency means days since the order, from the column InvoiceDate (the order&#x27;s date and time)
+Frequency means how many different orders a customer placed; in our data we expect 1 for everyone, because each order number is its own &quot;customer&quot;
+Monetary means the total spent, from the column TotalPrice (quantity times price, added up for each order)
+Concentration: less extreme than the demo, because restaurant orders are small and close in size. B1 gives the real number.</pre></div><div class="lbl">Write down, filled in: Option A (Olist)</div><div class="codewrap"><button class="copy" type="button" aria-label="Copy code block 3 in step A1">Copy</button><pre class="code" tabindex="0">Recency means days since the customer&#x27;s last order, from the column InvoiceDate (the order timestamp)
+Frequency means how many different orders one person placed (unique InvoiceNo per customer_unique_id); we expect 1 for almost everyone
+Monetary means the total payment_value added up per customer, from the column TotalPrice
+Concentration: less extreme than the demo, because most customers placed one order. B1 gives the real number.</pre></div><div class="box warn"><p class="boxlbl">Watch out</p><ul><li>The two guesses on Concentration are only guesses. They are checked in B1. A guess that turns out wrong is still a good answer if it came with a reason.</li><li>In Option B, do not write that customers "come back". The file cannot tell you that, because it has no customer ID.</li></ul></div><p><b>What it means.</b> Before any code, the group knows what each number will stand for, and what the data cannot tell it.</p></div></details></article>
+
+<article class="card" id="A2"><h3><label><input type="checkbox" class="tick" id="tick-A2" data-id="A2" data-sec="A" data-blk="1"><span class="tag">A2</span>Load the data and check the load</label></h3><p class="meta">Session 1 · Helps with the setup and data cells · about 5 minutes</p><div class="box go"><p class="boxlbl">Do</p><ol><li>Run the setup cell as it is. It prints one line that says the setup is complete. It also gives you the <code>segment_customer()</code> function from the demo.</li><li>In the data cell, look at the first line: <code>DATASET = "B"</code>. That is the restaurant data. To use Olist, change the B to a capital A, inside the quotes: <code>DATASET = "A"</code>. Run the cell.</li><li>Compare the printed lines with <b>Look for</b>. If they do not match, find out why before you go on.</li></ol></div><div class="box why"><p class="boxlbl">Look for</p><ul><li><b>Option B:</b> <code>Dataset: Restaurant Orders</code>, 13,397 rows, 13,397 unique orders, and a date range that ends at 2019-08-03 20:25:00.</li><li><b>Option A:</b> <code>Dataset: Brazilian E-Commerce</code>, a shape of 103,877 rows (order lines after the merge), 96,093 unique customers, and a last order at 2018-10-17 17:30:18.</li><li>The first printed line names your dataset. If it is not the one you meant, fix it now.</li></ul></div><h4>Write down</h4><div class="codewrap"><button class="copy" type="button" aria-label="Copy code block 1 in step A2">Copy</button><pre class="code" tabindex="0">Dataset: ___ | rows ___ | unique customers ___ | last order ___
+Our group uses Option ___ and keeps it for Session 2</pre></div><details class="hint"><summary>Hint</summary><div><p>The first line must read exactly <code>DATASET = "A"</code>: a capital letter, inside the quotes. A lowercase "a", or "A " with a space, does not stop the cell: it loads Option B without an error, and only the printed <code>Dataset:</code> line tells you.</p><p>Option A downloads three files, so it takes longer than Option B.</p></div></details><details class="sol"><summary>Show solution (open this last)</summary><div><div class="lbl">The one line you change (Option A only)</div><div class="codewrap"><button class="copy" type="button" aria-label="Copy code block 2 in step A2">Copy</button><pre class="code" tabindex="0">DATASET = &quot;A&quot;   # &quot;A&quot; = Brazilian E-Commerce (Olist) | &quot;B&quot; = Restaurant Orders</pre></div><div class="lbl">Sample output, Option B (restaurant): data cell</div><pre class="out" tabindex="0">Dataset: Restaurant Orders
+Shape: 13,397 rows
+Unique customers/orders: 13,397
+Date range: 2015-09-01 14:42:00 to 2019-08-03 20:25:00
+   InvoiceNo         InvoiceDate  TotalPrice  CustomerID
+0        630 2015-09-01 14:42:00        3.95         630
+1        647 2015-09-08 17:12:00        3.95         647
+2        648 2015-09-08 17:31:00        3.95         648
+3        651 2015-09-08 17:56:00        3.95         651
+4        764 2015-09-09 09:31:00        3.95         764</pre><div class="lbl">Sample output, Option A (Olist): data cell</div><pre class="out" tabindex="0">Dataset: Brazilian E-Commerce
+Shape: 103,877 rows
+Unique customers/orders: 96,093
+Date range: 2016-09-04 21:15:19 to 2018-10-17 17:30:18
+                         CustomerID         InvoiceDate                         InvoiceNo  TotalPrice
+0  7c396fd4830fd04220f754e42b4e5bff 2017-10-02 10:56:33  e481f51cbdc54678b7cc49136f2d6af7       18.12
+1  7c396fd4830fd04220f754e42b4e5bff 2017-10-02 10:56:33  e481f51cbdc54678b7cc49136f2d6af7        2.00
+2  7c396fd4830fd04220f754e42b4e5bff 2017-10-02 10:56:33  e481f51cbdc54678b7cc49136f2d6af7       18.59
+3  af07308b275d755c9edb36a90c618231 2018-07-24 20:41:37  53cdb2fc8bc7dce0b6741e2150273451      141.46
+4  3a653a41f6f9fc3d2a113cf8398680e8 2018-08-08 08:38:49  47770eb9100c2d0c44946d9cf07ec65d      179.12</pre><div class="lbl">Write down, filled in: Option B (restaurant)</div><div class="codewrap"><button class="copy" type="button" aria-label="Copy code block 3 in step A2">Copy</button><pre class="code" tabindex="0">Dataset: Restaurant Orders | rows 13,397 | unique customers 13,397 | last order 2019-08-03 20:25:00
+Our group uses Option B and keeps it for Session 2</pre></div><div class="lbl">Write down, filled in: Option A (Olist)</div><div class="codewrap"><button class="copy" type="button" aria-label="Copy code block 4 in step A2">Copy</button><pre class="code" tabindex="0">Dataset: Brazilian E-Commerce | rows 103,877 | unique customers 96,093 | last order 2018-10-17 17:30:18
+Our group uses Option A and keeps it for Session 2</pre></div><div class="box warn"><p class="boxlbl">Watch out</p><ul><li><b>Silent switch:</b> <code>DATASET = "a"</code> and <code>DATASET = "A "</code> both print <code>Dataset: Restaurant Orders</code> and no error (we ran both).</li><li><b>Switching later:</b> if you change the dataset after Task 1 and run only the data cell, <code>rfm</code> still holds the old dataset. We ran it: the data cell printed Brazilian E-Commerce, and <code>len(rfm)</code> was still 13,397. After any change, run every cell again from the data cell down.</li><li>In Option A the shape is 103,877 rows but there are 96,093 customers, because one customer can have several order lines.</li></ul></div><p><b>What it means.</b> Option B: one row for each order, and 13,397 "customers" who each ordered once. Option A: about 96,000 people, a few of whom ordered more than once.</p></div></details></article>
+
+<article class="card" id="A3"><h3><label><input type="checkbox" class="tick" id="tick-A3" data-id="A3" data-sec="A" data-blk="1"><span class="tag">A3</span>Task 1: build the RFM table</label></h3><p class="meta">Session 1 · Helps with Task 1 and Checkpoint 1 · about 10 minutes</p><div class="box go"><p class="boxlbl">Do</p><ol><li>Restate Task 1 in one sentence: one row for each customer, with three numbers.</li><li>Copy the plan below into the Task 1 cell. Under each comment, write the line that does it. Fill in each ___ first, in words.</li><li>Run the cell. Check it against Checkpoint 1 in the starter and against <b>Look for</b>.<div class="codewrap"><button class="copy" type="button" aria-label="Copy code block 1 in step A3">Copy</button><pre class="code" tabindex="0"># Task 1: Calculate RFM metrics
+# Plan, as comments first:
+# 1. snapshot_date = ___   (one day after the last InvoiceDate in df)
+# 2. group df by &quot;CustomerID&quot;
+# 3. Recency   = ___   (days from snapshot_date to this customer&#x27;s last InvoiceDate)
+# 4. Frequency = ___   (how many DIFFERENT orders: which column, and nunique or count?)
+# 5. Monetary  = ___   (add up which column?)
+# 6. keep the table as rfm, with the columns CustomerID, Recency, Frequency, Monetary
+# 7. print rfm.describe()
+</pre></div></li></ol></div><div class="box why"><p class="boxlbl">Look for</p><ul><li><b>Option B:</b> 13,397 rows. Frequency is 1 for every row: its minimum and maximum are both 1.0 and its standard deviation is 0.0. Snapshot 2019-08-04 20:25:00. Recency: minimum 1, median 474, maximum 1,433 days.</li><li><b>Option A:</b> 96,093 rows (anything from 90,000 to 98,000 is fine), and a largest Frequency of 17 (anything from 5 to 20 is fine). Snapshot 2018-10-18 17:30:18. Recency: minimum 1, median 269, maximum 773 days.</li><li><b>Monetary:</b> the mean is above the median in both datasets, so a few large spenders pull the average up. Option B: median 30.00, mean 33.33, maximum 1,242.00. Option A: median 108.00, mean 166.60, maximum 13,664.08.</li><li>About 99,000 rows means you grouped by <code>customer_id</code> instead of <code>customer_unique_id</code>. A largest Frequency over 20 means you counted rows instead of unique orders.</li></ul></div><h4>Write down</h4><div class="codewrap"><button class="copy" type="button" aria-label="Copy code block 2 in step A3">Copy</button><pre class="code" tabindex="0">Rows in rfm ___ | snapshot date ___
+Recency: min ___, median ___, max ___ days
+Frequency: min ___, max ___
+Monetary: median ___, mean ___, max ___
+One thing in this summary that a business owner should hear about: ___</pre></div><details class="hint"><summary>Hint</summary><div><p>The snapshot is <code>df["InvoiceDate"].max() + pd.Timedelta(days=1)</code>.</p><p>Use named aggregation inside <code>.agg(...)</code>: <code>Recency=("InvoiceDate", lambda x: (snapshot_date - x.max()).days)</code> for the days, <code>Frequency=("InvoiceNo", "nunique")</code> for the number of different orders, and <code>Monetary=("TotalPrice", "sum")</code> for the money. <code>"nunique"</code> counts different orders; <code>"count"</code> would count order lines. Then <code>.reset_index()</code> so CustomerID is a column again.</p><p>If you get an error about <code>InvoiceNo</code> or <code>CustomerID</code>, check that you ran the data cell after the setup cell.</p></div></details><details class="sol"><summary>Show solution (open this last)</summary><div><div class="lbl">The key's code, which fills the plan</div><div class="codewrap"><button class="copy" type="button" aria-label="Copy code block 3 in step A3">Copy</button><pre class="code" tabindex="0"># Task 1: Calculate RFM metrics
+snapshot_date = df[&quot;InvoiceDate&quot;].max() + pd.Timedelta(days=1)
+
+rfm = df.groupby(&quot;CustomerID&quot;).agg(
+    Recency=(&quot;InvoiceDate&quot;, lambda x: (snapshot_date - x.max()).days),
+    Frequency=(&quot;InvoiceNo&quot; if &quot;InvoiceNo&quot; in df.columns else &quot;CustomerID&quot;, &quot;nunique&quot;),
+    Monetary=(&quot;TotalPrice&quot;, &quot;sum&quot;)
+).reset_index()
+
+print(f&quot;Unique customers: {rfm.shape[0]:,}&quot;)
+print(f&quot;Snapshot date: {snapshot_date}&quot;)
+print(f&quot;\nRFM Summary:&quot;)
+print(rfm[[&quot;Recency&quot;, &quot;Frequency&quot;, &quot;Monetary&quot;]].describe().round(2))</pre></div><p class="sub">The <code>if</code> in the Frequency line always picks <code>InvoiceNo</code> in both datasets, because both tables have that column. You can write <code>"InvoiceNo"</code> directly.</p><div class="lbl">Sample output, Option B (restaurant): Task 1</div><pre class="out" tabindex="0">Unique customers: 13,397
+Snapshot date: 2019-08-04 20:25:00
+
+RFM Summary:
+        Recency  Frequency  Monetary
+count  13397.00    13397.0  13397.00
+mean     515.14        1.0     33.33
+std      340.51        0.0     22.23
+min        1.00        1.0      0.50
+25%      219.00        1.0     22.25
+50%      474.00        1.0     30.00
+75%      785.00        1.0     39.40
+max     1433.00        1.0   1242.00</pre><div class="lbl">Sample output, Option A (Olist): Task 1</div><pre class="out" tabindex="0">Unique customers: 96,093
+Snapshot date: 2018-10-18 17:30:18
+
+RFM Summary:
+        Recency  Frequency  Monetary
+count  96093.00   96093.00  96093.00
+mean     288.74       1.03    166.60
+std      153.41       0.21    231.43
+min        1.00       1.00      9.59
+25%      164.00       1.00     63.13
+50%      269.00       1.00    108.00
+75%      398.00       1.00    183.53
+max      773.00      17.00  13664.08</pre><div class="lbl">Write down, filled in: Option B (restaurant)</div><div class="codewrap"><button class="copy" type="button" aria-label="Copy code block 4 in step A3">Copy</button><pre class="code" tabindex="0">Rows in rfm 13,397 | snapshot date 2019-08-04 20:25:00
+Recency: min 1, median 474, max 1,433 days
+Frequency: min 1, max 1
+Monetary: median 30.00, mean 33.33, max 1,242.00
+One thing in this summary that a business owner should hear about: Frequency is 1 for every order, so this table cannot tell us who comes back</pre></div><div class="lbl">Write down, filled in: Option A (Olist)</div><div class="codewrap"><button class="copy" type="button" aria-label="Copy code block 5 in step A3">Copy</button><pre class="code" tabindex="0">Rows in rfm 96,093 | snapshot date 2018-10-18 17:30:18
+Recency: min 1, median 269, max 773 days
+Frequency: min 1, max 17
+Monetary: median 108.00, mean 166.60, max 13,664.08
+One thing in this summary that a business owner should hear about: the mean spend (166.60) is well above the median (108.00), so a minority of big spenders pull the average up</pre></div><div class="box warn"><p class="boxlbl">Watch out</p><ul><li><b>count instead of nunique:</b> in Option A the largest Frequency becomes 33 instead of 17, because <code>count</code> adds one for every order line, and one order can have several lines. In Option B nothing changes, because that file is already one row per order (we ran it: the largest Frequency was 1 with both).</li><li><b>Grouping by customer_id (Option A):</b> 99,437 customers instead of 96,093. We ran both on the same rows.</li><li>Frequency is 1 for everyone in Option B and for almost everyone in Option A. That matters in A4 and A5.</li></ul></div><p><b>What it means.</b> Each row now stands for one customer: how recently, how often and how much. Spend is skewed to the high side in both datasets, so the average overstates the typical customer.</p></div></details></article>
+
+<article class="card" id="A4"><h3><label><input type="checkbox" class="tick" id="tick-A4" data-id="A4" data-sec="A" data-blk="1"><span class="tag">A4</span>Task 2: scores and manual segments</label></h3><p class="meta">Session 1 · Helps with Task 2 and Checkpoint 2 · about 12 minutes</p><div class="box go"><p class="boxlbl">Do</p><ol><li>Restate Task 2: three scores from 1 to 5, a total, and a segment label for every customer.</li><li>Copy the plan below into the Task 2 cell. Fill in each ___ in words first, then write the lines.<div class="codewrap"><button class="copy" type="button" aria-label="Copy code block 1 in step A4">Copy</button><pre class="code" tabindex="0"># Task 2: RFM scores + manual segments
+# Plan, as comments first:
+# 1. R_Score = pd.qcut of Recency into 5 groups. Recent customers should score HIGH, so the labels must run ___
+# 2. F_Score = pd.qcut of Frequency into 5 groups. Frequency has many ties, so first call ___ on it
+# 3. M_Score = pd.qcut of Monetary into 5 groups, labels 1 to 5
+# 4. every score line ends in ___ so the scores can be added
+# 5. RFM_Score = R_Score + F_Score + M_Score
+# 6. rfm[&quot;Customer_Segment&quot;] = RFM_Score passed through segment_customer()
+# 7. print the value_counts of Customer_Segment
+</pre></div></li><li>Run the cell. Then check Checkpoint 2: are the Champions recent buyers? Compare the median Recency of the Champions with everyone's (the Hint has an optional line that prints both).</li></ol></div><div class="box why"><p class="boxlbl">Look for</p><ul><li><b>Six labels</b> in the value_counts. Option B: Loyal 4,432, Champions 3,068, Potential Loyalist 2,745, At Risk 2,128, Can't Lose 537, Lost 487. Option A: Loyal 39,142, Potential Loyalist 25,111, Champions 15,957, At Risk 12,642, Can't Lose 2,427, Lost 814.</li><li><b>Checkpoint 2:</b> the Champions' median Recency must be below everyone's. Option B: 128 days against 474. Option A: 150 days against 269.</li><li>If the Champions look old, the Recency labels were not reversed: check <code>labels=[5, 4, 3, 2, 1]</code>.</li><li>Segment counts can differ a little if your copy of the data or library differs. The Champions test is the one that tells a correct run from a missed reversal.</li></ul></div><h4>Write down</h4><div class="codewrap"><button class="copy" type="button" aria-label="Copy code block 2 in step A4">Copy</button><pre class="code" tabindex="0">Segments found ___ | largest ___ (___) | smallest ___ (___)
+Champions&#x27; median Recency ___ days against ___ for everyone
+Recency labels run ___ because ___
+Frequency needs .rank(method=&quot;first&quot;) because ___</pre></div><details class="hint"><summary>Hint</summary><div><p>Recency: <code>pd.qcut(rfm["Recency"], q=5, labels=[5, 4, 3, 2, 1])</code>. A small Recency (a recent order) must get the label 5.</p><p>Frequency: put <code>.rank(method="first")</code> on the column before qcut. Without it, qcut stops with <code>ValueError: Bin edges must be unique</code>, because most customers share one Frequency value.</p><p>Add <code>.astype(int)</code> at the end of each qcut line. Without it, adding the three scores fails with <code>TypeError</code> about <code>Categorical</code>.</p><p>The label line is <code>rfm["RFM_Score"].apply(segment_customer)</code>.</p><p>Optional, for Checkpoint 2:</p><div class="codewrap"><button class="copy" type="button" aria-label="Copy code block 3 in step A4">Copy</button><pre class="code" tabindex="0"># ADD: Checkpoint 2, are the Champions recent buyers?
+champ = rfm[rfm[&quot;Customer_Segment&quot;] == &quot;Champions&quot;]
+print(f&quot;Champions: median Recency {champ[&#x27;Recency&#x27;].median():.0f} days, all customers {rfm[&#x27;Recency&#x27;].median():.0f} days&quot;)</pre></div></div></details><details class="sol"><summary>Show solution (open this last)</summary><div><div class="lbl">The key's code</div><div class="codewrap"><button class="copy" type="button" aria-label="Copy code block 4 in step A4">Copy</button><pre class="code" tabindex="0"># Task 2: RFM scores + manual segments
+rfm[&quot;R_Score&quot;] = pd.qcut(rfm[&quot;Recency&quot;], q=5, labels=[5, 4, 3, 2, 1]).astype(int)
+rfm[&quot;F_Score&quot;] = pd.qcut(rfm[&quot;Frequency&quot;].rank(method=&quot;first&quot;), q=5, labels=[1, 2, 3, 4, 5]).astype(int)
+rfm[&quot;M_Score&quot;] = pd.qcut(rfm[&quot;Monetary&quot;], q=5, labels=[1, 2, 3, 4, 5]).astype(int)
+rfm[&quot;RFM_Score&quot;] = rfm[&quot;R_Score&quot;] + rfm[&quot;F_Score&quot;] + rfm[&quot;M_Score&quot;]
+
+rfm[&quot;Customer_Segment&quot;] = rfm[&quot;RFM_Score&quot;].apply(segment_customer)
+
+print(&quot;Customer Segments:&quot;)
+print(rfm[&quot;Customer_Segment&quot;].value_counts())</pre></div><div class="lbl">Add this line for Checkpoint 2</div><div class="codewrap"><button class="copy" type="button" aria-label="Copy code block 5 in step A4">Copy</button><pre class="code" tabindex="0"># ADD: Checkpoint 2, are the Champions recent buyers?
+champ = rfm[rfm[&quot;Customer_Segment&quot;] == &quot;Champions&quot;]
+print(f&quot;Champions: median Recency {champ[&#x27;Recency&#x27;].median():.0f} days, all customers {rfm[&#x27;Recency&#x27;].median():.0f} days&quot;)</pre></div><div class="lbl">Sample output, Option B (restaurant): Task 2</div><pre class="out" tabindex="0">Customer Segments:
+Customer_Segment
+Loyal                 4432
+Champions             3068
+Potential Loyalist    2745
+At Risk               2128
+Can&#x27;t Lose             537
+Lost                   487
+Name: count, dtype: int64
+Champions: median Recency 128 days, all customers 474 days</pre><div class="lbl">Sample output, Option A (Olist): Task 2</div><pre class="out" tabindex="0">Customer Segments:
+Customer_Segment
+Loyal                 39142
+Potential Loyalist    25111
+Champions             15957
+At Risk               12642
+Can&#x27;t Lose             2427
+Lost                    814
+Name: count, dtype: int64
+Champions: median Recency 150 days, all customers 269 days</pre><div class="lbl">Write down, filled in: Option B (restaurant)</div><div class="codewrap"><button class="copy" type="button" aria-label="Copy code block 6 in step A4">Copy</button><pre class="code" tabindex="0">Segments found 6 | largest Loyal (4,432) | smallest Lost (487)
+Champions&#x27; median Recency 128 days against 474 for everyone
+Recency labels run 5, 4, 3, 2, 1 because the most recent customers should get the highest score
+Frequency needs .rank(method=&quot;first&quot;) because every customer has Frequency 1, so qcut has no edges to cut on</pre></div><div class="lbl">Write down, filled in: Option A (Olist)</div><div class="codewrap"><button class="copy" type="button" aria-label="Copy code block 7 in step A4">Copy</button><pre class="code" tabindex="0">Segments found 6 | largest Loyal (39,142) | smallest Lost (814)
+Champions&#x27; median Recency 150 days against 269 for everyone
+Recency labels run 5, 4, 3, 2, 1 because the most recent customers should get the highest score
+Frequency needs .rank(method=&quot;first&quot;) because about 97% of customers share Frequency 1, so qcut&#x27;s edges repeat</pre></div><div class="box warn"><p class="boxlbl">Watch out</p><ul><li><b>Without .rank(method="first")</b>: <code>ValueError: Bin edges must be unique</code>. The error's own tip, <code>duplicates="drop"</code>, does not fix it: with five labels you get <code>ValueError: Bin labels must be one fewer than the number of bin edges</code>. Use the rank (we ran both).</li><li><b>Reversal forgotten</b> (labels 1 to 5 on Recency): no error. Option B shows only 3 labels (Loyal 8,031, Potential Loyalist 5,360, At Risk 6) and no Champions. Option A still shows 6 labels, but its 15,366 "Champions" have a median Recency of 423 days against 269 for everyone. Only the Champions test catches it (B4 shows both runs).</li><li><b>Without .astype(int):</b> <code>TypeError: unsupported operand type(s) for +: 'Categorical' and 'Categorical'</code> on the total line.</li><li><b>Task 2 before Task 1:</b> <code>NameError: name 'rfm' is not defined</code>. Run Task 1 first.</li></ul></div><p><b>What it means.</b> Every customer now has a label that a business could use. Check one thing before you trust it: the Champions must be the recent buyers. In Option B a restaurant with 23% Champions (3,068 of 13,397) is odd. A5 shows why.</p></div></details></article>
+
+<article class="card" id="A5"><h3><label><input type="checkbox" class="tick" id="tick-A5" data-id="A5" data-sec="A" data-blk="1"><span class="tag">A5</span>Read your segments</label></h3><p class="meta">Session 1 · Helps with the interpretation cell and success questions 1 to 3 · about 8 minutes</p><div class="box go"><p class="boxlbl">Do</p><ol><li>Look at your segment counts from A4. In the starter's interpretation cell, answer in two or three sentences: which segment is largest, which has the fewest customers, and does the distribution surprise you?</li><li>Run the cell below. It answers success questions 1 to 3 and checks one more thing: whether Frequency is telling you anything.<div class="codewrap"><button class="copy" type="button" aria-label="Copy code block 1 in step A5">Copy</button><pre class="code" tabindex="0"># Read your segments: success questions 1 to 3, and one honest check on Frequency
+print(f&quot;1. Unique customers after cleaning: {rfm.shape[0]:,}&quot;)
+top_two = rfm[&quot;Customer_Segment&quot;].isin([&quot;Champions&quot;, &quot;Loyal&quot;]).mean() * 100
+print(f&quot;2. Champions + Loyal: {top_two:.1f}% of customers&quot;)
+ratio = rfm[&quot;Monetary&quot;].mean() / rfm[&quot;Monetary&quot;].median()
+print(f&quot;3. Mean / median Monetary: {rfm[&#x27;Monetary&#x27;].mean():.2f} / {rfm[&#x27;Monetary&#x27;].median():.2f} = {ratio:.2f}&quot;)
+
+print(&quot;\nMedian Recency, Frequency and Monetary per segment:&quot;)
+print(rfm.groupby(&quot;Customer_Segment&quot;)[[&quot;Recency&quot;, &quot;Frequency&quot;, &quot;Monetary&quot;]].median().round(1))
+
+print(f&quot;\nFrequency is 1 for {(rfm[&#x27;Frequency&#x27;] == 1).mean() * 100:.1f}% of customers&quot;)
+print(f&quot;F_Score equals R_Score for {(rfm[&#x27;R_Score&#x27;] == rfm[&#x27;F_Score&#x27;]).mean() * 100:.1f}% of customers&quot;)</pre></div></li><li>Read the last two lines out loud as a group. Then write your honest sentence about Frequency in the starter.</li></ol></div><div class="box why"><p class="boxlbl">Look for</p><ul><li><b>Question 1:</b> unique customers after cleaning. Option B: 13,397. Option A: 96,093.</li><li><b>Question 2:</b> Champions plus Loyal. Option B: 56.0% of customers. Option A: 57.3%.</li><li><b>Question 3:</b> mean over median Monetary. Option B: 33.33 over 30.00, which is 1.11. Option A: 166.60 over 108.00, which is 1.54. The further above 1, the more a few big spenders pull the average up.</li><li><b>The Frequency check:</b> Option B has Frequency 1 for 100.0% of customers, and F_Score equals R_Score for 99.8% of them. Option A has Frequency 1 for 96.9%, and F_Score equals R_Score for 20.1%, which is what chance gives for two five-level scores.</li><li><b>Option B, said plainly:</b> our Frequency score here is not measuring anything. <code>.rank(method="first")</code> breaks ties by row order, and the rows are in order of order number, which rises with the order date (rank correlation 1.0). So F_Score copies R_Score.</li></ul></div><h4>Write down</h4><div class="codewrap"><button class="copy" type="button" aria-label="Copy code block 2 in step A5">Copy</button><pre class="code" tabindex="0">Largest segment ___ | fewest ___ | does it surprise us? ___
+1. Unique customers ___  2. Champions + Loyal ___%  3. Mean / median Monetary ___
+Frequency is 1 for ___% of customers; F_Score equals R_Score for ___%
+What that means for our scores: ___</pre></div><details class="hint"><summary>Hint</summary><div><p>The ratio is <code>rfm["Monetary"].mean() / rfm["Monetary"].median()</code>. The share in the top two segments is <code>.isin(["Champions", "Loyal"]).mean() * 100</code>.</p><p>For the Frequency sentence: if almost everyone has Frequency 1, what is left to separate the customers on F? Only the order of the rows. A score made from row order says nothing about how often anyone buys.</p></div></details><details class="sol"><summary>Show solution (open this last)</summary><div><div class="lbl">Sample output, Option B (restaurant): success questions 1 to 3</div><pre class="out" tabindex="0">1. Unique customers after cleaning: 13,397
+2. Champions + Loyal: 56.0% of customers
+3. Mean / median Monetary: 33.33 / 30.00 = 1.11
+
+Median Recency, Frequency and Monetary per segment:
+                    Recency  Frequency  Monetary
+Customer_Segment                                
+At Risk               855.5        1.0      27.2
+Can&#x27;t Lose           1004.0        1.0      23.8
+Champions             128.0        1.0      36.8
+Lost                 1024.0        1.0      17.8
+Loyal                 351.0        1.0      29.8
+Potential Loyalist    660.0        1.0      30.8
+
+Frequency is 1 for 100.0% of customers
+F_Score equals R_Score for 99.8% of customers</pre><div class="lbl">Sample output, Option A (Olist): success questions 1 to 3</div><pre class="out" tabindex="0">1. Unique customers after cleaning: 96,093
+2. Champions + Loyal: 57.3% of customers
+3. Mean / median Monetary: 166.60 / 108.00 = 1.54
+
+Median Recency, Frequency and Monetary per segment:
+                    Recency  Frequency  Monetary
+Customer_Segment                                
+At Risk               408.0        1.0      61.7
+Can&#x27;t Lose            475.0        1.0      48.1
+Champions             150.0        1.0     213.3
+Lost                  520.0        1.0      39.9
+Loyal                 233.0        1.0     128.3
+Potential Loyalist    327.0        1.0      80.3
+
+Frequency is 1 for 96.9% of customers
+F_Score equals R_Score for 20.1% of customers</pre><div class="lbl">Write down, filled in: Option B (restaurant)</div><div class="codewrap"><button class="copy" type="button" aria-label="Copy code block 3 in step A5">Copy</button><pre class="code" tabindex="0">Largest segment Loyal | fewest Lost | does it surprise us? Yes: 23% Champions (3,068 of 13,397) is a lot for a restaurant where nobody came back twice
+1. Unique customers 13,397  2. Champions + Loyal 56.0%  3. Mean / median Monetary 1.11
+Frequency is 1 for 100.0% of customers; F_Score equals R_Score for 99.8%
+What that means for our scores: our Frequency score here is not measuring anything. It copies the Recency score, so a recent order is counted twice</pre></div><div class="lbl">Write down, filled in: Option A (Olist)</div><div class="codewrap"><button class="copy" type="button" aria-label="Copy code block 4 in step A5">Copy</button><pre class="code" tabindex="0">Largest segment Loyal | fewest Lost | does it surprise us? Partly: more than half the customers are Champions or Loyal, even though almost nobody ordered twice
+1. Unique customers 96,093  2. Champions + Loyal 57.3%  3. Mean / median Monetary 1.54
+Frequency is 1 for 96.9% of customers; F_Score equals R_Score for 20.1%
+What that means for our scores: for about 97 customers in 100, F_Score is only row order, so it does not measure how often they buy. R and M do the real work</pre></div><div class="box warn"><p class="boxlbl">Watch out</p><ul><li>Do not call the Champions "loyal repeat buyers". In both datasets nearly all of them ordered once. They are recent and big spenders.</li><li>Champions plus Loyal is 56.0% (Option B) and 57.3% (Option A) of customers. Loyal starts at a total of 9, which is about the average total (three scores that each average about 3), so roughly half the customers land in the top two segments by design. It does not mean half the customers are devoted.</li></ul></div><p><b>What it means.</b> The six segments are real groups of customers by recency and spend. They are not groups by how often anyone buys, because the data holds almost no repeat buying. Say that in your share-out.</p></div></details></article>
+
+<div class="blk" id="blk2"><h3>Session 2 · Exercise 5, steps A6 to A9</h3><p>About 40 minutes if you do every step. Session 2 is Tasks 3 to 5: scaling and the elbow, K-Means and its profile, and the comparison, then the share-outs.</p><nav class="jump stepchips" aria-label="Jump to a step"><a href="#A6" data-step="A6">A6</a><a href="#A7" data-step="A7">A7</a><a href="#A8" data-step="A8">A8</a><a href="#A9" data-step="A9">A9</a></nav></div>
+<div class="box go"><p class="boxlbl">Before you start Session 2</p><ul><li>Open your copy of the exercise from Session 1, with the same dataset. Run every cell again from the setup cell down to Task 2, so <code>rfm</code> is back. The checkpoint numbers below are the same as in Session 1.</li><li>Check your segment counts against A4 first. If they do not match, fix that before Task 3.</li><li>Task 3 uses <code>R_Score</code>, <code>F_Score</code> and <code>M_Score</code>, not the raw Recency, Frequency and Monetary. Task 4 uses <code>features_scaled</code> from Task 3, and Task 5 uses <code>rfm["Cluster"]</code> from Task 4.</li></ul></div>
+<div class="box go"><p class="boxlbl">How the steps line up with Session 2</p><ul><li><b>A6:</b> Task 3 and Checkpoint 3. Scale, then the elbow.</li><li><b>A7:</b> Task 4. Fit K-Means, profile the clusters, name each one.</li><li><b>A8:</b> Task 5. The crosstab of manual segments against clusters.</li><li><b>A9:</b> success questions 4 to 6 and the share-out.</li></ul></div>
+<article class="card" id="A6"><h3><label><input type="checkbox" class="tick" id="tick-A6" data-id="A6" data-sec="A" data-blk="2"><span class="tag">A6</span>Task 3: scale the scores and run the elbow</label></h3><p class="meta">Session 2 · Helps with Task 3 and Checkpoint 3 · about 10 minutes</p><div class="box go"><p class="boxlbl">Do</p><ol><li>Restate Task 3: put the three scores on the same footing, then try k from 2 to 8 and see how the spread inside the clusters falls.</li><li>Copy the plan into the Task 3 cell and write the lines.<div class="codewrap"><button class="copy" type="button" aria-label="Copy code block 1 in step A6">Copy</button><pre class="code" tabindex="0"># Task 3: Scale + Elbow Method
+# Plan, as comments first:
+# 1. features = the three score columns: R_Score, F_Score, M_Score
+# 2. scale them with StandardScaler and keep the result as features_scaled
+# 3. start an empty inertias list INSIDE this cell, so running it twice starts fresh
+# 4. for each k from 2 to 8: fit KMeans(n_clusters=k, random_state=42, n_init=10) and add its inertia_ to the list
+# 5. plot k against inertia
+# 6. print features_scaled.std(axis=0).round(2) for Checkpoint 3
+</pre></div></li><li>Run it. Check Checkpoint 3: every column of the scaled features has a standard deviation of 1.0. Then read the elbow chart. The Hint has optional lines that print the chart's numbers as text.</li></ol></div><div class="box why"><p class="boxlbl">Look for</p><ul><li><b>The scaler check:</b> <code>[1. 1. 1.]</code>. Without the scaler, Option B's three score columns show 1.41, 1.41 and 1.42 (we ran it, see the Hint).</li><li><b>Inertia falls at every step</b>, with smaller drops as k grows. Option B: from 20,081 at k = 2 to 4,542 at k = 8. Option A: from 215,074 to 71,780. The two datasets have different scales, so compare the drops in percent, not the raw numbers.</li><li><b>No sharp bend in either of our runs.</b> Option B's drops: 30.4%, 30.9%, 21.7%, 21.9%, 13.0%, 11.6%. Option A's: 20.9%, 20.8%, 16.8%, 16.5%, 12.6%, 12.3%. They step down gradually, with no single k where the fall suddenly stops. That is what Checkpoint 3 means by "there may be no sharp bend".</li><li>So you choose a k and say why. The key uses k = 4. Your reason is a business reason as much as a statistical one: how many groups can you name, and how many can a business act on?</li></ul></div><h4>Write down</h4><div class="codewrap"><button class="copy" type="button" aria-label="Copy code block 2 in step A6">Copy</button><pre class="code" tabindex="0">Scaled std per column: ___ (Checkpoint 3)
+Inertia at k = 2: ___ and at k = 8: ___
+The biggest drop in percent comes at k = ___ (a drop of ___%)
+Is there a sharp bend? ___
+Our k is ___ because ___</pre></div><details class="hint"><summary>Hint</summary><div><p>The scaler: <code>scaler = StandardScaler()</code>, then <code>features_scaled = scaler.fit_transform(features)</code>.</p><p>The loop: <code>for k in k_range:</code>, then <code>KMeans(n_clusters=k, random_state=42, n_init=10)</code>, <code>.fit(features_scaled)</code>, and <code>inertias.append(km.inertia_)</code>.</p><p><code>ValueError: x and y must have same first dimension</code> means your inertia list is longer than your list of k values. We ran the loop twice with the list made outside the cell: 7 values the first time and 14 the second, then that error. Make the empty list inside the cell.</p><p>Optional lines that print the chart's numbers as text:</p><div class="codewrap"><button class="copy" type="button" aria-label="Copy code block 3 in step A6">Copy</button><pre class="code" tabindex="0"># ADD: the chart&#x27;s numbers as text, and Checkpoint 3
+print(&quot;Scaled column std:&quot;, features_scaled.std(axis=0).round(2))
+print(&quot;k  inertia   drop from the step before&quot;)
+for i, (k, inertia) in enumerate(zip(k_range, inertias)):
+    drop = &quot;&quot; if i == 0 else f&quot;{(1 - inertia / inertias[i - 1]) * 100:.1f}%&quot;
+    print(f&quot;{k}  {inertia:&gt;9,.0f}   {drop}&quot;)</pre></div><p>If the std check shows 1.41 or hundreds, the scaler was skipped. Scaling the scores gave 1.0; in Option B the unscaled score columns showed 1.41, 1.41 and 1.42.</p></div></details><details class="sol"><summary>Show solution (open this last)</summary><div><div class="lbl">The key's code</div><div class="codewrap"><button class="copy" type="button" aria-label="Copy code block 4 in step A6">Copy</button><pre class="code" tabindex="0"># Task 3: Scale + Elbow Method
+features = rfm[[&quot;R_Score&quot;, &quot;F_Score&quot;, &quot;M_Score&quot;]]
+scaler = StandardScaler()
+features_scaled = scaler.fit_transform(features)
+
+inertias = []
+k_range = range(2, 9)
+for k in k_range:
+    km = KMeans(n_clusters=k, random_state=42, n_init=10)
+    km.fit(features_scaled)
+    inertias.append(km.inertia_)
+
+plt.figure(figsize=(10, 5))
+plt.plot(k_range, inertias, &quot;bo-&quot;, linewidth=2, markersize=8)
+plt.xlabel(&quot;Number of Clusters (k)&quot;)
+plt.ylabel(&quot;Inertia&quot;)
+plt.title(&quot;Elbow Method&quot;)
+plt.grid(True, alpha=0.3)
+plt.tight_layout()
+plt.show()</pre></div><div class="lbl">Add these lines for the chart's numbers as text</div><div class="codewrap"><button class="copy" type="button" aria-label="Copy code block 5 in step A6">Copy</button><pre class="code" tabindex="0"># ADD: the chart&#x27;s numbers as text, and Checkpoint 3
+print(&quot;Scaled column std:&quot;, features_scaled.std(axis=0).round(2))
+print(&quot;k  inertia   drop from the step before&quot;)
+for i, (k, inertia) in enumerate(zip(k_range, inertias)):
+    drop = &quot;&quot; if i == 0 else f&quot;{(1 - inertia / inertias[i - 1]) * 100:.1f}%&quot;
+    print(f&quot;{k}  {inertia:&gt;9,.0f}   {drop}&quot;)</pre></div><div class="lbl">Sample output, Option B (restaurant): Task 3</div><pre class="out" tabindex="0">Scaled column std: [1. 1. 1.]
+k  inertia   drop from the step before
+2     20,081   
+3     13,975   30.4%
+4      9,658   30.9%
+5      7,564   21.7%
+6      5,909   21.9%
+7      5,140   13.0%
+8      4,542   11.6%</pre><div class="lbl">Sample output, Option A (Olist): Task 3</div><pre class="out" tabindex="0">Scaled column std: [1. 1. 1.]
+k  inertia   drop from the step before
+2    215,074   
+3    170,224   20.9%
+4    134,746   20.8%
+5    112,092   16.8%
+6     93,561   16.5%
+7     81,801   12.6%
+8     71,780   12.3%</pre><div class="lbl">Write down, filled in: Option B (restaurant)</div><div class="codewrap"><button class="copy" type="button" aria-label="Copy code block 6 in step A6">Copy</button><pre class="code" tabindex="0">Scaled std per column: 1.0, 1.0, 1.0
+Inertia at k = 2: 20,081 and at k = 8: 4,542
+The biggest drop in percent comes at k = 4 (a drop of 30.9%)
+Is there a sharp bend? No: the drops step down gradually
+Our k is 4 because four groups are few enough to name and act on, and the drops get smaller overall (30.9% at k = 4, 11.6% at k = 8)</pre></div><div class="lbl">Write down, filled in: Option A (Olist)</div><div class="codewrap"><button class="copy" type="button" aria-label="Copy code block 7 in step A6">Copy</button><pre class="code" tabindex="0">Scaled std per column: 1.0, 1.0, 1.0
+Inertia at k = 2: 215,074 and at k = 8: 71,780
+The biggest drop in percent comes at k = 3 (a drop of 20.9%)
+Is there a sharp bend? No: the drops step down gradually
+Our k is 4 because four groups are few enough to name and act on, and the drops get smaller overall (20.8% at k = 4, 12.3% at k = 8)</pre></div><div class="box warn"><p class="boxlbl">Watch out</p><ul><li>In Option B, F_Score copies R_Score for 99.8% of customers (A5). Two of the three scaled columns are nearly the same, so K-Means effectively works with two columns: Recency and Monetary.</li><li>Running the elbow cell twice without an empty list inside it breaks the plot. See the Hint.</li><li>The elbow is a guide, not an answer. B3 checks your k with a second measure.</li></ul></div><p><b>What it means.</b> Splitting into more groups always tightens them. With no sharp bend, there is no k that the data picks for you. Pick one you can name and justify, and say it was a choice.</p></div></details></article>
+
+<article class="card" id="A7"><h3><label><input type="checkbox" class="tick" id="tick-A7" data-id="A7" data-sec="A" data-blk="2"><span class="tag">A7</span>Task 4: fit K-Means, profile and name the clusters</label></h3><p class="meta">Session 2 · Helps with Task 4 · about 12 minutes</p><div class="box go"><p class="boxlbl">Do</p><ol><li>Restate Task 4: fit K-Means with your k, put each customer's cluster in <code>rfm</code>, and describe each cluster by its average scores.</li><li>Copy the plan into the Task 4 cell and write the lines.<div class="codewrap"><button class="copy" type="button" aria-label="Copy code block 1 in step A7">Copy</button><pre class="code" tabindex="0"># Task 4: K-Means + profiling heatmap
+# Plan, as comments first:
+# 1. optimal_k = ___   (the k you chose in Task 3)
+# 2. fit KMeans(n_clusters=optimal_k, random_state=42, n_init=10) on features_scaled
+# 3. store the cluster number of every customer as rfm[&quot;Cluster&quot;]
+# 4. print the number of customers in each cluster
+# 5. cluster_profile = the mean R_Score, F_Score and M_Score for each Cluster
+# 6. draw cluster_profile as a seaborn heatmap with the numbers written in
+</pre></div></li><li>Run it and write one sentence for each cluster in the starter. Name each cluster by what its customers do, never by its number. The Hint has optional lines that print the profile as numbers.</li></ol></div><div class="box why"><p class="boxlbl">Look for</p><ul><li><b>Option B (k = 4):</b> cluster sizes 2,768, 4,186, 2,796 and 3,647. Profiles (R, F, M): 4.61, 4.61, 1.78; 3.86, 3.86, 4.11; 1.41, 1.41, 4.21; 2.02, 2.02, 1.69. The R and F columns are identical, which is the Frequency problem from A5 showing up again.</li><li><b>Option A (k = 4):</b> cluster sizes 23,083, 24,920, 25,053 and 23,037. Profiles (R, F, M): 2.49, 1.90, 4.24; 3.57, 4.43, 3.99; 1.69, 3.21, 1.84; 4.34, 2.34, 1.95.</li><li><b>Real units help.</b> The last table gives mean Recency in days and mean Monetary. In Option A the mean Frequency is 1.0 or 1.1 in every cluster, so the F_Score differences between clusters come from row order, not from how often people buy. Name the clusters by Recency and Monetary.</li><li><b>Your numbers</b> may be in another order, or a little different, if your library version differs. Match clusters by their profile.</li></ul></div><h4>Write down</h4><div class="codewrap"><button class="copy" type="button" aria-label="Copy code block 2 in step A7">Copy</button><pre class="code" tabindex="0">Cluster sizes: ___
+Cluster ___ (R ___, F ___, M ___, ___ customers): we call it &quot;___&quot; because ___
+Cluster ___ (R ___, F ___, M ___, ___ customers): we call it &quot;___&quot; because ___
+Cluster ___ (R ___, F ___, M ___, ___ customers): we call it &quot;___&quot; because ___
+Cluster ___ (R ___, F ___, M ___, ___ customers): we call it &quot;___&quot; because ___</pre></div><details class="hint"><summary>Hint</summary><div><p>Fit and store in one line: <code>rfm["Cluster"] = kmeans.fit_predict(features_scaled)</code>. The profile is <code>rfm.groupby("Cluster")[["R_Score", "F_Score", "M_Score"]].mean()</code>.</p><p>Reading a heatmap row: a high R_Score means recent, a high M_Score means big spender. A cluster with a low R_Score and a high M_Score is a group of big spenders who have gone quiet.</p><p>If Task 5 later says <code>KeyError: 'Cluster'</code>, the labels were not stored as <code>rfm["Cluster"]</code>.</p><p>Optional lines that print the heatmap's numbers as text, and the same table in real units:</p><div class="codewrap"><button class="copy" type="button" aria-label="Copy code block 3 in step A7">Copy</button><pre class="code" tabindex="0"># ADD: the heatmap&#x27;s numbers as text, and the same table in real units
+print(&quot;\nMean scores per cluster (the heatmap):&quot;)
+print(cluster_profile.round(2))
+print(&quot;\nMean Recency (days), Frequency and Monetary per cluster:&quot;)
+print(rfm.groupby(&quot;Cluster&quot;)[[&quot;Recency&quot;, &quot;Frequency&quot;, &quot;Monetary&quot;]].mean().round(1))</pre></div></div></details><details class="sol"><summary>Show solution (open this last)</summary><div><div class="lbl">The key's code (the key sets optimal_k = 4)</div><div class="codewrap"><button class="copy" type="button" aria-label="Copy code block 4 in step A7">Copy</button><pre class="code" tabindex="0"># Task 4: K-Means + profiling heatmap
+optimal_k = 4  # Adjust based on your elbow plot
+kmeans = KMeans(n_clusters=optimal_k, random_state=42, n_init=10)
+rfm[&quot;Cluster&quot;] = kmeans.fit_predict(features_scaled)
+
+print(f&quot;Cluster sizes (k={optimal_k}):&quot;)
+print(rfm[&quot;Cluster&quot;].value_counts().sort_index())
+
+# Profiling heatmap
+cluster_profile = rfm.groupby(&quot;Cluster&quot;)[[&quot;R_Score&quot;, &quot;F_Score&quot;, &quot;M_Score&quot;]].mean()
+plt.figure(figsize=(8, 5))
+sns.heatmap(cluster_profile, annot=True, fmt=&quot;.2f&quot;, cmap=&quot;YlOrRd&quot;,
+            xticklabels=[&quot;Recency&quot;, &quot;Frequency&quot;, &quot;Monetary&quot;], linewidths=0.5)
+plt.title(&quot;Cluster Profiles: Mean RFM Scores&quot;)
+plt.ylabel(&quot;Cluster&quot;)
+plt.tight_layout()
+plt.show()</pre></div><div class="lbl">Add these lines for the heatmap's numbers as text</div><div class="codewrap"><button class="copy" type="button" aria-label="Copy code block 5 in step A7">Copy</button><pre class="code" tabindex="0"># ADD: the heatmap&#x27;s numbers as text, and the same table in real units
+print(&quot;\nMean scores per cluster (the heatmap):&quot;)
+print(cluster_profile.round(2))
+print(&quot;\nMean Recency (days), Frequency and Monetary per cluster:&quot;)
+print(rfm.groupby(&quot;Cluster&quot;)[[&quot;Recency&quot;, &quot;Frequency&quot;, &quot;Monetary&quot;]].mean().round(1))</pre></div><div class="lbl">Sample output, Option B (restaurant): Task 4</div><pre class="out" tabindex="0">Cluster sizes (k=4):
+Cluster
+0    2768
+1    4186
+2    2796
+3    3647
+Name: count, dtype: int64
+
+Mean scores per cluster (the heatmap):
+         R_Score  F_Score  M_Score
+Cluster                           
+0           4.61     4.61     1.78
+1           3.86     3.86     4.11
+2           1.41     1.41     4.21
+3           2.02     2.02     1.69
+
+Mean Recency (days), Frequency and Monetary per cluster:
+         Recency  Frequency  Monetary
+Cluster                              
+0          158.0        1.0      22.4
+1          304.0        1.0      43.4
+2          898.2        1.0      44.8
+3          734.9        1.0      21.3</pre><div class="lbl">Sample output, Option A (Olist): Task 4</div><pre class="out" tabindex="0">Cluster sizes (k=4):
+Cluster
+0    23083
+1    24920
+2    25053
+3    23037
+Name: count, dtype: int64
+
+Mean scores per cluster (the heatmap):
+         R_Score  F_Score  M_Score
+Cluster                           
+0           2.49     1.90     4.24
+1           3.57     4.43     3.99
+2           1.69     3.21     1.84
+3           4.34     2.34     1.95
+
+Mean Recency (days), Frequency and Monetary per cluster:
+         Recency  Frequency  Monetary
+Cluster                              
+0          338.7        1.0     277.4
+1          228.6        1.1     249.8
+2          426.0        1.0      68.0
+3          154.5        1.0      72.8</pre><div class="lbl">Write down, filled in: Option B (restaurant)</div><div class="codewrap"><button class="copy" type="button" aria-label="Copy code block 6 in step A7">Copy</button><pre class="code" tabindex="0">Cluster sizes: 2,768, 4,186, 2,796, 3,647
+Cluster 0 (R 4.61, F 4.61, M 1.78, 2,768 customers): we call it &quot;recent small orders&quot; because they ordered more recently and spent little
+Cluster 1 (R 3.86, F 3.86, M 4.11, 4,186 customers): we call it &quot;recent big orders&quot; because they ordered fairly recently and spent a lot
+Cluster 2 (R 1.41, F 1.41, M 4.21, 2,796 customers): we call it &quot;big orders gone quiet&quot; because they spent the most and ordered long ago (898 days on average)
+Cluster 3 (R 2.02, F 2.02, M 1.69, 3,647 customers): we call it &quot;old small orders&quot; because they ordered long ago and spent little</pre></div><div class="lbl">Write down, filled in: Option A (Olist)</div><div class="codewrap"><button class="copy" type="button" aria-label="Copy code block 7 in step A7">Copy</button><pre class="code" tabindex="0">Cluster sizes: 23,083, 24,920, 25,053, 23,037
+Cluster 0 (R 2.49, F 1.90, M 4.24, 23,083 customers): we call it &quot;big spenders drifting away&quot; because their spend is the highest (277.4 on average) and their last order was 339 days ago on average
+Cluster 1 (R 3.57, F 4.43, M 3.99, 24,920 customers): we call it &quot;recent big spenders&quot; because they spent a lot (249.8) and ordered 229 days ago on average
+Cluster 2 (R 1.69, F 3.21, M 1.84, 25,053 customers): we call it &quot;old small spenders&quot; because they spent little (68.0) and ordered long ago (426 days)
+Cluster 3 (R 4.34, F 2.34, M 1.95, 23,037 customers): we call it &quot;recent small buyers&quot; because they ordered more recently (154.5 days) and spent little (72.8)</pre></div><div class="box warn"><p class="boxlbl">Watch out</p><ul><li>Cluster numbers are arbitrary. If your cluster 2 is not the "gone quiet" group in the sample, you did nothing wrong: read the profile.</li><li>In Option B, the cluster profile is really about Recency and Monetary, because R_Score and F_Score are the same column (A5). Do not describe a cluster as "frequent" or "infrequent" in either dataset.</li><li>The heatmap has no text of its own besides the numbers. The tables above carry the same numbers.</li></ul></div><p><b>What it means.</b> K-Means found four groups of customers. Two are small spenders, recent and old. Two are big spenders, and one of those has gone quiet. That last group is the one a business would want to call first.</p></div></details></article>
+
+<article class="card" id="A8"><h3><label><input type="checkbox" class="tick" id="tick-A8" data-id="A8" data-sec="A" data-blk="2"><span class="tag">A8</span>Task 5: compare manual segments with clusters</label></h3><p class="meta">Session 2 · Helps with Task 5 · about 8 minutes</p><div class="box go"><p class="boxlbl">Do</p><ol><li>Restate Task 5: lay the manual segments (rows) over the K-Means clusters (columns) in one table.</li><li>Write the one line the starter gives you, in the Task 5 cell, and run it:<div class="codewrap"><button class="copy" type="button" aria-label="Copy code block 1 in step A8">Copy</button><pre class="code" tabindex="0"># Task 5: Crosstab comparison
+# Plan: cross rfm[&quot;Customer_Segment&quot;] with rfm[&quot;Cluster&quot;], with margins=True so the totals show
+</pre></div></li><li>Read the table row by row. Then answer the starter's questions in two or three sentences: where do the two methods agree, where do they disagree, and did K-Means find a sub-group inside one manual segment?</li></ol></div><div class="box why"><p class="boxlbl">Look for</p><ul><li><b>Option B, agree:</b> Can't Lose (537) and Lost (487) sit only in cluster 3; no Champion is in clusters 2 or 3. <b>Split:</b> Loyal (4,432) is spread over clusters 0, 1 and 2 (1,717, 2,169 and 546).</li><li><b>Option A, agree:</b> Can't Lose (2,427) and Lost (814) sit only in cluster 2, and 15,227 of the 15,957 Champions are in cluster 1. <b>Split:</b> Loyal (39,142) is spread over all four clusters (11,942, 9,693, 4,461 and 13,046).</li><li><b>A sub-group to look for:</b> a cluster that draws from three or four manual segments at once. Option B's cluster 2 draws from At Risk (1,067), Loyal (546) and Potential Loyalist (1,183). Option A's cluster 0 draws from Loyal (11,942), Potential Loyalist (8,139), At Risk (2,272) and Champions (730).</li><li>Match your cluster numbers to the profile from A7 before you read the table. The numbers above use the sample's order.</li></ul></div><h4>Write down</h4><div class="codewrap"><button class="copy" type="button" aria-label="Copy code block 2 in step A8">Copy</button><pre class="code" tabindex="0">Where the methods agree: ___
+Where they disagree: ___
+A sub-group K-Means found inside the manual segments: cluster ___ (&quot;___&quot;), which draws from ___ manual segments: ___
+Why the manual rules miss it: ___</pre></div><details class="hint"><summary>Hint</summary><div><p>Read a column down to see which manual segments make up a cluster. Read a row across to see where one manual segment ends up.</p><p>The manual rules look only at the total of three scores. A customer with a low R and a high M can have the same total as a customer with a high R and a low M. K-Means looks at all three scores, so it can pull the first kind together.</p></div></details><details class="sol"><summary>Show solution (open this last)</summary><div><div class="lbl">The key's code</div><div class="codewrap"><button class="copy" type="button" aria-label="Copy code block 3 in step A8">Copy</button><pre class="code" tabindex="0"># Task 5: Crosstab comparison
+crosstab = pd.crosstab(rfm[&quot;Customer_Segment&quot;], rfm[&quot;Cluster&quot;], margins=True)
+print(&quot;Manual Segments (rows) vs K-Means Clusters (columns):&quot;)
+print(crosstab)</pre></div><div class="lbl">Sample output, Option B (restaurant): Task 5</div><pre class="out" tabindex="0">Manual Segments (rows) vs K-Means Clusters (columns):
+Cluster                0     1     2     3    All
+Customer_Segment                                 
+At Risk                0     0  1067  1061   2128
+Can&#x27;t Lose             0     0     0   537    537
+Champions           1051  2017     0     0   3068
+Lost                   0     0     0   487    487
+Loyal               1717  2169   546     0   4432
+Potential Loyalist     0     0  1183  1562   2745
+All                 2768  4186  2796  3647  13397</pre><div class="lbl">Sample output, Option A (Olist): Task 5</div><pre class="out" tabindex="0">Manual Segments (rows) vs K-Means Clusters (columns):
+Cluster                 0      1      2      3    All
+Customer_Segment                                     
+At Risk              2272      0   7252   3118  12642
+Can&#x27;t Lose              0      0   2427      0   2427
+Champions             730  15227      0      0  15957
+Lost                    0      0    814      0    814
+Loyal               11942   9693   4461  13046  39142
+Potential Loyalist   8139      0  10099   6873  25111
+All                 23083  24920  25053  23037  96093</pre><div class="lbl">Write down, filled in: Option B (restaurant)</div><div class="codewrap"><button class="copy" type="button" aria-label="Copy code block 4 in step A8">Copy</button><pre class="code" tabindex="0">Where the methods agree: Can&#x27;t Lose and Lost sit together in cluster 3 (the old, small-order group), and the Champions sit in the two clusters with recent orders
+Where they disagree: Loyal is spread over three clusters (1,717, 2,169 and 546)
+A sub-group K-Means found inside the manual segments: cluster 2 (&quot;big orders gone quiet&quot;), which draws from 3 manual segments: At Risk 1,067, Loyal 546, Potential Loyalist 1,183
+Why the manual rules miss it: the total of the scores puts a big spender who has gone quiet in the same segment as a small spender who ordered recently</pre></div><div class="lbl">Write down, filled in: Option A (Olist)</div><div class="codewrap"><button class="copy" type="button" aria-label="Copy code block 5 in step A8">Copy</button><pre class="code" tabindex="0">Where the methods agree: Can&#x27;t Lose and Lost sit together in cluster 2, and most Champions (15,227 of 15,957) sit in cluster 1
+Where they disagree: Loyal is spread over all four clusters (11,942, 9,693, 4,461 and 13,046)
+A sub-group K-Means found inside the manual segments: cluster 0 (&quot;big spenders drifting away&quot;), which draws from 4 manual segments: Loyal 11,942, Potential Loyalist 8,139, At Risk 2,272, Champions 730
+Why the manual rules miss it: the total of the scores hides who is high on M and low on R, so those big spenders are scattered across four labels</pre></div><div class="box warn"><p class="boxlbl">Watch out</p><ul><li>The agreement at the two ends is partly built in: both methods use the same three scores, so the extremes line up.</li><li>In Option B, F_Score copies R_Score, so the table is mostly about Recency and Monetary. In Option A, the 96.9% with Frequency 1 are separated on F by row order, which can sort customers into clusters for no business reason.</li></ul></div><p><b>What it means.</b> The manual rules and K-Means agree at the top and the bottom and disagree in the middle. The sub-group K-Means pulls together there is the one a business cares about: big spenders who have gone quiet.</p></div></details></article>
+
+<article class="card" id="A9"><h3><label><input type="checkbox" class="tick" id="tick-A9" data-id="A9" data-sec="A" data-blk="2"><span class="tag">A9</span>Success questions 4 to 6 and the share-out</label></h3><p class="meta">Session 2 · Helps with success questions 4 to 6 and the share-out · about 10 minutes</p><div class="box go"><p class="boxlbl">Do</p><ol><li>Run the cell below. It names the highest-value cluster by its mean M_Score and shows which manual segments each cluster is made of.<div class="codewrap"><button class="copy" type="button" aria-label="Copy code block 1 in step A9">Copy</button><pre class="code" tabindex="0"># Success questions 4 to 6: which cluster is worth the most, and what did K-Means find?
+profile = rfm.groupby(&quot;Cluster&quot;)[[&quot;R_Score&quot;, &quot;F_Score&quot;, &quot;M_Score&quot;]].mean()
+sizes = rfm[&quot;Cluster&quot;].value_counts().sort_index()
+best = profile[&quot;M_Score&quot;].idxmax()
+print(f&quot;5. Highest mean M_Score: cluster {best} ({sizes[best]:,} customers)&quot;)
+
+# Which manual segments does each cluster draw from? (share of each cluster, in %)
+split = pd.crosstab(rfm[&quot;Cluster&quot;], rfm[&quot;Customer_Segment&quot;], normalize=&quot;index&quot;).mul(100).round(0).astype(int)
+print(&quot;\nShare of each cluster that sits in each manual segment (%):&quot;)
+print(split)</pre></div></li><li>In the starter, answer success questions 4 to 6 in one to three sentences each: how many clusters the elbow suggested and whether you agree, which cluster is the highest-value and how many customers are in it, and what K-Means revealed that the manual rules missed.</li><li>Plan the share-out as a group, in three minutes of talking: (1) your dataset and how you mapped R, F and M; (2) your most interesting finding from manual segmentation; (3) your most interesting finding from K-Means; (4) one recommendation a business could act on. One person presents.</li></ol></div><div class="box why"><p class="boxlbl">Look for</p><ul><li><b>Question 4:</b> the elbow had no sharp bend in our runs (A6), so it did not suggest one number. "We chose 4, because ..." is a good answer.</li><li><b>Question 5:</b> Option B: cluster 2 has the highest mean M_Score (4.21), with 2,796 customers. It is close: cluster 1 has 4.11 with 4,186 customers. Option A: cluster 0, with 23,083 customers. Highest mean M_Score means the biggest spend for each customer, not the most money in total. B2 compares the totals.</li><li><b>Question 6:</b> the split table shows each cluster's manual segments, in percent of the cluster. Option B's cluster 2 is 38% At Risk, 20% Loyal and 42% Potential Loyalist. Option A's cluster 0 is 52% Loyal, 35% Potential Loyalist, 10% At Risk and 3% Champions.</li><li><b>The recommendation</b> names a group, a number of customers and an action. It must be something the business can really do with the data it has.</li></ul></div><h4>Write down</h4><div class="codewrap"><button class="copy" type="button" aria-label="Copy code block 2 in step A9">Copy</button><pre class="code" tabindex="0">4. The elbow suggested ___; we chose ___ because ___
+5. The highest-value cluster is ___ (&quot;___&quot;), with ___ customers, because ___
+6. K-Means found ___ that the manual rules ___
+Share-out, one sentence each: (1) ___ (2) ___ (3) ___ (4) ___</pre></div><details class="hint"><summary>Hint</summary><div><p>For question 5, say how you defined highest value. The cell uses the mean M_Score. You could use the total spend of the cluster instead; say which one you used.</p><p>For the recommendation, finish this sentence: "We recommend [action] for the [N] customers in the group we call [name], because [what the numbers show]."</p><p>Option B has no customer ID. Think about what the business would need before it could contact any of these "customers".</p></div></details><details class="sol"><summary>Show solution (open this last)</summary><div><div class="lbl">Sample output, Option B (restaurant): questions 4 to 6</div><pre class="out" tabindex="0">5. Highest mean M_Score: cluster 2 (2,796 customers)
+
+Share of each cluster that sits in each manual segment (%):
+Customer_Segment  At Risk  Can&#x27;t Lose  Champions  Lost  Loyal  Potential Loyalist
+Cluster                                                                          
+0                       0           0         38     0     62                   0
+1                       0           0         48     0     52                   0
+2                      38           0          0     0     20                  42
+3                      29          15          0    13      0                  43</pre><div class="lbl">Sample output, Option A (Olist): questions 4 to 6</div><pre class="out" tabindex="0">5. Highest mean M_Score: cluster 0 (23,083 customers)
+
+Share of each cluster that sits in each manual segment (%):
+Customer_Segment  At Risk  Can&#x27;t Lose  Champions  Lost  Loyal  Potential Loyalist
+Cluster                                                                          
+0                      10           0          3     0     52                  35
+1                       0           0         61     0     39                   0
+2                      29          10          0     3     18                  40
+3                      14           0          0     0     57                  30</pre><div class="lbl">Write down, filled in: Option B (restaurant)</div><div class="codewrap"><button class="copy" type="button" aria-label="Copy code block 3 in step A9">Copy</button><pre class="code" tabindex="0">4. The elbow suggested no single k (no sharp bend); we chose 4 because four groups are easy to name and the drops get smaller overall
+5. The highest-value cluster is cluster 2 (&quot;big orders gone quiet&quot;), with 2,796 customers, because it has the highest mean M_Score (4.21)
+6. K-Means found one group of big orders from long ago that the manual rules spread over three labels (At Risk, Loyal, Potential Loyalist)
+Share-out: (1) Option B restaurant orders; each order is a customer, so Frequency is 1 for everyone (2) 56.0% of customers are Champions or Loyal, but F_Score copies R_Score (3) cluster 2: big orders gone quiet, 2,796 customers (4) start recording a customer ID, for example with a loyalty sign-up at the till or an online account, so the next analysis can contact the people behind the big orders</pre></div><div class="lbl">Write down, filled in: Option A (Olist)</div><div class="codewrap"><button class="copy" type="button" aria-label="Copy code block 4 in step A9">Copy</button><pre class="code" tabindex="0">4. The elbow suggested no single k (no sharp bend); we chose 4 because four groups are easy to name and the drops get smaller overall
+5. The highest-value cluster is cluster 0 (&quot;big spenders drifting away&quot;), with 23,083 customers, because it has the highest mean M_Score (4.24)
+6. K-Means found one group of big spenders with older orders that the manual rules spread over four labels (Loyal, Potential Loyalist, At Risk, Champions)
+Share-out: (1) Option A Olist online retail; a customer is a customer_unique_id, and 96.9% ordered once (2) 57.3% are Champions or Loyal, but nearly all ordered once (3) cluster 0: big spenders drifting away, 23,083 customers (4) send a win-back message to the customers in cluster 0, who are the highest spenders and have not ordered for about 339 days on average</pre></div><div class="box warn"><p class="boxlbl">Watch out</p><ul><li>A recommendation with no number is a wish. A recommendation the business cannot carry out with its data is a wish too: in Option B, the data cannot say who the people are.</li><li>Do not call the highest-value cluster "our best customers" unless it is also recent. B2 shows that the cluster with the largest total spend is a different one in Option B.</li></ul></div><p><b>What it means.</b> You have a method (RFM segments) and a second look (K-Means), and one finding from each. The finding worth presenting is the group the second look found that the first one hid.</p></div></details></article>
+
+<section class="sec" id="secB"><h2>B · On your own, after Session 2, toward the Midterm Project</h2><p>Six steps · about 60 minutes · the exercise data you already know, so the Midterm Project is the first time you touch its own file</p></section>
+<div class="box go"><p class="boxlbl">About the Midterm Project</p><p>The Midterm Project is individual work, on its own file. Part B practices the pieces it needs that the group exercise did not cover: CLTV, the value of each group, justifying k, and writing for a business reader. Everything in Part B runs on your exercise data. Nothing on this page loads the midterm file or works out a midterm answer. The sample paragraph in B6 is about the exercise data: write anything you submit for the midterm yourself, from your own numbers.</p></div>
+<div class="box go"><p class="boxlbl">How Part B works</p><ol><li>Keep working in the same Colab notebook as Session 2, so <code>rfm</code>, <code>features_scaled</code> and <code>Cluster</code> are still there. If you open a new notebook, run the cells again from the setup cell down to Task 4, with the same dataset.</li><li>B1 to B4 go deeper on your exercise data. B5 and B6 have no new code: B5 is a checklist and B6 is a short paragraph.</li><li>Each step has the same five parts as Part A, with Hint and Solution closed.</li></ol></div>
+<nav class="jump stepchips" aria-label="Jump to a step"><a href="#B1" data-step="B1">B1</a><a href="#B2" data-step="B2">B2</a><a href="#B3" data-step="B3">B3</a><a href="#B4" data-step="B4">B4</a><a href="#B5" data-step="B5">B5</a><a href="#B6" data-step="B6">B6</a></nav>
+<div class="tablewrap" tabindex="0" role="region" aria-label="Table: Step, Helps with the Midterm Project, What it practices on the exercise data"><table class="fit"><thead><tr><th scope="col">Step</th><th scope="col">Helps with the Midterm Project</th><th scope="col">What it practices on the exercise data</th></tr></thead><tbody><tr><td><b>B1</b></td><td>the CLTV step</td><td>what CLTV is here, and how concentrated the money is</td></tr><tr><td><b>B2</b></td><td>quantify the value of each segment</td><td>spend by manual segment and by cluster</td></tr><tr><td><b>B3</b></td><td>justify your k</td><td>silhouette, and whether the clusters hold on a second random_state</td></tr><tr><td><b>B4</b></td><td>documenting what went wrong</td><td>what the common mistakes look like</td></tr><tr><td><b>B5</b></td><td>load and clean a new file</td><td>a checklist (no code)</td></tr><tr><td><b>B6</b></td><td>writing for a business reader</td><td>a short paragraph about your biggest-risk group (no new code)</td></tr></tbody></table></div>
+<article class="card" id="B1"><h3><label><input type="checkbox" class="tick" id="tick-B1" data-id="B1" data-sec="B" data-blk="B"><span class="tag">B1</span>Value so far: CLTV and concentration</label></h3><p class="meta">After Session 2 · Helps with the Midterm Project's CLTV step · about 10 minutes</p><div class="box go"><p class="boxlbl">Do</p><ol><li>The question: how much has each customer spent, and how few customers carry how much of the money? In your Session 2 notebook, add a new cell.</li><li>Paste the cell below. It computes CLTV the way the demo does, and then the Pareto share. Run it.<div class="codewrap"><button class="copy" type="button" aria-label="Copy code block 1 in step B1">Copy</button><pre class="code" tabindex="0"># CLTV as the demo computes it: average order x orders per year x years as a customer
+cltv_data = df.groupby(&quot;CustomerID&quot;).agg(
+    NumPurchases=(&quot;InvoiceNo&quot;, &quot;nunique&quot;),
+    TotalRevenue=(&quot;TotalPrice&quot;, &quot;sum&quot;),
+    Lifespan=(&quot;InvoiceDate&quot;, lambda x: (x.max() - x.min()).days),
+).reset_index()
+cltv_data[&quot;Lifespan&quot;] = cltv_data[&quot;Lifespan&quot;].apply(lambda x: max(x, 1)) / 365.25
+cltv_data[&quot;AOV&quot;] = cltv_data[&quot;TotalRevenue&quot;] / cltv_data[&quot;NumPurchases&quot;]
+cltv_data[&quot;PurchaseFrequency&quot;] = cltv_data[&quot;NumPurchases&quot;] / cltv_data[&quot;Lifespan&quot;]
+cltv_data[&quot;CLTV&quot;] = cltv_data[&quot;AOV&quot;] * cltv_data[&quot;PurchaseFrequency&quot;] * cltv_data[&quot;Lifespan&quot;]
+
+# Is CLTV anything more than the Monetary column?
+check = rfm.merge(cltv_data[[&quot;CustomerID&quot;, &quot;CLTV&quot;]], on=&quot;CustomerID&quot;)
+print(&quot;CLTV equals Monetary for every customer:&quot;, np.allclose(check[&quot;CLTV&quot;], check[&quot;Monetary&quot;]))
+
+# Pareto: how few customers carry how much of the spend to date
+cltv_sorted = cltv_data[&quot;CLTV&quot;].sort_values(ascending=False).reset_index(drop=True)
+cumulative_pct = cltv_sorted.cumsum() / cltv_sorted.sum() * 100
+top20 = int(len(cltv_sorted) * 0.2)
+print(f&quot;Top 20% of customers ({top20:,}) hold {cumulative_pct.iloc[top20]:.0f}% of total spend to date&quot;)
+print(f&quot;Mean / median CLTV: {cltv_data[&#x27;CLTV&#x27;].mean():.2f} / {cltv_data[&#x27;CLTV&#x27;].median():.2f}&quot;)</pre></div></li><li>Compare the result with your guess in A1. Write down what you find.</li></ol></div><div class="box why"><p class="boxlbl">Look for</p><ul><li><b>CLTV equals Monetary:</b> the first printed line says <code>True</code> in both datasets. Average order times orders per year times years as a customer is the same as total spend. So CLTV here is <b>spend to date</b>: a value so far, not a forecast.</li><li><b>Option B:</b> the top 20% of customers (2,679) hold 35% of the total spend. Mean 33.33, median 30.00.</li><li><b>Option A:</b> the top 20% (19,218) hold 54%. Mean 166.60, median 108.00.</li><li><b>For comparison:</b> in the demo's online retail data the top 20% held about 75%. Both exercise datasets are less concentrated, Option B much less.</li></ul></div><h4>Write down</h4><div class="codewrap"><button class="copy" type="button" aria-label="Copy code block 2 in step B1">Copy</button><pre class="code" tabindex="0">CLTV equals Monetary: ___ . So our CLTV is ___ (a value so far / a forecast)
+The top 20% of customers (___) hold ___% of the spend to date
+Mean / median CLTV: ___ / ___
+Our guess in A1 was ___ and the data says ___
+For this business, that means ___</pre></div><details class="hint"><summary>Hint</summary><div><p>The Pareto share is the cumulative spend after sorting customers from the biggest spender down: <code>cltv_sorted.cumsum() / cltv_sorted.sum() * 100</code>, read at the position of the top 20%.</p><p>If a line fails with <code>KeyError</code>, check the column names: this notebook uses <code>InvoiceNo</code>, <code>InvoiceDate</code> and <code>TotalPrice</code>, which the data cell made.</p><p>Why is the check <code>True</code>? Write the formula out: (spend / orders) times (orders / years) times years. Everything cancels except spend.</p></div></details><details class="sol"><summary>Show solution (open this last)</summary><div><div class="lbl">Sample output, Option B (restaurant): CLTV and Pareto</div><pre class="out" tabindex="0">CLTV equals Monetary for every customer: True
+Top 20% of customers (2,679) hold 35% of total spend to date
+Mean / median CLTV: 33.33 / 30.00</pre><div class="lbl">Sample output, Option A (Olist): CLTV and Pareto</div><pre class="out" tabindex="0">CLTV equals Monetary for every customer: True
+Top 20% of customers (19,218) hold 54% of total spend to date
+Mean / median CLTV: 166.60 / 108.00</pre><div class="lbl">Write down, filled in: Option B (restaurant)</div><div class="codewrap"><button class="copy" type="button" aria-label="Copy code block 3 in step B1">Copy</button><pre class="code" tabindex="0">CLTV equals Monetary: True. So our CLTV is spend to date (a value so far)
+The top 20% of customers (2,679) hold 35% of the spend to date
+Mean / median CLTV: 33.33 / 30.00
+Our guess in A1 was less extreme than the demo and the data says yes: 35% against about 75%
+For this business, that means no small group of orders carries the restaurant: the money is spread across many small orders</pre></div><div class="lbl">Write down, filled in: Option A (Olist)</div><div class="codewrap"><button class="copy" type="button" aria-label="Copy code block 4 in step B1">Copy</button><pre class="code" tabindex="0">CLTV equals Monetary: True. So our CLTV is spend to date (a value so far)
+The top 20% of customers (19,218) hold 54% of the spend to date
+Mean / median CLTV: 166.60 / 108.00
+Our guess in A1 was less extreme than the demo and the data says yes: 54% against about 75%
+For this business, that means a fifth of customers bring a bit more than half the money, so the biggest spenders matter more here than in Option B</pre></div><div class="box warn"><p class="boxlbl">Watch out</p><ul><li>CLTV here is not a forecast. It says what customers have already paid, not what they will pay. If a notebook or a write-up calls it "lifetime value", say that it is spend to date.</li><li>Spend is skewed. With a mean above the median, a mean says more about the big spenders than about a typical customer.</li></ul></div><p><b>What it means.</b> Both datasets are less concentrated than the demo. Option A is more concentrated than Option B, so in Option A it matters more who the biggest spenders are, and whether they are still ordering.</p></div></details></article>
+
+<article class="card" id="B2"><h3><label><input type="checkbox" class="tick" id="tick-B2" data-id="B2" data-sec="B" data-blk="B"><span class="tag">B2</span>Money per segment: where is the revenue risk?</label></h3><p class="meta">After Session 2 · Helps with the Midterm Project's value of each segment · about 10 minutes</p><div class="box go"><p class="boxlbl">Do</p><ol><li>The question: how much money sits in each manual segment and in each cluster, and which group would hurt most to lose?</li><li>In a new cell, paste the cell below. It uses <code>cltv_data</code> from B1. Run it.<div class="codewrap"><button class="copy" type="button" aria-label="Copy code block 1 in step B2">Copy</button><pre class="code" tabindex="0"># Spend to date by manual segment and by K-Means cluster
+rfm_cltv = rfm.merge(cltv_data[[&quot;CustomerID&quot;, &quot;CLTV&quot;]], on=&quot;CustomerID&quot;, how=&quot;left&quot;)
+
+def spend_table(group_col):
+    t = rfm_cltv.groupby(group_col).agg(Customers=(&quot;CustomerID&quot;, &quot;count&quot;), Total_Spend=(&quot;CLTV&quot;, &quot;sum&quot;))
+    t[&quot;Pct_of_Customers&quot;] = (t[&quot;Customers&quot;] / t[&quot;Customers&quot;].sum() * 100).round(1)
+    t[&quot;Pct_of_Spend&quot;] = (t[&quot;Total_Spend&quot;] / t[&quot;Total_Spend&quot;].sum() * 100).round(1)
+    t[&quot;Total_Spend&quot;] = t[&quot;Total_Spend&quot;].round(0)
+    return t
+
+seg_order = [&quot;Champions&quot;, &quot;Loyal&quot;, &quot;Potential Loyalist&quot;, &quot;At Risk&quot;, &quot;Can&#x27;t Lose&quot;, &quot;Lost&quot;]
+by_segment = spend_table(&quot;Customer_Segment&quot;).reindex(seg_order)
+print(&quot;By manual segment:&quot;)
+print(by_segment)
+vulnerable = by_segment.loc[[&quot;At Risk&quot;, &quot;Can&#x27;t Lose&quot;, &quot;Lost&quot;]]
+print(f&quot;\nAt Risk + Can&#x27;t Lose + Lost: {vulnerable[&#x27;Customers&#x27;].sum():,.0f} customers &quot;
+      f&quot;({vulnerable[&#x27;Pct_of_Customers&#x27;].sum():.1f}%), {vulnerable[&#x27;Pct_of_Spend&#x27;].sum():.1f}% of spend to date&quot;)
+
+by_cluster = spend_table(&quot;Cluster&quot;)
+by_cluster[&quot;Mean_R_Score&quot;] = rfm.groupby(&quot;Cluster&quot;)[&quot;R_Score&quot;].mean().round(2)
+print(&quot;\nBy K-Means cluster:&quot;)
+print(by_cluster.sort_values(&quot;Total_Spend&quot;, ascending=False))</pre></div></li><li>Name the biggest revenue risk in one sentence, with a number. Then say whether the manual segments or the clusters showed it better.</li></ol></div><div class="box why"><p class="boxlbl">Look for</p><ul><li><b>Option B, manual segments:</b> At Risk, Can't Lose and Lost together are 3,152 customers (23.5%) and hold 17.6% of the spend. Champions and Loyal hold 27.7% and 34.2%.</li><li><b>Option B, clusters:</b> cluster 2 (the sample's "big orders gone quiet", mean R_Score 1.41) holds 28.1% of the spend with 20.9% of the customers. Cluster 1 holds the most, 40.6%.</li><li><b>Option A, manual segments:</b> the same three segments are 15,883 customers (16.5%) and hold only 6.5% of the spend.</li><li><b>Option A, clusters:</b> cluster 0 (the sample's "big spenders drifting away", mean R_Score 2.49) holds 40.0% of the spend with 24.0% of the customers.</li><li><b>The pattern:</b> in both datasets the cluster of big spenders who have not ordered recently holds more of the spend than the three vulnerable manual segments together (28.1% against 17.6%, and 40.0% against 6.5%). The manual rules find customers who look weak overall. K-Means finds the big spenders who have gone quiet.</li><li><b>Caution:</b> the exact group and its share move with <code>random_state</code>. B3 reruns it: 28.1% to 34.1% in Option B and 30.0% to 42.7% in Option A.</li><li>Match your cluster numbers to the A7 profile. The sample uses its own order.</li></ul></div><h4>Write down</h4><div class="codewrap"><button class="copy" type="button" aria-label="Copy code block 2 in step B2">Copy</button><pre class="code" tabindex="0">At Risk + Can&#x27;t Lose + Lost: ___ customers (___% of customers) hold ___% of the spend
+The cluster with the most spend among those with a mean R_Score below 3: cluster ___ (&quot;___&quot;), ___% of the spend, ___% of the customers
+The biggest revenue risk is ___ because ___
+Manual segments or clusters showed it better, and why: ___</pre></div><details class="hint"><summary>Hint</summary><div><p>Group by <code>"Customer_Segment"</code> and by <code>"Cluster"</code> with the same function. A function that takes the column name saves you writing it twice.</p><p>A share of the total is <code>t["Total_Spend"] / t["Total_Spend"].sum() * 100</code>.</p><p>Risk is not only "low score". It is money held by customers who have gone quiet. Ask: how much spend does the group hold, and how long since it last ordered?</p></div></details><details class="sol"><summary>Show solution (open this last)</summary><div><div class="lbl">Sample output, Option B (restaurant): spend by segment and by cluster</div><pre class="out" tabindex="0">By manual segment:
+                    Customers  Total_Spend  Pct_of_Customers  Pct_of_Spend
+Customer_Segment                                                          
+Champions                3068     123751.0              22.9          27.7
+Loyal                    4432     152791.0              33.1          34.2
+Potential Loyalist       2745      91664.0              20.5          20.5
+At Risk                  2128      57597.0              15.9          12.9
+Can&#x27;t Lose                537      12805.0               4.0           2.9
+Lost                      487       7909.0               3.6           1.8
+
+At Risk + Can&#x27;t Lose + Lost: 3,152 customers (23.5%), 17.6% of spend to date
+
+By K-Means cluster:
+         Customers  Total_Spend  Pct_of_Customers  Pct_of_Spend  Mean_R_Score
+Cluster                                                                      
+1             4186     181481.0              31.2          40.6          3.86
+2             2796     125327.0              20.9          28.1          1.41
+3             3647      77752.0              27.2          17.4          2.02
+0             2768      61958.0              20.7          13.9          4.61</pre><div class="lbl">Sample output, Option A (Olist): spend by segment and by cluster</div><pre class="out" tabindex="0">By manual segment:
+                    Customers  Total_Spend  Pct_of_Customers  Pct_of_Spend
+Customer_Segment                                                          
+Champions               15957    4788393.0              16.6          29.9
+Loyal                   39142    7223647.0              40.7          45.1
+Potential Loyalist      25111    2961220.0              26.1          18.5
+At Risk                 12642     880331.0              13.2           5.5
+Can&#x27;t Lose               2427     123060.0               2.5           0.8
+Lost                      814      32221.0               0.8           0.2
+
+At Risk + Can&#x27;t Lose + Lost: 15,883 customers (16.5%), 6.5% of spend to date
+
+By K-Means cluster:
+         Customers  Total_Spend  Pct_of_Customers  Pct_of_Spend  Mean_R_Score
+Cluster                                                                      
+0            23083    6403438.0              24.0          40.0          2.49
+1            24920    6224023.0              25.9          38.9          3.57
+2            25053    1703386.0              26.1          10.6          1.69
+3            23037    1678025.0              24.0          10.5          4.34</pre><div class="lbl">Write down, filled in: Option B (restaurant)</div><div class="codewrap"><button class="copy" type="button" aria-label="Copy code block 3 in step B2">Copy</button><pre class="code" tabindex="0">At Risk + Can&#x27;t Lose + Lost: 3,152 customers (23.5% of customers) hold 17.6% of the spend
+The cluster with the most spend among those with a mean R_Score below 3: cluster 2 (&quot;big orders gone quiet&quot;), 28.1% of the spend, 20.9% of the customers
+The biggest revenue risk is the big orders gone quiet, because 20.9% of the orders carry 28.1% of the money and have not ordered recently
+Clusters showed it better: the manual segments split these customers across At Risk, Loyal and Potential Loyalist</pre></div><div class="lbl">Write down, filled in: Option A (Olist)</div><div class="codewrap"><button class="copy" type="button" aria-label="Copy code block 4 in step B2">Copy</button><pre class="code" tabindex="0">At Risk + Can&#x27;t Lose + Lost: 15,883 customers (16.5% of customers) hold 6.5% of the spend
+The cluster with the most spend among those with a mean R_Score below 3: cluster 0 (&quot;big spenders drifting away&quot;), 40.0% of the spend, 24.0% of the customers
+The biggest revenue risk is the big spenders drifting away, because 24.0% of customers carry 40.0% of the money and their orders are getting old
+Clusters showed it better: the manual segments split these customers across four labels, and the three vulnerable segments hold only 6.5% of the money</pre></div><div class="box warn"><p class="boxlbl">Watch out</p><ul><li>This is spend to date. It says how much money these customers have brought, not how much they will bring. It is a size for the risk, not a loss forecast.</li><li>"Mean R_Score below 3" is our rule for "has not ordered recently". Say what rule you used.</li></ul></div><p><b>What it means.</b> The biggest revenue risk is the group that spent a lot and stopped ordering. The manual labels hid it. That is the finding to lead with, with one caution: the exact group and its share move with <code>random_state</code> (B3).</p></div></details></article>
+
+<article class="card" id="B3"><h3><label><input type="checkbox" class="tick" id="tick-B3" data-id="B3" data-sec="B" data-blk="B"><span class="tag">B3</span>How far to trust your k</label></h3><p class="meta">After Session 2 · Helps with the Midterm Project's justify-your-k step · about 10 minutes</p><div class="box go"><p class="boxlbl">Do</p><ol><li>The question: how far can you trust your k, and your clusters? In a new cell, paste the cell below. It tries k = 2 to 8 with two different <code>random_state</code> values, then fits k = 4 with three more and checks the biggest-risk group each time. It uses <code>rfm_cltv</code> from B2.<div class="codewrap"><button class="copy" type="button" aria-label="Copy code block 1 in step B3">Copy</button><pre class="code" tabindex="0"># How far can you trust your k? Silhouette for k = 2 to 8, with two different random_state values
+from sklearn.metrics import silhouette_score, adjusted_rand_score
+
+print(&quot;k   silhouette (random_state=42)   silhouette (random_state=7)&quot;)
+for k in range(2, 9):
+    scores = []
+    for seed in (42, 7):
+        km = KMeans(n_clusters=k, random_state=seed, n_init=10).fit(features_scaled)
+        scores.append(silhouette_score(features_scaled, km.labels_, sample_size=10000, random_state=42))
+    print(f&quot;{k}   {scores[0]:&gt;27.4f}   {scores[1]:&gt;26.4f}&quot;)
+
+# The same k with other random_state values: do the groups stay the same?
+k = 4
+first = KMeans(n_clusters=k, random_state=42, n_init=10).fit_predict(features_scaled)
+print(f&quot;\nk = {k}: agreement with random_state=42 (1.000 means the same groups)&quot;)
+for seed in (7, 123, 2024):
+    other = KMeans(n_clusters=k, random_state=seed, n_init=10).fit_predict(features_scaled)
+    print(f&quot;  random_state={seed}: {adjusted_rand_score(first, other):.3f}&quot;)
+
+# Does the risk story survive? For each random_state: among the clusters with a mean R_Score below 3,
+# the one that holds the most spend to date (uses rfm_cltv from B2)
+print(f&quot;\nk = {k}: the biggest-spend cluster with a mean R_Score below 3, for each random_state&quot;)
+for seed in (42, 7, 123, 2024):
+    labels = KMeans(n_clusters=k, random_state=seed, n_init=10).fit_predict(features_scaled)
+    t = rfm_cltv.assign(Group=labels).groupby(&quot;Group&quot;).agg(
+        Customers=(&quot;CustomerID&quot;, &quot;count&quot;), Spend=(&quot;CLTV&quot;, &quot;sum&quot;), R=(&quot;R_Score&quot;, &quot;mean&quot;), M=(&quot;M_Score&quot;, &quot;mean&quot;))
+    low = t[t[&quot;R&quot;] &lt; 3]
+    top = low[&quot;Spend&quot;].idxmax()
+    print(f&quot;  random_state={seed}: {low.loc[top, &#x27;Customers&#x27;]:,.0f} customers, mean R_Score {low.loc[top, &#x27;R&#x27;]:.2f}, &quot;
+          f&quot;mean M_Score {low.loc[top, &#x27;M&#x27;]:.2f}, {low.loc[top, &#x27;Spend&#x27;] / t[&#x27;Spend&#x27;].sum() * 100:.1f}% of spend&quot;)</pre></div></li><li>Run it. The silhouette uses a random sample of 10,000 customers to keep it fast (<code>sample_size=10000</code>).</li><li>Read the table. Is k = 4 the best k by silhouette? What happens to the clusters, and to the biggest-risk group, when only the random_state changes?</li></ol></div><div class="box why"><p class="boxlbl">Look for</p><ul><li><b>Silhouette</b> measures how well separated the clusters are, from -1 to 1. Higher is better separated.</li><li><b>Option B:</b> the values run from 0.4213 to 0.4855. At k = 4, silhouette is 0.4213 (random_state 42), the lowest of the seven, and k = 8 is the highest for both random_state values (0.4667 and 0.4855).</li><li><b>Option A:</b> the values are lower (0.2486 to 0.3011), so its clusters are less clearly separated than Option B's. At k = 4 it is 0.2782. The best k is 6 for random_state 42 (0.2991, with 7 at 0.2990) and 8 for random_state 7 (0.3011).</li><li><b>The same k, other random_state values:</b> a value of 1.000 means the same groups. Option B gave 0.793, 0.746 and 1.000. Option A gave 0.671, 0.322 and 0.504.</li><li><b>The biggest-risk group at k = 4, for random_state 42, 7, 123 and 2024:</b> in all four runs, in both datasets, a cluster with a mean R_Score below 3 and a high mean M_Score held a large share of the spend. Option B: 28.1%, 28.1%, 34.1% and 28.1% (2,796 to 3,804 customers, mean M_Score 3.75 to 4.21). Option A: 40.0%, 36.8%, 42.7% and 30.0% (21,933 to 25,773 customers, mean R_Score 1.66 to 2.81, mean M_Score 3.67 to 4.24).</li><li>So in our runs silhouette did not back k = 4 in either dataset, it did not pick one k for both random_state values in Option A, and the groups at k = 4 changed with the random_state in all but one of the six reruns. The big-spender group that has gone quiet showed up every time, but its exact members and its share of the spend moved. Treat a cluster as partly a description of one run.</li></ul></div><h4>Write down</h4><div class="codewrap"><button class="copy" type="button" aria-label="Copy code block 2 in step B3">Copy</button><pre class="code" tabindex="0">k with the best silhouette: ___ (random_state 42) and ___ (random_state 7)
+Silhouette at our k ___: ___ . Is our k the best? ___
+Agreement of the groups at k = 4 across random_state values: ___ , ___ , ___
+The biggest-risk group at k = 4 held ___% to ___% of the spend across random_state 42, 7, 123 and 2024
+What this means for how we say our result: ___</pre></div><details class="hint"><summary>Hint</summary><div><p>Silhouette needs the data and the labels: <code>silhouette_score(features_scaled, km.labels_, sample_size=10000, random_state=42)</code>.</p><p>The agreement score is <code>adjusted_rand_score(first, other)</code>. It is 1.000 when the two runs made the same groups, even if the cluster numbers differ. It is lower when customers move between groups.</p><p>The scores are whole numbers from 1 to 5, so the data holds at most 125 different (R, F, M) combinations. Many customers tie, and K-Means can land on different groupings that fit about equally well.</p></div></details><details class="sol"><summary>Show solution (open this last)</summary><div><div class="lbl">Sample output, Option B (restaurant): silhouette and random_state</div><pre class="out" tabindex="0">k   silhouette (random_state=42)   silhouette (random_state=7)
+2                        0.4416                       0.4416
+3                        0.4244                       0.4244
+4                        0.4213                       0.4259
+5                        0.4404                       0.4324
+6                        0.4630                       0.4598
+7                        0.4516                       0.4435
+8                        0.4667                       0.4855
+
+k = 4: agreement with random_state=42 (1.000 means the same groups)
+  random_state=7: 0.793
+  random_state=123: 0.746
+  random_state=2024: 1.000
+
+k = 4: the biggest-spend cluster with a mean R_Score below 3, for each random_state
+  random_state=42: 2,796 customers, mean R_Score 1.41, mean M_Score 4.21, 28.1% of spend
+  random_state=7: 2,796 customers, mean R_Score 1.41, mean M_Score 4.21, 28.1% of spend
+  random_state=123: 3,804 customers, mean R_Score 1.43, mean M_Score 3.75, 34.1% of spend
+  random_state=2024: 2,796 customers, mean R_Score 1.41, mean M_Score 4.21, 28.1% of spend</pre><div class="lbl">Sample output, Option A (Olist): silhouette and random_state</div><pre class="out" tabindex="0">k   silhouette (random_state=42)   silhouette (random_state=7)
+2                        0.2486                       0.2486
+3                        0.2496                       0.2492
+4                        0.2782                       0.2776
+5                        0.2817                       0.2852
+6                        0.2991                       0.2999
+7                        0.2990                       0.3005
+8                        0.2969                       0.3011
+
+k = 4: agreement with random_state=42 (1.000 means the same groups)
+  random_state=7: 0.671
+  random_state=123: 0.322
+  random_state=2024: 0.504
+
+k = 4: the biggest-spend cluster with a mean R_Score below 3, for each random_state
+  random_state=42: 23,083 customers, mean R_Score 2.49, mean M_Score 4.24, 40.0% of spend
+  random_state=7: 22,602 customers, mean R_Score 2.79, mean M_Score 4.12, 36.8% of spend
+  random_state=123: 25,773 customers, mean R_Score 2.81, mean M_Score 4.14, 42.7% of spend
+  random_state=2024: 21,933 customers, mean R_Score 1.66, mean M_Score 3.67, 30.0% of spend</pre><div class="lbl">Write down, filled in: Option B (restaurant)</div><div class="codewrap"><button class="copy" type="button" aria-label="Copy code block 3 in step B3">Copy</button><pre class="code" tabindex="0">k with the best silhouette: 8 (random_state 42) and 8 (random_state 7)
+Silhouette at our k 4: 0.4213. Is our k the best? No, it is the lowest of the seven, so we say k = 4 is a choice for naming and acting on groups
+Agreement of the groups at k = 4 across random_state values: 0.793, 0.746, 1.000
+The biggest-risk group at k = 4 held 28.1% to 34.1% of the spend across random_state 42, 7, 123 and 2024
+What this means for how we say our result: the big orders gone quiet showed up on every random_state, but the exact group and its share moved, so we give a range and not one number</pre></div><div class="lbl">Write down, filled in: Option A (Olist)</div><div class="codewrap"><button class="copy" type="button" aria-label="Copy code block 4 in step B3">Copy</button><pre class="code" tabindex="0">k with the best silhouette: 6 (random_state 42) and 8 (random_state 7)
+Silhouette at our k 4: 0.2782. Is our k the best? No, but the best (0.3011) is not much higher, so we say k = 4 is a choice for naming and acting on groups
+Agreement of the groups at k = 4 across random_state values: 0.671, 0.322, 0.504
+The biggest-risk group at k = 4 held 30.0% to 42.7% of the spend across random_state 42, 7, 123 and 2024
+What this means for how we say our result: big spenders with older orders showed up on every random_state, but the exact group and its share moved, so we give a range and not one number</pre></div><div class="box warn"><p class="boxlbl">Watch out</p><ul><li>A higher silhouette is better separation, not a better business answer. A k you cannot name or act on is not a better k.</li><li>The page's claim holds for the runs shown: random_state 42, 7, 123 and 2024. We did not run others.</li><li>If you change k in Task 4, run A7 and A8 again. Your names and your crosstab belong to your k.</li></ul></div><p><b>What it means.</b> You will be asked to justify your k. The honest answer has three parts: what the elbow showed, what silhouette showed, and that the clusters, and the share of the spend in the biggest-risk group, are not identical from run to run.</p></div></details></article>
+
+<article class="card" id="B4"><h3><label><input type="checkbox" class="tick" id="tick-B4" data-id="B4" data-sec="B" data-blk="B"><span class="tag">B4</span>Break it on purpose, three ways</label></h3><p class="meta">After Session 2 · Helps with the Midterm Project's documentation · about 10 minutes</p><div class="box go"><p class="boxlbl">Do</p><ol><li>The question: what does each common mistake look like in the output, so you recognize it in your own notebook? The cell below makes three mistakes on purpose, each on a copy, so your <code>rfm</code> stays as it was.<div class="codewrap"><button class="copy" type="button" aria-label="Copy code block 1 in step B4">Copy</button><pre class="code" tabindex="0"># Break it on purpose, three ways. Each one uses a copy, so your rfm table stays as it was.
+from sklearn.metrics import adjusted_rand_score
+
+# Break 1: K-Means on the raw Recency, Frequency and Monetary values, no scaler
+raw = rfm[[&quot;Recency&quot;, &quot;Frequency&quot;, &quot;Monetary&quot;]]
+print(&quot;Break 1. Share of the total variance in each raw column (%):&quot;)
+print((raw.var() / raw.var().sum() * 100).round(1).to_string())
+raw_labels = KMeans(n_clusters=4, random_state=42, n_init=10).fit_predict(raw)
+print(&quot;Cluster sizes without a scaler:&quot;, sorted(pd.Series(raw_labels).value_counts().tolist(), reverse=True))
+print(&quot;Agreement with your scaled-score clusters (adjusted Rand, 1.000 = same):&quot;, round(adjusted_rand_score(rfm[&quot;Cluster&quot;], raw_labels), 3))
+
+# Break 2: the Recency reversal forgotten
+bad = rfm[[&quot;Recency&quot;, &quot;Frequency&quot;, &quot;Monetary&quot;]].copy()
+bad[&quot;R_Score&quot;] = pd.qcut(bad[&quot;Recency&quot;], q=5, labels=[1, 2, 3, 4, 5]).astype(int)
+bad[&quot;F_Score&quot;] = pd.qcut(bad[&quot;Frequency&quot;].rank(method=&quot;first&quot;), q=5, labels=[1, 2, 3, 4, 5]).astype(int)
+bad[&quot;M_Score&quot;] = pd.qcut(bad[&quot;Monetary&quot;], q=5, labels=[1, 2, 3, 4, 5]).astype(int)
+bad[&quot;Segment&quot;] = (bad[&quot;R_Score&quot;] + bad[&quot;F_Score&quot;] + bad[&quot;M_Score&quot;]).apply(segment_customer)
+ch = bad[bad[&quot;Segment&quot;] == &quot;Champions&quot;]
+print(&quot;\nBreak 2. Labels found:&quot;, bad[&quot;Segment&quot;].nunique(), &quot;|&quot;, bad[&quot;Segment&quot;].value_counts().to_dict())
+print(&quot;Champions:&quot;, len(ch), &quot;| median Recency of Champions:&quot;, ch[&quot;Recency&quot;].median() if len(ch) else &quot;no Champions&quot;, &quot;| of all:&quot;, bad[&quot;Recency&quot;].median())
+
+# Break 3: count instead of nunique for Frequency, and customer_id instead of customer_unique_id
+print(&quot;\nBreak 3. Largest Frequency with nunique:&quot;, df.groupby(&quot;CustomerID&quot;)[&quot;InvoiceNo&quot;].nunique().max(),
+      &quot;| with count:&quot;, df.groupby(&quot;CustomerID&quot;)[&quot;InvoiceNo&quot;].count().max())
+if DATASET == &quot;A&quot;:
+    paid = merged[merged[&quot;payment_value&quot;] &gt; 0]
+    print(&quot;Customers by customer_unique_id:&quot;, f&quot;{paid[&#x27;customer_unique_id&#x27;].nunique():,}&quot;, &quot;| by customer_id:&quot;, f&quot;{paid[&#x27;customer_id&#x27;].nunique():,}&quot;)
+else:
+    print(&quot;Option B has one row per order already, so there is no second ID to mix up.&quot;)</pre></div></li><li>Run it. For each break, write down what you would see in a notebook that had it by accident, and which line of a checklist would catch it.</li></ol></div><div class="box why"><p class="boxlbl">Look for</p><ul><li><b>Break 1, no scaler:</b> the raw columns are in different units, so the one with the biggest spread takes over most of the distance. Option B: Recency holds 99.6% of the variance. Option A: Monetary holds 69.5%, Recency 30.5%. In both, Frequency holds 0.0%, because it is nearly constant. The groups do not match your scaled-score clusters (agreement 0.28 in Option B, 0.217 in Option A), and in Option A they are lopsided: 51,233, 38,044, 6,097 and 719 customers.</li><li><b>Break 2, the reversal forgotten:</b> Option B shows only 3 labels and no Champions. Option A shows all 6 labels, with 15,366 "Champions" whose median Recency is 423 days against 269 for everyone. It runs without an error in both.</li><li><b>Break 3, the wrong Frequency or the wrong ID:</b> Option A: the largest Frequency is 33 with count and 17 with nunique, and 99,437 customers by customer_id against 96,093 by customer_unique_id. Option B: nothing breaks, because that file is already one row per order.</li><li>None of the three stops with an error. Each gives a plausible table that is wrong. A check is what catches them: the scaler's standard deviation, the Champions' Recency, the largest Frequency.</li></ul></div><h4>Write down</h4><div class="codewrap"><button class="copy" type="button" aria-label="Copy code block 2 in step B4">Copy</button><pre class="code" tabindex="0">Break 1 (no scaler): the column that takes over is ___ with ___% of the variance. The check that catches it: ___
+Break 2 (reversal forgotten): the output shows ___ . The check that catches it: ___
+Break 3 (count or customer_id): the output shows ___ . The check that catches it: ___
+In my notebook I will write down ___</pre></div><details class="hint"><summary>Hint</summary><div><p>Variance share: <code>raw.var() / raw.var().sum() * 100</code>. A column with a huge variance dominates a distance, because K-Means adds up squared differences.</p><p>For Break 2, ask: do the Champions look like recent buyers? The Champions' median Recency has to be lower than everyone's.</p><p>For Break 3, compare the same thing computed two ways. If they differ, one of them is counting something you did not mean to count.</p></div></details><details class="sol"><summary>Show solution (open this last)</summary><div><div class="lbl">Sample output, Option B (restaurant): three breaks</div><pre class="out" tabindex="0">Break 1. Share of the total variance in each raw column (%):
+Recency      99.6
+Frequency     0.0
+Monetary      0.4
+Cluster sizes without a scaler: [3999, 3507, 3383, 2508]
+Agreement with your scaled-score clusters (adjusted Rand, 1.000 = same): 0.28
+
+Break 2. Labels found: 3 | {&#x27;Loyal&#x27;: 8031, &#x27;Potential Loyalist&#x27;: 5360, &#x27;At Risk&#x27;: 6}
+Champions: 0 | median Recency of Champions: no Champions | of all: 474.0
+
+Break 3. Largest Frequency with nunique: 1 | with count: 1
+Option B has one row per order already, so there is no second ID to mix up.</pre><div class="lbl">Sample output, Option A (Olist): three breaks</div><pre class="out" tabindex="0">Break 1. Share of the total variance in each raw column (%):
+Recency      30.5
+Frequency     0.0
+Monetary     69.5
+Cluster sizes without a scaler: [51233, 38044, 6097, 719]
+Agreement with your scaled-score clusters (adjusted Rand, 1.000 = same): 0.217
+
+Break 2. Labels found: 6 | {&#x27;Loyal&#x27;: 39742, &#x27;Potential Loyalist&#x27;: 25383, &#x27;Champions&#x27;: 15366, &#x27;At Risk&#x27;: 12586, &quot;Can&#x27;t Lose&quot;: 2260, &#x27;Lost&#x27;: 756}
+Champions: 15366 | median Recency of Champions: 423.0 | of all: 269.0
+
+Break 3. Largest Frequency with nunique: 17 | with count: 33
+Customers by customer_unique_id: 96,093 | by customer_id: 99,437</pre><div class="box warn"><p class="boxlbl">Watch out</p><ul><li>These runs are on a copy. Do not paste the broken lines into your real notebook.</li><li>Your midterm notebook is graded on what you document. If you try something and it fails, write what you tried and what you changed. That earns more than clean code with no explanation.</li></ul></div><p><b>What it means.</b> A wrong pipeline does not stop; it produces a clean-looking table. The checks you ran in A3, A4 and A6 are what separate a right result from a plausible one.</p></div></details></article>
+
+<article class="card" id="B5"><h3><label><input type="checkbox" class="tick" id="tick-B5" data-id="B5" data-sec="B" data-blk="B"><span class="tag">B5</span>Before you open the midterm file: a checklist</label></h3><p class="meta">After Session 2 · Helps with the Midterm Project's load and clean step · about 5 minutes</p><div class="box go"><p class="boxlbl">Do</p><ol><li>This step has no code. A new file will have problems your exercise data did not. Read the checklist below.</li><li>Copy it into a text cell in your notebook. For the three items you think matter most for a file you have not seen, write what you will check and what you will do.<div class="codewrap"><button class="copy" type="button" aria-label="Copy code block 1 in step B5">Copy</button><pre class="code" tabindex="0">CHECKLIST: before I open a file I have not seen
+[ ] 1. Which file and which sheet does the prompt name? I use only that one.
+[ ] 2. Names: do the column names match what my code expects (customer, order, date, quantity, price)? I print df.columns and rename before any groupby.
+[ ] 3. Missing customer IDs: I count the rows with no customer ID, decide what to do with them, and say how many and what you did in a markdown cell.
+[ ] 4. Cancellations and returns: I look for them (how the file marks them), decide what to do with them, and say what and why.
+[ ] 5. Zero or negative quantities and prices: I count them, decide what to do with them, and say how many and why.
+[ ] 6. Customer, order and money: I write one sentence for each, as I did in A1.
+[ ] 7. Frequency: how many customers have Frequency 1? If most do, F_Score may be row order again (A5).
+[ ] 8. Snapshot date: one day after the last transaction in this file.
+[ ] 9. CLTV: I say it is spend to date, a value so far and not a forecast (B1).
+[ ] 10. Scale before K-Means and print the check. Justify k with the elbow and a second measure, and say that clusters can move with random_state (A6, B3).
+[ ] 11. A big file can take a minute or two to load: I load it once and keep it.
+[ ] 12. Anything I write for a business reader has no code and no jargon, and gives numbers for what I claim (B6).</pre></div></li><li>Open the Midterm Project prompt in Canvas and tick the items that it names.</li></ol></div><div class="box why"><p class="boxlbl">Look for</p><ul><li><b>Cleaning items</b> (3, 4, 5) change the number of customers and the money. Each needs a count and a sentence in your notebook: how many rows, what you did, why.</li><li><b>Meaning items</b> (6, 7, 8, 9) decide what R, F, M and CLTV stand for in the new file.</li><li><b>Method items</b> (10, 11, 12) are the ones you practiced on this page.</li><li>A checklist does not give you results. It tells you what to look for and what to say about it.</li></ul></div><h4>Write down</h4><div class="codewrap"><button class="copy" type="button" aria-label="Copy code block 2 in step B5">Copy</button><pre class="code" tabindex="0">The three items that will matter most for a new file, and why: ___
+For each: what I will check ___ , what I will do ___ , where I will say so ___
+One item that did not matter on the exercise data but might on a new file: ___</pre></div><details class="hint"><summary>Hint</summary><div><p>Think about which problems are invisible. A missing customer ID or a cancellation does not raise an error. It quietly changes your counts.</p><p>Which items did your exercise data already settle for you, with the data cell? What would you have to do yourself on a file with no data cell?</p></div></details><details class="sol"><summary>Show solution (open this last)</summary><div><p>Sample answers, from the exercise data. They show how to write each item. They are not about the midterm file.</p><div class="tablewrap" tabindex="0" role="region" aria-label="Table: Item, Option B (restaurant), Option A (Olist)"><table class="fit"><thead><tr><th scope="col">Item</th><th scope="col">Option B (restaurant)</th><th scope="col">Option A (Olist)</th></tr></thead><tbody><tr><td>3. Missing customer IDs</td><td>There is no customer ID at all, so each order is a customer (A1).</td><td>The data cell drops rows with no <code>customer_unique_id</code>. There are none in the merged rows (0).</td></tr><tr><td>4. Cancellations</td><td>The file has no status column, so there is nothing to filter.</td><td>The merged rows have an <code>order_status</code> column, and 661 rows with status canceled and a payment above 0 stay in the data. The exercise does not filter them. A new file could ask you to.</td></tr><tr><td>5. Zero or negative amounts</td><td>0 order lines with a quantity or a price of 0 or less.</td><td>The data cell keeps only <code>payment_value</code> above 0. That removes 9 of the 103,886 merged rows.</td></tr><tr><td>7. Frequency</td><td>1 for every order (A5).</td><td>1 for 96.9% of customers (A5).</td></tr></tbody></table></div><div class="box warn"><p class="boxlbl">Watch out</p><ul><li>The point of a checklist is to say what you did. A cleaning step with no count and no sentence is not documented.</li><li>Nothing here says what the midterm file contains. Look at it yourself, with this list in hand.</li></ul></div><p><b>What it means.</b> You go to a new file with a list of questions, not just a list of lines of code.</p></div></details></article>
+
+<article class="card" id="B6"><h3><label><input type="checkbox" class="tick" id="tick-B6" data-id="B6" data-sec="B" data-blk="B"><span class="tag">B6</span>A short paragraph about your biggest-risk group</label></h3><p class="meta">After Session 2 · Helps with the Midterm Project's writing for a business reader · about 10 minutes</p><div class="box go"><p class="boxlbl">Do</p><ol><li>The question: can you say your result about one group, in plain words, to someone who has never heard of K-Means? Use the group you named the biggest revenue risk in B2.</li><li>Run the cell below for the numbers about that group (it uses <code>by_cluster</code> from B2).<div class="codewrap"><button class="copy" type="button" aria-label="Copy code block 1 in step B6">Copy</button><pre class="code" tabindex="0"># Numbers for your paragraph (run B2 first: this uses by_cluster)
+low_r = by_cluster[by_cluster[&quot;Mean_R_Score&quot;] &lt; 3]          # clusters whose customers have not ordered recently
+risk_cluster = low_r[&quot;Total_Spend&quot;].idxmax()                  # the one that holds the most spend to date
+risk = low_r.loc[risk_cluster]
+print(f&quot;Biggest-risk cluster: {risk_cluster}, {risk[&#x27;Customers&#x27;]:,.0f} customers ({risk[&#x27;Pct_of_Customers&#x27;]:.1f}% of customers)&quot;)
+print(f&quot;Share of all spend to date: {risk[&#x27;Pct_of_Spend&#x27;]:.1f}%&quot;)
+print(f&quot;Average spend per customer in that cluster: {risk[&#x27;Total_Spend&#x27;] / risk[&#x27;Customers&#x27;]:,.2f}&quot;)</pre></div></li><li>Fill in the five prompts under Write down in a text cell, then write them as one short paragraph of about 60 to 90 words. No code and no jargon.</li></ol></div><div class="box why"><p class="boxlbl">Look for</p><ul><li><b>Option B:</b> cluster 2, 2,796 customers (20.9% of customers), 28.1% of all spend to date, 44.82 per customer on average.</li><li><b>Option A:</b> cluster 0, 23,083 customers (24.0% of customers), 40.0% of all spend to date, 277.41 per customer on average.</li><li><b>These shares move.</b> They came from random_state 42. In B3 the biggest-risk group held 28.1% to 34.1% (Option B) and 30.0% to 42.7% (Option A) across four random_state values. Give one number and say it moves, or give the range.</li><li>A good paragraph names the group in words (never "cluster 2"), gives how many and how much of the money, says one thing the data cannot tell you, and ends with one action and its reason.</li></ul></div><h4>Write down</h4><div class="codewrap"><button class="copy" type="button" aria-label="Copy code block 2 in step B6">Copy</button><pre class="code" tabindex="0">Who they are (plain words, no group number):
+How many, and their share of all customers:
+Their share of the money spent so far:
+One thing this data cannot tell us:
+One action for them, and why:</pre></div><details class="hint"><summary>Hint</summary><div><p>Write for the person who owns the business. Instead of "cluster 2" say "the customers who ordered a lot and then stopped". Instead of "K-Means" say "we sorted customers into groups".</p><p>An action names a group, a thing to do, and a reason. "Contact them" is not an action. "Send the big-spending customers who have not ordered in a long time an offer that gives a reason to come back" is.</p><p>Say what the data cannot tell you. Option B has no customer ID. Option A has almost no repeat buying. What does that stop the business from doing?</p></div></details><details class="sol"><summary>Show solution (open this last)</summary><div><div class="box warn"><p class="boxlbl">Read this first</p><p>These samples are about the exercise data only. Anything you submit for the Midterm Project is graded individual work on its own file: write it yourself, in your own words, from your own numbers.</p></div><div class="lbl">Sample output, Option B (restaurant): numbers for your paragraph</div><pre class="out" tabindex="0">Biggest-risk cluster: 2, 2,796 customers (20.9% of customers)
+Share of all spend to date: 28.1%
+Average spend per customer in that cluster: 44.82</pre><div class="lbl">Sample output, Option A (Olist): numbers for your paragraph</div><pre class="out" tabindex="0">Biggest-risk cluster: 0, 23,083 customers (24.0% of customers)
+Share of all spend to date: 40.0%
+Average spend per customer in that cluster: 277.41</pre><div class="lbl">Sample paragraph, Option B (restaurant), about 96 words</div><div class="codewrap"><button class="copy" type="button" aria-label="Copy code block 3 in step B6">Copy</button><pre class="code" tabindex="0">The customers to watch are the big orders gone quiet: 2,796 orders, 20.9% of all orders but 28.1% of the money spent so far. Their average order was 44.82, the highest of any group, and their last order was about 898 days ago. Our records have no customer ID, so we cannot tell whether these are returning guests or one-time visitors, and we cannot contact them. One action: start recording who orders, for example with a loyalty sign-up. The share is 28.1% in our run and moved between 28.1% and 34.1% when we reran the grouping.</pre></div><div class="lbl">Sample paragraph, Option A (Olist), about 91 words</div><div class="codewrap"><button class="copy" type="button" aria-label="Copy code block 4 in step B6">Copy</button><pre class="code" tabindex="0">The customers to watch are the big spenders drifting away: 23,083 customers, 24.0% of all customers but 40.0% of the money spent so far. They spent 277.41 on average, more than three times the 68.0 and 72.8 of the small-spender groups, and their last order was about 339 days ago. Almost everyone ordered once, so we cannot say who is loyal. One action: send them a win-back message with a reason to return. The share is 40.0% in our run and moved between 30.0% and 42.7% when we reran the grouping.</pre></div><div class="box warn"><p class="boxlbl">Watch out</p><ul><li>No jargon: the samples never say K-Means, cluster, inertia or RFM.</li><li>The exact group and its share move with <code>random_state</code> (B3). A sentence that gives one share with no mention of that overclaims.</li><li>The numbers are spend to date, a value so far. They are not a forecast of what the group will spend.</li></ul></div><p><b>What it means.</b> One group, said in the business's words: who they are, how many, how much of the money, what you cannot know, and one thing to do.</p></div></details></article>
+
+<div class="box go"><p class="boxlbl">What you now have</p><p>A workflow you can repeat on any customer table: say what R, F and M mean in this data (A1), load and check it (A2, A3), score and label customers (A4, A5), cluster them and compare with the labels (A6 to A8), say what you found (A9), then measure the money, check the k and write about one group in plain words (B1 to B6). Next time, change the data cell and run the cells in order.</p></div>
+<p><button class="reset" id="reset" type="button">Reset my progress</button></p>
+<p class="sub">Progress is stored only in this browser on this device. A different browser, a private window or clearing your browsing data starts fresh.</p>
+<p class="sub">Every sample output on this page comes from a real run of the exercise key and the page's own code on both datasets (Python 3.14, pandas 3.0.6, scikit-learn 1.9.1, matplotlib, seaborn). The random_state is 42 unless a step says otherwise. Colab may use other versions, so close is fine, and K-Means cluster numbers can differ.</p>
+</main><script>
+(function(){
+const KEY="cap4767-m06-07-practice-v1";
+const ticks=[...document.querySelectorAll('.tick')];
+const saveEl=document.getElementById('save');
+let state={done:{}}, canSave=false;
+function setStatus(s,m){saveEl.dataset.s=s;saveEl.textContent=m;}
+function render(){
+  ticks.forEach(t=>{t.checked=!!state.done[t.dataset.id];t.closest('.card').classList.toggle('is-done',t.checked);});
+  const a=ticks.filter(t=>t.dataset.sec==='A'), b=ticks.filter(t=>t.dataset.sec==='B');
+  const na=a.filter(t=>t.checked).length, nb=b.filter(t=>t.checked).length;
+  document.getElementById('done').textContent=na;
+  document.getElementById('doneB').textContent=nb;
+  document.getElementById('barfill').style.width=(100*na/a.length)+'%';
+  document.querySelectorAll('.jump a').forEach(l=>{if(l.dataset.step){l.classList.toggle('full',!!state.done[l.dataset.step]);return;}const ts=ticks.filter(t=>t.dataset.blk===l.dataset.blk);l.classList.toggle('full',ts.length>0&&ts.every(t=>t.checked));});
+}
+function save(){
+  render();
+  if(!canSave) return;
+  try{localStorage.setItem(KEY,JSON.stringify(state));setStatus('saved','Saved in this browser');}
+  catch(e){canSave=false;setStatus('error','This browser stopped saving. Your checkmarks last until you close the page.');}
+}
+try{
+  const raw=localStorage.getItem(KEY);
+  if(raw){const d=JSON.parse(raw);state={done:Object.assign({},d.done||{})};}
+  localStorage.setItem(KEY+'-test','1');localStorage.removeItem(KEY+'-test');
+  canSave=true;setStatus('saved',raw?'Progress loaded from this browser':'Progress saves in this browser');
+}catch(e){setStatus('local','This browser is blocking saving (private window?). Your checkmarks last until you close the page.');}
+ticks.forEach(t=>t.addEventListener('change',()=>{if(t.checked) state.done[t.dataset.id]=true; else delete state.done[t.dataset.id]; save();}));
+const btn=document.getElementById('reset');let armed=false;
+btn.addEventListener('click',()=>{
+  if(!armed){armed=true;btn.classList.add('armed');btn.textContent='Press again to clear every checkmark';setTimeout(()=>{armed=false;btn.classList.remove('armed');btn.textContent='Reset my progress';},4000);return;}
+  armed=false;btn.classList.remove('armed');btn.textContent='Reset my progress';state={done:{}};save();
+});
+document.querySelectorAll('.copy').forEach(b=>b.addEventListener('click',()=>{
+  const pre=b.parentElement.querySelector('pre');const t=pre.innerText;
+  const done=m=>{b.textContent=m;const cs=document.getElementById('copystatus');if(cs)cs.textContent=m;setTimeout(()=>{b.textContent='Copy';if(cs)cs.textContent='';},1400);};
+  const sel=()=>{const r=document.createRange();r.selectNodeContents(pre);const s=getSelection();s.removeAllRanges();s.addRange(r);done('Selected: press Ctrl+C');};
+  try{navigator.clipboard.writeText(t).then(()=>done('Copied'),sel);}catch(e){sel();}
+}));
+render();
+})();
+</script></body></html>
